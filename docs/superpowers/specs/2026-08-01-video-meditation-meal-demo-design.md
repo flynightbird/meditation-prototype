@@ -12,8 +12,8 @@
 | --- | --- | --- | --- |
 | 冥想中 | `小马冥想.mp4` | `assets/video-meditation.mp4` | 有声循环，持续 20 秒 |
 | 冥想结束 | `小马站姿调整.mp4` | `assets/video-meditation-complete.mp4` | 从头有声播放一次 |
-| 晚餐备料 | `图片编辑需求 (1).mp4` | `assets/video-meal-prep.mp4` | 有声循环 |
-| 晚餐烹饪 | `图片编辑需求.mp4` | `assets/video-meal-cook.mp4` | 有声循环 |
+| 晚餐备料 | `dinner prepare.mp4`（原 `图片编辑需求 (1).mp4`） | `assets/video-meal-prep.mp4` | 有声循环 |
+| 晚餐烹饪 | `dinner ready.mp4`（原 `图片编辑需求.mp4`） | `assets/video-meal-cook.mp4` | 有声循环 |
 
 此前的 `图片编辑需求 (2).mp4` 与 `图片编辑需求 (3).mp4` 不再使用。
 
