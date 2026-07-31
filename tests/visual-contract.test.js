@@ -4,6 +4,19 @@ import test from "node:test";
 
 const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+
+test("provides one reusable full-screen media layer", () => {
+  assert.match(html, /<video[^>]*id="sceneVideo"[^>]*playsinline/);
+  assert.doesNotMatch(html, /<video[^>]*id="sceneVideo"[^>]*muted/);
+  assert.match(html, /id="mediaTransition"/);
+});
+
+test("keeps reward claiming separate from the persistent room object", () => {
+  assert.match(html, /id="claimReward"[^>]*data-action="claim-reward"/);
+  assert.match(html, /class="claim-label">点击领取/);
+  assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
+});
 
 test("task cards reserve a footer row for label and completion state", () => {
   assert.match(app, /class="task-footer"/);

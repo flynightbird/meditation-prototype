@@ -10,6 +10,8 @@
   <body>
     <main class="app-shell" id="app" data-screen="recommendation">
       <div class="room" aria-hidden="true"></div>
+      <video class="scene-video" id="sceneVideo" playsinline preload="auto" aria-hidden="true"></video>
+      <div class="media-transition" id="mediaTransition" aria-hidden="true"></div>
       <div class="atmosphere" aria-hidden="true"></div>
 
       <button class="welcome-overlay" id="welcomeOverlay" type="button" aria-label="跳过欢迎动画" hidden>
@@ -35,6 +37,17 @@
 
       <div class="character-stage">
         <img class="character" id="character" src="./assets/ip-meditate.png" alt="" />
+        <button
+          class="claim-reward"
+          id="claimReward"
+          type="button"
+          data-action="claim-reward"
+          aria-label="点击领取静心帐篷"
+          hidden
+        >
+          <img src="./assets/reward-bed.png" alt="" />
+          <span class="claim-label">点击领取</span>
+        </button>
         <button class="reward-object" id="rewardObject" data-action="object-detail" aria-label="查看静心帐篷的获得记录">
           <span>NEW</span>
           <img src="./assets/reward-bed.png" alt="静心帐篷" />
