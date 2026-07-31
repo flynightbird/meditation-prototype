@@ -38,6 +38,11 @@ test("handles completion, manual claiming, and presenter-controlled meal time", 
   assert.match(app, /claimReward\.setAttribute\("aria-hidden"/);
 });
 
+test("synchronizes the meditation timer with actual video playback", () => {
+  assert.match(app, /sceneVideo\.addEventListener\("playing", setTimerRunning\)/);
+  assert.match(app, /mediaReady:\s*sceneVideo\.readyState\s*>=\s*HTMLMediaElement\.HAVE_CURRENT_DATA/);
+});
+
 test("uses full-screen media and a warm transition veil", () => {
   assert.match(css, /\.scene-video\s*{[^}]*object-fit:\s*cover/s);
   assert.match(css, /\.media-transition\s*{/);
@@ -84,6 +89,12 @@ test("current card uses the approved diagonal glass gradient without an outline"
 
 test("supporting recommendation copy uses regular weight", () => {
   assert.match(css, /\.supporting\s*{[^}]*font-weight:\s*400/s);
+});
+
+test("uses a true regular title face and leaves room above the task rail", () => {
+  assert.match(css, /\.message h1\s*{[^}]*font-family:\s*"PingFang SC"/s);
+  assert.match(css, /\.action-zone\s*{[^}]*bottom:\s*202px/s);
+  assert.match(css, /@media \(max-height:\s*790px\)[\s\S]*\.action-zone\s*{[^}]*bottom:\s*202px/s);
 });
 
 test("current task icon is lifted clear of its label", () => {

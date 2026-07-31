@@ -1,5 +1,5 @@
 import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
-import { getMediaScene, getReplayTime } from "./media-scene.js";
+import { getMediaScene, getReplayTime, shouldRunMediaTimer } from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
@@ -115,7 +115,14 @@ function growthCue() {
 function setTimerRunning() {
   window.clearInterval(timerId);
   timerId = null;
-  if (state.screen === "active" && !state.isPaused) {
+  if (
+    shouldRunMediaTimer({
+      screen: state.screen,
+      isPaused: state.isPaused,
+      mediaReady:
+        sceneVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !sceneVideo.paused,
+    })
+  ) {
     timerId = window.setInterval(() => {
       state = transition(state, { type: "TICK" });
       render(false);
@@ -146,6 +153,16 @@ function stopMedia() {
 function playCurrentScene({ fromScreen = null } = {}) {
   const scene = getMediaScene(state.screen);
   if (!scene) {
+    if (state.screen === "recommendation") {
+      const preloadSource = getMediaScene("active").src;
+      sceneVideo.pause();
+      if (sceneVideo.getAttribute("src") !== preloadSource) {
+        sceneVideo.src = preloadSource;
+        sceneVideo.load();
+      }
+      app.classList.remove("has-media", "is-media-veiled", "is-time-shifting");
+      return;
+    }
     stopMedia();
     return;
   }
@@ -223,6 +240,8 @@ sceneVideo.addEventListener("ended", () => {
     }, 300);
   }
 });
+
+sceneVideo.addEventListener("playing", setTimerRunning);
 
 sceneVideo.addEventListener("error", () => {
   app.classList.add("media-failed");

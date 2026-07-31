@@ -43,3 +43,7 @@ export function getReplayTime(screen, duration) {
   }
   return 0;
 }
+
+export function shouldRunMediaTimer({ screen, isPaused, mediaReady }) {
+  return screen === "active" && !isPaused && mediaReady;
+}

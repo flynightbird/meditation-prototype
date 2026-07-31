@@ -280,7 +280,7 @@ button:focus-visible {
 .message h1 {
   max-width: 356px;
   margin: 0;
-  font-family: var(--display);
+  font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.22;
@@ -439,7 +439,7 @@ button:focus-visible {
   position: absolute;
   z-index: 15;
   right: 22px;
-  bottom: 190px;
+  bottom: 202px;
   left: 22px;
   display: grid;
   justify-items: center;
@@ -1357,7 +1357,7 @@ button:focus-visible {
   }
 
   .action-zone {
-    bottom: 190px;
+    bottom: 202px;
   }
 
   [data-screen="active"] .timer-panel {
