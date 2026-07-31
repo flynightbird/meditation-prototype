@@ -20,3 +20,7 @@ test("current card uses the approved diagonal glass gradient without an outline"
 test("supporting recommendation copy uses regular weight", () => {
   assert.match(css, /\.supporting\s*{[^}]*font-weight:\s*400/s);
 });
+
+test("current task icon is lifted clear of its label", () => {
+  assert.match(css, /\.is-current \.task-visual\s*{[^}]*transform:\s*translateY\(-4px\)/s);
+});
