@@ -531,12 +531,12 @@ button:focus-visible {
   transform: translateY(-4px);
 }
 
-[data-task-id="fitness"] .task-visual {
+[data-task-icon="fitness"] .task-visual {
   width: 52px;
   height: 31px;
 }
 
-.is-current[data-task-id="fitness"] .task-visual {
+.is-current[data-task-icon="fitness"] .task-visual {
   width: 76px;
   height: 45px;
 }

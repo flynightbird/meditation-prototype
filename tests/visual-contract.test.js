@@ -26,6 +26,7 @@ test("current task icon is lifted clear of its label", () => {
 });
 
 test("the wide dumbbell asset gets a larger task-specific frame", () => {
-  assert.match(css, /\[data-task-id="fitness"\] \.task-visual\s*{[^}]*width:\s*52px/s);
-  assert.match(css, /\.is-current\[data-task-id="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
+  assert.match(app, /data-task-icon="\$\{icon\}"/);
+  assert.match(css, /\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*52px/s);
+  assert.match(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
 });

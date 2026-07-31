@@ -66,7 +66,7 @@ function taskCard({ id, time, label, icon, status }) {
   const current = status === "current";
   const done = status === "done";
   return `
-    <article class="task-card is-${status}" data-task-id="${id}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}${done ? "，已完成" : current ? "，当前任务" : ""}">
+    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}${done ? "，已完成" : current ? "，当前任务" : ""}">
       <time>${time}</time>
       <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
       <span class="task-footer">
