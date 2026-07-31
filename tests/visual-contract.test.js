@@ -18,6 +18,26 @@ test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
 });
 
+test("renders the approved meal preparation and meal-time actions", () => {
+  assert.match(app, /晚餐正在准备中/);
+  assert.match(app, /17:30 提醒我/);
+  assert.match(app, /晚餐时间到了/);
+  assert.match(app, /我开动了/);
+  assert.match(app, /src="\.\/assets\/icon-bell\.svg"/);
+  assert.match(app, /src="\.\/assets\/icon-utensils\.svg"/);
+});
+
+test("handles completion, manual claiming, and presenter-controlled meal time", () => {
+  assert.match(app, /COMPLETION_VIDEO_ENDED/);
+  assert.match(app, /CLAIM_REWARD/);
+  assert.match(app, /SET_MEAL_REMINDER/);
+  assert.match(app, /DEMO_TIME_REACHED/);
+  assert.match(app, /START_MEAL/);
+  assert.match(app, /state\.screen === "active" && state\.isPaused[\s\S]*sceneVideo\.pause\(\)/);
+  assert.match(app, /sceneVideo\.currentTime >= 6\.7/);
+  assert.match(app, /claimReward\.setAttribute\("aria-hidden"/);
+});
+
 test("task cards reserve a footer row for label and completion state", () => {
   assert.match(app, /class="task-footer"/);
   assert.match(css, /\.task-footer\s*{/);

@@ -1,4 +1,5 @@
 import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
+import { getMediaScene, getReplayTime } from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
@@ -17,19 +18,22 @@ const rewardObject = document.querySelector("#rewardObject");
 const objectDialog = document.querySelector("#objectDialog");
 const welcomeOverlay = document.querySelector("#welcomeOverlay");
 const welcomeGreeting = document.querySelector("#welcomeGreeting");
+const sceneVideo = document.querySelector("#sceneVideo");
+const claimReward = document.querySelector("#claimReward");
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const initialClaimStatus = readStorage(CLAIM_KEY);
-let state = createInitialState({ resumeClaim: initialClaimStatus === "claiming" });
+let state = createInitialState();
 let previousScreen = null;
 let timerId = null;
-let claimLandTimer = null;
-let claimCompleteTimer = null;
 let feedbackTimer = null;
 let feedbackConfirmTimer = null;
+let demoShiftTimer = null;
+let mediaVeilTimer = null;
+let claimDispatchTimer = null;
 let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
+let highFiveHapticFired = false;
 
 const assets = {
   meal: "./assets/task-meal.png",
@@ -50,7 +54,7 @@ function writeStorage(key, value) {
   try {
     window.localStorage.setItem(key, value);
   } catch {
-    // The prototype still works when storage is unavailable.
+    // The prototype remains usable when storage is unavailable.
   }
 }
 
@@ -58,7 +62,7 @@ function removeStorage(key) {
   try {
     window.localStorage.removeItem(key);
   } catch {
-    // The prototype still works when storage is unavailable.
+    // The prototype remains usable when storage is unavailable.
   }
 }
 
@@ -78,8 +82,7 @@ function taskCard({ id, time, label, icon, status }) {
 }
 
 function renderSchedule() {
-  const scheduleScreen = state.screen === "next-task" ? "next-task" : "recommendation";
-  taskRail.innerHTML = buildSchedule(scheduleScreen).map(taskCard).join("");
+  taskRail.innerHTML = buildSchedule(state.screen).map(taskCard).join("");
 }
 
 function centerCurrentTask(behavior = "smooth") {
@@ -121,37 +124,126 @@ function setTimerRunning() {
 }
 
 function clearScreenTimers() {
-  window.clearTimeout(claimLandTimer);
-  window.clearTimeout(claimCompleteTimer);
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(feedbackConfirmTimer);
-  claimLandTimer = null;
-  claimCompleteTimer = null;
+  window.clearTimeout(demoShiftTimer);
+  window.clearTimeout(mediaVeilTimer);
+  window.clearTimeout(claimDispatchTimer);
   feedbackTimer = null;
   feedbackConfirmTimer = null;
+  demoShiftTimer = null;
+  mediaVeilTimer = null;
+  claimDispatchTimer = null;
 }
 
-function scheduleScreenEntry() {
+function stopMedia() {
+  sceneVideo.pause();
+  sceneVideo.removeAttribute("src");
+  sceneVideo.load();
+  app.classList.remove("has-media", "is-media-veiled", "is-time-shifting");
+}
+
+function playCurrentScene({ fromScreen = null } = {}) {
+  const scene = getMediaScene(state.screen);
+  if (!scene) {
+    stopMedia();
+    return;
+  }
+
+  const sourceChanged = sceneVideo.getAttribute("src") !== scene.src;
+  app.classList.remove("media-failed");
+  if (sourceChanged) {
+    sceneVideo.pause();
+    sceneVideo.src = scene.src;
+    sceneVideo.load();
+  }
+
+  app.classList.add("has-media");
+
+  const startPlayback = () => {
+    if (state.screen === "reward") {
+      sceneVideo.currentTime = getReplayTime("reward", sceneVideo.duration);
+    }
+
+    if (state.screen === "active" && state.isPaused) {
+      sceneVideo.pause();
+    } else {
+      sceneVideo.play().catch(() => {});
+    }
+
+    if (state.screen === "meal-time" && fromScreen === "demo-time-shift") {
+      window.clearTimeout(mediaVeilTimer);
+      mediaVeilTimer = window.setTimeout(() => {
+        app.classList.remove("is-media-veiled", "is-time-shifting");
+      }, 300);
+    }
+  };
+
+  if (sourceChanged && sceneVideo.readyState < HTMLMediaElement.HAVE_METADATA) {
+    sceneVideo.addEventListener("loadedmetadata", startPlayback, { once: true });
+  } else {
+    startPlayback();
+  }
+}
+
+function replayCurrentMedia() {
+  const replayAt = getReplayTime(state.screen, sceneVideo.duration);
+  if (replayAt === null) {
+    dispatch({ type: "COMPLETION_VIDEO_ENDED" });
+    return;
+  }
+  sceneVideo.currentTime = replayAt;
+  sceneVideo.play().catch(() => {});
+}
+
+sceneVideo.addEventListener("timeupdate", () => {
+  if (
+    state.screen === "completion" &&
+    !highFiveHapticFired &&
+    sceneVideo.currentTime >= 6.7
+  ) {
+    highFiveHapticFired = true;
+    navigator.vibrate?.(12);
+  }
+
+  const scene = getMediaScene(state.screen);
+  if (!scene?.seamMask || !Number.isFinite(sceneVideo.duration)) return;
+  if (sceneVideo.duration - sceneVideo.currentTime <= 0.6) {
+    app.classList.add("is-media-veiled");
+  }
+});
+
+sceneVideo.addEventListener("ended", () => {
+  replayCurrentMedia();
+  const scene = getMediaScene(state.screen);
+  if (scene?.seamMask) {
+    window.clearTimeout(mediaVeilTimer);
+    mediaVeilTimer = window.setTimeout(() => {
+      app.classList.remove("is-media-veiled");
+    }, 300);
+  }
+});
+
+sceneVideo.addEventListener("error", () => {
+  app.classList.add("media-failed");
+});
+
+function scheduleScreenEntry(fromScreen) {
   clearScreenTimers();
 
+  if (state.screen !== "reward") {
+    app.classList.remove("is-reward-entered", "is-claiming");
+  }
+
+  if (state.screen === "completion") {
+    highFiveHapticFired = false;
+  }
+
   if (state.screen === "reward") {
-    const resumed = state.claimMode === "resume";
-    const landDelay = reducedMotion.matches ? 20 : resumed ? 60 : 620;
-    const completeDelay = reducedMotion.matches ? 460 : resumed ? 650 : 2100;
-    writeStorage(CLAIM_KEY, "claiming");
-    app.classList.remove("is-claim-landed");
-    app.classList.toggle("is-resume-claim", resumed);
-
-    claimLandTimer = window.setTimeout(() => {
-      app.classList.add("is-claim-landed");
-      if (!resumed && !reducedMotion.matches) navigator.vibrate?.(10);
-    }, landDelay);
-
-    claimCompleteTimer = window.setTimeout(() => {
-      writeStorage(CLAIM_KEY, "claimed");
-      app.classList.add("has-tent");
-      dispatch({ type: "CLAIM_COMPLETE" });
-    }, completeDelay);
+    app.classList.remove("is-reward-entered", "is-claiming");
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => app.classList.add("is-reward-entered"));
+    });
   }
 
   if (state.screen === "reflection") {
@@ -166,8 +258,18 @@ function scheduleScreenEntry() {
     }, 650);
   }
 
-  if (state.screen === "recommendation" || state.screen === "next-task") {
-    centerCurrentTask(previousScreen === null ? "auto" : "smooth");
+  if (state.screen === "demo-time-shift") {
+    showToast("提醒已设置");
+    demoShiftTimer = window.setTimeout(() => {
+      app.classList.add("is-time-shifting", "is-media-veiled");
+      mediaVeilTimer = window.setTimeout(() => {
+        dispatch({ type: "DEMO_TIME_REACHED" });
+      }, 300);
+    }, 900);
+  }
+
+  if (["recommendation", "meal-prep", "demo-time-shift", "meal-time"].includes(state.screen)) {
+    centerCurrentTask(fromScreen === null ? "auto" : "smooth");
   }
 }
 
@@ -177,18 +279,22 @@ function render(animate = true) {
   app.classList.toggle("is-paused", state.isPaused);
   app.classList.toggle("is-changing", animate && screenChanged);
 
-  const focused = ["active", "reward", "reflection", "feedback-confirmed"].includes(state.screen);
+  const focused = ["active", "completion", "reward", "reflection", "feedback-confirmed"].includes(state.screen);
   const claimStatus = readStorage(CLAIM_KEY);
-  const hasTent = claimStatus === "claimed" || state.screen === "reward" || state.screen === "reflection" || state.screen === "feedback-confirmed" || state.screen === "next-task";
-  const canInspectTent = claimStatus === "claimed" && state.screen !== "reward";
+  const hasTent = claimStatus === "claimed" && state.screen !== "reward";
+  const canInspectTent = hasTent && !getMediaScene(state.screen);
   const tentIsNew = canInspectTent && readStorage(TENT_SEEN_KEY) !== "true";
+  const claimVisible = state.screen === "reward";
 
-  app.classList.toggle("has-tent", hasTent);
+  app.classList.toggle("has-tent", canInspectTent);
   app.classList.toggle("is-tent-new", tentIsNew);
   taskRail.setAttribute("aria-hidden", String(focused));
   bottomNav.setAttribute("aria-hidden", String(focused));
   rewardObject.setAttribute("aria-hidden", String(!canInspectTent));
   rewardObject.tabIndex = canInspectTent ? 0 : -1;
+  claimReward.hidden = !claimVisible;
+  claimReward.tabIndex = claimVisible ? 0 : -1;
+  claimReward.setAttribute("aria-hidden", String(!claimVisible));
 
   if (state.screen === "recommendation") {
     character.src = "./assets/ip-meditate.png";
@@ -204,7 +310,7 @@ function render(animate = true) {
   if (state.screen === "active") {
     character.src = "./assets/ip-stretch.png";
     message.innerHTML = "";
-    const progress = (state.secondsRemaining / 300) * 100;
+    const progress = (state.secondsRemaining / 20) * 100;
     timerPanel.style.setProperty("--progress", `${progress}%`);
     timerPanel.innerHTML = `
       <div class="timer-ring">
@@ -220,18 +326,18 @@ function render(animate = true) {
       </div>`;
   }
 
-  if (state.screen === "reward") {
-    character.src = "./assets/ip-meditate.png";
-    message.innerHTML = `
-      <p class="time-label">静心营地 · 4/4</p>
-      <h1>静心帐篷<br />正在加入营地</h1>
-      <p class="supporting">由你本周完成的4次静心练习共同搭建。</p>`;
+  if (state.screen === "completion") {
+    message.innerHTML = "";
     timerPanel.innerHTML = "";
-    actionZone.innerHTML = `
-      <div class="reward-copy" role="status">
-        <span>${state.claimMode === "resume" ? "正在补完领取" : "自动领取中"}</span>
-        <strong>静心帐篷</strong>
-      </div>`;
+    actionZone.innerHTML = "";
+  }
+
+  if (state.screen === "reward") {
+    message.innerHTML = `
+      <p class="time-label">静心营地 · 新物件</p>
+      <h1>静心帐篷已解锁</h1>`;
+    timerPanel.innerHTML = "";
+    actionZone.innerHTML = "";
   }
 
   if (state.screen === "reflection") {
@@ -259,26 +365,48 @@ function render(animate = true) {
     actionZone.innerHTML = '<div class="feedback-saved" role="status"><span>✓</span> 已用于调整下次建议</div>';
   }
 
-  if (state.screen === "next-task") {
-    character.src = "./assets/ip-walk.png";
+  if (state.screen === "meal-prep" || state.screen === "demo-time-shift") {
     message.innerHTML = `
-      <p class="time-label">静心营地 · 第二阶段已开启</p>
-      <h1>下一站，17:30<br />力量训练</h1>
-      <p class="supporting">距离训练还有一段时间，先去忙吧，到点我会回来提醒你。</p>`;
+      <p class="time-label">
+        <span class="demo-clock" aria-label="${state.screen === "demo-time-shift" ? "17:30" : "15:31"}">
+          <span class="demo-clock-track" aria-hidden="true"><b>15:31</b><b>17:30</b></span>
+        </span>
+        · 静心练习已完成
+      </p>
+      <h1>晚餐正在准备中</h1>
+      <p class="supporting">17:30 回来看看，今晚吃得轻松一点。</p>`;
     timerPanel.innerHTML = "";
     actionZone.innerHTML = `
-      <button class="primary-action" data-action="remind">17:30 提醒我</button>
-      <button class="text-action" data-action="reset">重播体验</button>`;
+      <button class="glass-action" data-action="meal-reminder" ${state.screen === "demo-time-shift" ? "disabled" : ""}>
+        <img class="action-icon" src="./assets/icon-bell.svg" alt="" />
+        <span>${state.screen === "demo-time-shift" ? "提醒已设置" : "17:30 提醒我"}</span>
+      </button>`;
+  }
+
+  if (state.screen === "meal-time") {
+    message.innerHTML = `
+      <p class="time-label">17:30 · 今日健康建议</p>
+      <h1>晚餐时间到了</h1>
+      <p class="supporting">好好吃饭，也是今天恢复计划的一部分。</p>`;
+    timerPanel.innerHTML = "";
+    actionZone.innerHTML = `
+      <button class="glass-action" data-action="start-meal">
+        <img class="action-icon" src="./assets/icon-utensils.svg" alt="" />
+        <span>我开动了</span>
+      </button>`;
   }
 
   renderSchedule();
-  window.setTimeout(() => app.classList.remove("is-changing"), 620);
   setTimerRunning();
 
+  const fromScreen = previousScreen;
   if (screenChanged) {
     previousScreen = state.screen;
-    scheduleScreenEntry();
+    scheduleScreenEntry(fromScreen);
   }
+  playCurrentScene({ fromScreen });
+
+  window.setTimeout(() => app.classList.remove("is-changing"), 620);
 }
 
 function dispatch(event) {
@@ -326,12 +454,19 @@ function showToast(text) {
   toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 1800);
 }
 
-function resetExperience() {
+function resetExperience(eventType = "RESET") {
   clearScreenTimers();
   removeStorage(CLAIM_KEY);
   removeStorage(TENT_SEEN_KEY);
-  app.classList.remove("has-tent", "is-tent-new", "is-claim-landed", "is-resume-claim");
-  state = transition(state, { type: "RESET" });
+  app.classList.remove(
+    "has-tent",
+    "is-tent-new",
+    "is-reward-entered",
+    "is-claiming",
+    "is-time-shifting",
+    "is-media-veiled",
+  );
+  state = transition(state, { type: eventType });
   render();
 }
 
@@ -349,6 +484,18 @@ app.addEventListener("click", (event) => {
   if (action === "pause") dispatch({ type: "TOGGLE_PAUSE" });
   if (action === "end") dispatch({ type: "END" });
   if (action === "mood") dispatch({ type: "SELECT_MOOD", mood: button.dataset.mood });
+  if (action === "claim-reward") {
+    if (state.screen !== "reward" || claimReward.classList.contains("is-claiming")) return;
+    claimReward.classList.add("is-claiming");
+    navigator.vibrate?.(10);
+    claimDispatchTimer = window.setTimeout(() => {
+      writeStorage(CLAIM_KEY, "claimed");
+      app.classList.add("has-tent");
+      dispatch({ type: "CLAIM_REWARD" });
+    }, reducedMotion.matches ? 1 : 360);
+  }
+  if (action === "meal-reminder") dispatch({ type: "SET_MEAL_REMINDER" });
+  if (action === "start-meal") resetExperience("START_MEAL");
   if (action === "reset") resetExperience();
   if (action === "object-detail") {
     writeStorage(TENT_SEEN_KEY, "true");
@@ -356,11 +503,6 @@ app.addEventListener("click", (event) => {
     objectDialog.showModal();
   }
   if (action === "close-detail") objectDialog.close();
-  if (action === "remind") {
-    button.textContent = "已设置 17:30 提醒";
-    button.disabled = true;
-    showToast("提醒已设置");
-  }
 });
 
 render(false);
