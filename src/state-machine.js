@@ -1,10 +1,9 @@
-export function createInitialState({ resumeClaim = false } = {}) {
+export function createInitialState() {
   return {
-    screen: resumeClaim ? "reward" : "recommendation",
-    secondsRemaining: resumeClaim ? 0 : 300,
+    screen: "recommendation",
+    secondsRemaining: 20,
     isPaused: false,
     mood: null,
-    claimMode: resumeClaim ? "resume" : null,
   };
 }
 
@@ -15,47 +14,45 @@ export function formatTime(seconds) {
   return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
 }
 
-function startReward(state) {
-  return {
-    ...state,
-    screen: "reward",
-    secondsRemaining: 0,
-    isPaused: false,
-    claimMode: "full",
-  };
+function startCompletion(state) {
+  return { ...state, screen: "completion", secondsRemaining: 0, isPaused: false };
 }
 
 export function transition(state, event) {
   switch (event.type) {
     case "START":
-      if (state.screen !== "recommendation") return state;
-      return { ...state, screen: "active", isPaused: false };
+      return state.screen === "recommendation"
+        ? { ...state, screen: "active", isPaused: false }
+        : state;
     case "TOGGLE_PAUSE":
-      if (state.screen !== "active") return state;
-      return { ...state, isPaused: !state.isPaused };
+      return state.screen === "active"
+        ? { ...state, isPaused: !state.isPaused }
+        : state;
     case "TICK":
       if (state.screen !== "active" || state.isPaused) return state;
-      if (state.secondsRemaining <= 1) return startReward(state);
-      return { ...state, secondsRemaining: state.secondsRemaining - 1 };
+      return state.secondsRemaining <= 1
+        ? startCompletion(state)
+        : { ...state, secondsRemaining: state.secondsRemaining - 1 };
     case "END":
-      if (state.screen !== "active") return state;
-      return startReward(state);
-    case "CLAIM_COMPLETE":
-      if (state.screen !== "reward") return state;
-      return {
-        ...state,
-        screen: state.claimMode === "resume" ? "next-task" : "reflection",
-        claimMode: null,
-      };
+      return state.screen === "active" ? startCompletion(state) : state;
+    case "COMPLETION_VIDEO_ENDED":
+      return state.screen === "completion" ? { ...state, screen: "reward" } : state;
+    case "CLAIM_REWARD":
+      return state.screen === "reward" ? { ...state, screen: "reflection" } : state;
     case "SELECT_MOOD":
-      if (state.screen !== "reflection") return state;
-      return { ...state, screen: "feedback-confirmed", mood: event.mood };
+      return state.screen === "reflection"
+        ? { ...state, screen: "feedback-confirmed", mood: event.mood }
+        : state;
     case "FEEDBACK_COMPLETE":
-      if (state.screen !== "feedback-confirmed") return state;
-      return { ...state, screen: "next-task" };
+      return state.screen === "feedback-confirmed" ? { ...state, screen: "meal-prep" } : state;
     case "SKIP_FEEDBACK":
-      if (state.screen !== "reflection") return state;
-      return { ...state, screen: "next-task" };
+      return state.screen === "reflection" ? { ...state, screen: "meal-prep" } : state;
+    case "SET_MEAL_REMINDER":
+      return state.screen === "meal-prep" ? { ...state, screen: "demo-time-shift" } : state;
+    case "DEMO_TIME_REACHED":
+      return state.screen === "demo-time-shift" ? { ...state, screen: "meal-time" } : state;
+    case "START_MEAL":
+      return state.screen === "meal-time" ? createInitialState() : state;
     case "RESET":
       return createInitialState();
     default:

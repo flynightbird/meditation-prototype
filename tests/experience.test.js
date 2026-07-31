@@ -46,20 +46,27 @@ test("plays the welcome once per day unless motion is reduced", () => {
   );
 });
 
-test("builds six tasks with meditation as the current recommendation", () => {
+test("builds seven tasks with meditation as the initial current task", () => {
   const schedule = buildSchedule("recommendation");
-  assert.equal(schedule.length, 6);
+  assert.equal(schedule.length, 7);
   assert.deepEqual(
-    schedule.map(({ status }) => status),
-    ["done", "done", "current", "upcoming", "upcoming", "upcoming"],
+    schedule.map(({ id, time, status }) => ({ id, time, status })),
+    [
+      { id: "water-am", time: "08:00", status: "done" },
+      { id: "lunch", time: "12:00", status: "done" },
+      { id: "meditation", time: "15:30", status: "current" },
+      { id: "dinner", time: "17:30", status: "upcoming" },
+      { id: "water-pm", time: "18:30", status: "upcoming" },
+      { id: "fitness", time: "19:00", status: "upcoming" },
+      { id: "stretch", time: "22:30", status: "upcoming" },
+    ],
   );
-  assert.equal(schedule[2].label, "冥想");
 });
 
-test("promotes fitness after meditation is complete", () => {
-  const schedule = buildSchedule("next-task");
-  assert.equal(schedule.length, 6);
+test("promotes dinner after meditation feedback", () => {
+  const schedule = buildSchedule("meal-prep");
   assert.equal(schedule[2].status, "done");
+  assert.equal(schedule[3].id, "dinner");
   assert.equal(schedule[3].status, "current");
-  assert.equal(schedule[3].label, "力量训练");
+  assert.equal(schedule[5].time, "19:00");
 });

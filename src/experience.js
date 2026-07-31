@@ -1,9 +1,10 @@
 const BASE_SCHEDULE = [
   { id: "water-am", time: "08:00", label: "补充水分", icon: "water" },
-  { id: "meal", time: "12:00", label: "营养午餐", icon: "meal" },
+  { id: "lunch", time: "12:00", label: "营养午餐", icon: "meal" },
   { id: "meditation", time: "15:30", label: "冥想", icon: "meditation" },
-  { id: "fitness", time: "17:30", label: "力量训练", icon: "fitness" },
+  { id: "dinner", time: "17:30", label: "健康晚餐", icon: "meal" },
   { id: "water-pm", time: "18:30", label: "补充水分", icon: "water" },
+  { id: "fitness", time: "19:00", label: "力量训练", icon: "fitness" },
   { id: "stretch", time: "22:30", label: "睡前拉伸", icon: "fitness" },
 ];
 
@@ -30,12 +31,12 @@ export function shouldPlayDailyWelcome({
 }
 
 export function buildSchedule(screen) {
-  const afterMeditation = ["next-task", "feedback-confirmed"].includes(screen);
+  const dinnerCurrent = ["meal-prep", "demo-time-shift", "meal-time"].includes(screen);
   return BASE_SCHEDULE.map((task, index) => {
     let status = "upcoming";
-    if (afterMeditation) {
+    if (dinnerCurrent) {
       if (index <= 2) status = "done";
-      if (task.id === "fitness") status = "current";
+      if (task.id === "dinner") status = "current";
     } else {
       if (index <= 1) status = "done";
       if (task.id === "meditation") status = "current";
