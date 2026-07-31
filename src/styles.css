@@ -531,6 +531,16 @@ button:focus-visible {
   transform: translateY(-4px);
 }
 
+[data-task-id="fitness"] .task-visual {
+  width: 52px;
+  height: 31px;
+}
+
+.is-current[data-task-id="fitness"] .task-visual {
+  width: 76px;
+  height: 45px;
+}
+
 .task-card img {
   width: 100%;
   height: 100%;

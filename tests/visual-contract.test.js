@@ -24,3 +24,8 @@ test("supporting recommendation copy uses regular weight", () => {
 test("current task icon is lifted clear of its label", () => {
   assert.match(css, /\.is-current \.task-visual\s*{[^}]*transform:\s*translateY\(-4px\)/s);
 });
+
+test("the wide dumbbell asset gets a larger task-specific frame", () => {
+  assert.match(css, /\[data-task-id="fitness"\] \.task-visual\s*{[^}]*width:\s*52px/s);
+  assert.match(css, /\.is-current\[data-task-id="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
+});
