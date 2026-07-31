@@ -34,7 +34,7 @@ let toastTimer = null;
 const assets = {
   meal: "./assets/task-meal.png",
   meditation: "./assets/task-meditation.png",
-  fitness: "./assets/task-fitness.png",
+  fitness: "./assets/task-fitness.png?v=20260731",
   water: "./assets/task-water.png",
 };
 
