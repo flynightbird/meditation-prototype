@@ -64,6 +64,12 @@ test("gives the current meal icon a larger lifted frame", () => {
   assert.match(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{[^}]*width:\s*88px[^}]*transform:\s*translateY\(-6px\)/s);
 });
 
+test("keeps motion fallbacks and a visible focus state for the claim bubble", () => {
+  assert.match(css, /\.claim-reward:focus-visible\s*{/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.claim-reward/s);
+  assert.match(css, /\.is-time-shifting \.demo-clock-track\s*{/);
+});
+
 test("task cards reserve a footer row for label and completion state", () => {
   assert.match(app, /class="task-footer"/);
   assert.match(css, /\.task-footer\s*{/);

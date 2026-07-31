@@ -889,6 +889,11 @@ button:focus-visible {
   animation: reward-bubble-pop 360ms ease-in both;
 }
 
+.claim-reward:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
 .reward-object {
   position: absolute;
   z-index: 3;
@@ -1412,8 +1417,20 @@ button:focus-visible {
     transition-duration: 1ms !important;
   }
 
-  [data-screen="reward"] .reward-object {
-    transform: none;
+  .claim-reward,
+  .reward-particles i,
+  .media-transition,
+  .message,
+  .action-zone,
+  .task-rail,
+  .demo-clock-track {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+
+  .is-reward-entered .claim-reward {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 
   .reward-particles {
