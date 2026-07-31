@@ -38,6 +38,32 @@ test("handles completion, manual claiming, and presenter-controlled meal time", 
   assert.match(app, /claimReward\.setAttribute\("aria-hidden"/);
 });
 
+test("uses full-screen media and a warm transition veil", () => {
+  assert.match(css, /\.scene-video\s*{[^}]*object-fit:\s*cover/s);
+  assert.match(css, /\.media-transition\s*{/);
+  assert.match(css, /\.is-media-veiled \.media-transition\s*{[^}]*opacity:\s*1/s);
+});
+
+test("uses outlined translucent yellow and black controls", () => {
+  assert.match(css, /\.primary-action\s*{[^}]*border:\s*1px[^}]*rgba\(255,\s*212,\s*42,\s*0\.82\)/s);
+  assert.match(css, /\.session-controls\s*{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255/s);
+  assert.match(css, /\.session-controls button:last-child\s*{[^}]*rgba\(24,\s*16,\s*12,\s*0\.74\)/s);
+});
+
+test("places the claim label inside a face-safe reward bubble", () => {
+  assert.match(css, /\.claim-reward\s*{[^}]*left:\s*74%[^}]*top:\s*51%/s);
+  assert.match(css, /\.claim-label\s*{[^}]*background:\s*transparent[^}]*font-weight:\s*400/s);
+});
+
+test("uses regular weight outside task cards", () => {
+  assert.match(css, /\.app-shell,\s*\.app-shell \*\s*{[^}]*font-weight:\s*400/s);
+  assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*680/s);
+});
+
+test("gives the current meal icon a larger lifted frame", () => {
+  assert.match(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{[^}]*width:\s*88px[^}]*transform:\s*translateY\(-6px\)/s);
+});
+
 test("task cards reserve a footer row for label and completion state", () => {
   assert.match(app, /class="task-footer"/);
   assert.match(css, /\.task-footer\s*{/);

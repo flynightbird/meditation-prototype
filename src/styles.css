@@ -76,12 +76,59 @@ button:focus-visible {
   transform: scale(1.01);
 }
 
+.scene-video {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 420ms ease, visibility 420ms;
+}
+
+.has-media .scene-video {
+  visibility: visible;
+  opacity: 1;
+}
+
+.media-failed .scene-video {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.media-transition {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(255, 230, 166, 0.48);
+  backdrop-filter: blur(10px) brightness(1.18);
+  transition: opacity 300ms ease;
+}
+
+.is-media-veiled .media-transition {
+  opacity: 1;
+}
+
 .atmosphere {
   z-index: -2;
   background:
     linear-gradient(to bottom, rgba(38, 21, 13, 0.54) 0%, rgba(38, 21, 13, 0.14) 35%, rgba(38, 21, 13, 0.02) 58%, rgba(29, 17, 11, 0.64) 100%),
     linear-gradient(to right, rgba(39, 22, 13, 0.15), transparent 62%);
   transition: background 480ms var(--ease-standard), filter 480ms var(--ease-standard);
+}
+
+.has-media .atmosphere {
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(27, 17, 12, 0.42) 0%, rgba(27, 17, 12, 0.05) 38%, rgba(27, 17, 12, 0.08) 62%, rgba(22, 13, 9, 0.5) 100%),
+    linear-gradient(to right, rgba(28, 17, 11, 0.18), transparent 70%);
 }
 
 .welcome-overlay {
@@ -404,20 +451,22 @@ button:focus-visible {
   width: min(100%, 168px);
   min-height: 56px;
   padding: 0 20px;
-  border: 0;
+  border: 1px solid rgba(255, 245, 181, 0.88);
   border-radius: 999px;
   color: var(--ink);
-  background: var(--accent);
-  box-shadow: 0 4px 0 rgba(102, 63, 2, 0.2);
+  background: rgba(255, 212, 42, 0.82);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.36), 0 7px 16px rgba(63, 37, 7, 0.16);
   font-size: 17px;
-  font-weight: 720;
+  font-weight: 400;
+  backdrop-filter: blur(12px) saturate(1.08);
   cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease, opacity 140ms ease;
 }
 
 .primary-action:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(102, 63, 2, 0.2);
+  transform: scale(0.98);
+  filter: brightness(1.04);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.32), 0 4px 10px rgba(63, 37, 7, 0.13);
 }
 
 .primary-action:disabled {
@@ -541,6 +590,12 @@ button:focus-visible {
   height: 45px;
 }
 
+.is-current[data-task-icon="meal"] .task-visual {
+  width: 88px;
+  height: 59px;
+  transform: translateY(-6px);
+}
+
 .task-card img {
   width: 100%;
   height: 100%;
@@ -622,9 +677,11 @@ button:focus-visible {
   grid-template-columns: 1fr 1fr;
   width: min(100%, 286px);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.48);
   border-radius: 999px;
-  background: rgba(24, 16, 12, 0.94);
+  background: rgba(24, 16, 12, 0.74);
   box-shadow: 0 6px 8px rgba(30, 15, 8, 0.22);
+  backdrop-filter: blur(12px) saturate(1.06);
 }
 
 .session-controls button {
@@ -633,13 +690,74 @@ button:focus-visible {
   color: #fff;
   background: transparent;
   font-size: 16px;
-  font-weight: 680;
+  font-weight: 400;
   cursor: pointer;
 }
 
 .session-controls button:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.34);
   color: var(--ink);
-  background: var(--accent);
+  background: rgba(255, 212, 42, 0.82);
+}
+
+.session-controls button:last-child {
+  background: rgba(24, 16, 12, 0.74);
+}
+
+.glass-action {
+  display: inline-flex;
+  min-width: 232px;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.28), 0 8px 20px rgba(25, 15, 10, 0.14);
+  font-weight: 400;
+  text-shadow: 0 1px 6px rgba(28, 15, 8, 0.52);
+  backdrop-filter: blur(14px) saturate(1.12);
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, opacity 140ms ease;
+}
+
+.glass-action:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.19);
+}
+
+.glass-action:disabled {
+  cursor: default;
+  opacity: 0.82;
+}
+
+.action-icon {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  filter: brightness(0) invert(1);
+}
+
+.demo-clock {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  vertical-align: -0.22em;
+}
+
+.demo-clock-track {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  transform: translateY(0);
+  transition: transform 260ms var(--ease-out);
+}
+
+.is-time-shifting .demo-clock-track {
+  transform: translateY(-50%);
 }
 
 .mood-actions {
@@ -709,6 +827,68 @@ button:focus-visible {
   font-size: 16px;
 }
 
+.claim-reward {
+  position: absolute;
+  z-index: 14;
+  left: 74%;
+  top: 51%;
+  display: flex;
+  width: clamp(148px, 43vw, 176px);
+  aspect-ratio: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.9) 0 4%, transparent 13%),
+    radial-gradient(circle at 62% 70%, rgba(212, 243, 255, 0.3), transparent 55%),
+    rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.76),
+    inset -16px -14px 30px rgba(184, 225, 255, 0.2),
+    0 18px 32px rgba(45, 25, 12, 0.2);
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(2px) saturate(1.15);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.claim-reward[hidden] {
+  display: none;
+}
+
+.claim-reward img {
+  width: 80%;
+  height: 59%;
+  object-fit: contain;
+  transform: translateY(-12%);
+}
+
+.claim-label {
+  position: absolute;
+  bottom: 13%;
+  left: 50%;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 400;
+  text-shadow: 0 1px 4px rgba(35, 20, 10, 0.72);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.is-reward-entered .claim-reward {
+  animation: reward-bubble-drop 700ms var(--ease-out) both;
+}
+
+.claim-reward.is-claiming {
+  pointer-events: none;
+  animation: reward-bubble-pop 360ms ease-in both;
+}
+
 .reward-object {
   position: absolute;
   z-index: 3;
@@ -771,12 +951,15 @@ button:focus-visible {
 
 .reward-particles {
   position: absolute;
-  z-index: 5;
-  right: 57px;
-  bottom: 352px;
+  z-index: 13;
+  top: 35%;
+  right: auto;
+  bottom: auto;
+  left: 74%;
   width: 1px;
   height: 1px;
   opacity: 0;
+  transform: translateX(-50%);
 }
 
 .reward-particles i {
@@ -788,12 +971,12 @@ button:focus-visible {
   box-shadow: 0 0 5px rgba(255, 217, 68, 0.38);
 }
 
-.is-claim-landed .reward-particles {
+.is-reward-entered .reward-particles {
   opacity: 1;
 }
 
-.is-claim-landed .reward-particles i {
-  animation: petal-fall 900ms var(--ease-out) var(--d) both;
+.is-reward-entered .reward-particles i {
+  animation: petal-fall 1100ms var(--ease-out) var(--d) both;
 }
 
 .object-dialog {
@@ -918,6 +1101,15 @@ button:focus-visible {
   filter: brightness(0.9) saturate(0.95);
 }
 
+[data-screen="active"] .character,
+[data-screen="completion"] .character,
+[data-screen="reward"] .character,
+[data-screen="meal-prep"] .character,
+[data-screen="demo-time-shift"] .character,
+[data-screen="meal-time"] .character {
+  opacity: 0;
+}
+
 [data-screen="active"] .streak {
   opacity: 0;
   transform: translateY(-12px);
@@ -939,6 +1131,7 @@ button:focus-visible {
 }
 
 [data-screen="active"] .task-rail,
+[data-screen="completion"] .task-rail,
 [data-screen="reward"] .task-rail,
 [data-screen="reflection"] .task-rail,
 [data-screen="feedback-confirmed"] .task-rail {
@@ -948,6 +1141,7 @@ button:focus-visible {
 }
 
 [data-screen="active"] .bottom-nav,
+[data-screen="completion"] .bottom-nav,
 [data-screen="reward"] .bottom-nav,
 [data-screen="reflection"] .bottom-nav,
 [data-screen="feedback-confirmed"] .bottom-nav {
@@ -961,31 +1155,6 @@ button:focus-visible {
 [data-screen="reflection"] .message h1,
 [data-screen="feedback-confirmed"] .message h1 {
   font-size: 29px;
-}
-
-[data-screen="reward"] .character {
-  bottom: 154px;
-  left: 35%;
-  width: min(54vw, 222px);
-}
-
-[data-screen="reward"] .reward-object {
-  pointer-events: none;
-  transform: translate(-108px, -126px) scale(1.82);
-}
-
-[data-screen="reward"] .reward-object::before {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.is-claim-landed[data-screen="reward"] .reward-object {
-  transform: translate(0, 0) scale(1);
-}
-
-.is-claim-landed[data-screen="reward"] .reward-object::before {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.76);
 }
 
 [data-screen="reward"] .action-zone {
@@ -1095,6 +1264,39 @@ button:focus-visible {
   }
 }
 
+@keyframes reward-bubble-drop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -145%) scale(0.72);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -43%) scale(1.04);
+  }
+  84% {
+    transform: translate(-50%, -54%) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes reward-bubble-pop {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
 @keyframes petal-fall {
   0% {
     opacity: 0;
@@ -1114,6 +1316,17 @@ button:focus-visible {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
   }
+}
+
+.app-shell,
+.app-shell * {
+  font-weight: 400;
+}
+
+.task-footer strong,
+.current-label,
+.task-card .check {
+  font-weight: 680;
 }
 
 @media (max-height: 790px) {
