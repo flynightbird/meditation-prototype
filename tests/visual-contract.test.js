@@ -46,7 +46,7 @@ test("handles completion, manual claiming, and presenter-controlled meal time", 
   assert.match(app, /DEMO_TIME_REACHED/);
   assert.match(app, /START_MEAL/);
   assert.match(app, /state\.screen === "active" && state\.isPaused[\s\S]*sceneVideo\.pause\(\)/);
-  assert.match(app, /sceneVideo\.currentTime >= 6\.7/);
+  assert.doesNotMatch(app, /highFiveHapticFired|sceneVideo\.currentTime >= 6\.7/);
   assert.match(app, /claimReward\.setAttribute\("aria-hidden"/);
 });
 

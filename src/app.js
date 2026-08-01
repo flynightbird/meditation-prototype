@@ -39,7 +39,6 @@ let claimDispatchTimer = null;
 let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
-let highFiveHapticFired = false;
 
 const assets = {
   meal: "./assets/task-meal.png",
@@ -230,15 +229,6 @@ sceneVideo.addEventListener("timeupdate", () => {
     return;
   }
 
-  if (
-    state.screen === "completion" &&
-    !highFiveHapticFired &&
-    sceneVideo.currentTime >= 6.7
-  ) {
-    highFiveHapticFired = true;
-    navigator.vibrate?.(12);
-  }
-
   const scene = getMediaScene(state.screen);
   if (!scene?.seamMask || !Number.isFinite(sceneVideo.duration)) return;
   if (sceneVideo.duration - sceneVideo.currentTime <= 0.6) {
@@ -272,10 +262,6 @@ function scheduleScreenEntry(fromScreen) {
 
   if (state.screen !== "reward") {
     app.classList.remove("is-reward-entered", "is-claiming");
-  }
-
-  if (state.screen === "completion") {
-    highFiveHapticFired = false;
   }
 
   if (state.screen === "reward") {

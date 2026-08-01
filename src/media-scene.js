@@ -13,22 +13,20 @@ const SCENES = {
     seamMask: false,
   },
   completion: {
-    src: "./assets/video-meditation-complete.mp4",
+    src: "./assets/video-greeting.mp4",
     loopMode: "none",
     muted: false,
     seamMask: false,
   },
   reward: {
-    src: "./assets/video-meditation-complete.mp4",
-    loopMode: "tail",
-    tailSeconds: 1,
+    src: "./assets/video-greeting.mp4",
+    loopMode: "full",
     muted: false,
     seamMask: false,
   },
   "reward-settled": {
-    src: "./assets/video-meditation-complete.mp4",
-    loopMode: "tail",
-    tailSeconds: 1,
+    src: "./assets/video-greeting.mp4",
+    loopMode: "full",
     muted: false,
     seamMask: false,
   },
@@ -59,9 +57,6 @@ export function getMediaScene(screen) {
 export function getReplayTime(screen, duration) {
   const scene = getMediaScene(screen);
   if (!scene || scene.loopMode === "none") return null;
-  if (scene.loopMode === "tail") {
-    return Math.max(0, Number((duration - scene.tailSeconds).toFixed(2)));
-  }
   return 0;
 }
 
