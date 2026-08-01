@@ -31,7 +31,7 @@ export function shouldPlayDailyWelcome({
 }
 
 export function buildSchedule(screen) {
-  const dinnerCurrent = ["meal-prep", "demo-time-shift", "meal-time"].includes(screen);
+  const dinnerCurrent = ["reward-settled", "meal-prep", "demo-time-shift", "meal-time"].includes(screen);
   return BASE_SCHEDULE.map((task, index) => {
     let status = "upcoming";
     if (dinnerCurrent) {

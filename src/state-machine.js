@@ -3,7 +3,6 @@ export function createInitialState() {
     screen: "recommendation",
     secondsRemaining: 20,
     isPaused: false,
-    mood: null,
   };
 }
 
@@ -38,15 +37,9 @@ export function transition(state, event) {
     case "COMPLETION_VIDEO_ENDED":
       return state.screen === "completion" ? { ...state, screen: "reward" } : state;
     case "CLAIM_REWARD":
-      return state.screen === "reward" ? { ...state, screen: "reflection" } : state;
-    case "SELECT_MOOD":
-      return state.screen === "reflection"
-        ? { ...state, screen: "feedback-confirmed", mood: event.mood }
-        : state;
-    case "FEEDBACK_COMPLETE":
-      return state.screen === "feedback-confirmed" ? { ...state, screen: "meal-prep" } : state;
-    case "SKIP_FEEDBACK":
-      return state.screen === "reflection" ? { ...state, screen: "meal-prep" } : state;
+      return state.screen === "reward" ? { ...state, screen: "reward-settled" } : state;
+    case "REWARD_SETTLE_COMPLETE":
+      return state.screen === "reward-settled" ? { ...state, screen: "meal-prep" } : state;
     case "SET_MEAL_REMINDER":
       return state.screen === "meal-prep" ? { ...state, screen: "demo-time-shift" } : state;
     case "DEMO_TIME_REACHED":

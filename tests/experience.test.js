@@ -63,7 +63,12 @@ test("builds seven tasks with meditation as the initial current task", () => {
   );
 });
 
-test("promotes dinner after meditation feedback", () => {
+test("promotes dinner while the reward settles and through meal preparation", () => {
+  const settledSchedule = buildSchedule("reward-settled");
+  assert.equal(settledSchedule[2].status, "done");
+  assert.equal(settledSchedule[3].id, "dinner");
+  assert.equal(settledSchedule[3].status, "current");
+
   const schedule = buildSchedule("meal-prep");
   assert.equal(schedule[2].status, "done");
   assert.equal(schedule[3].id, "dinner");

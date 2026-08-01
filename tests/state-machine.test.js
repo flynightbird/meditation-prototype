@@ -12,7 +12,6 @@ test("starts with a twenty second meditation demo", () => {
     screen: "recommendation",
     secondsRemaining: 20,
     isPaused: false,
-    mood: null,
   });
 });
 
@@ -35,26 +34,33 @@ test("timer ticks only while active and unpaused", () => {
   assert.equal(transition(paused, { type: "TOGGLE_PAUSE" }).isPaused, false);
 });
 
-test("requires a manual reward claim before reflection", () => {
+test("settles a claimed reward before meal preparation", () => {
   const completion = { ...createInitialState(), screen: "completion", secondsRemaining: 0 };
   const reward = transition(completion, { type: "COMPLETION_VIDEO_ENDED" });
   assert.equal(reward.screen, "reward");
   assert.equal(transition(reward, { type: "TICK" }).screen, "reward");
-  assert.equal(transition(reward, { type: "CLAIM_REWARD" }).screen, "reflection");
+  const settled = transition(reward, { type: "CLAIM_REWARD" });
+  assert.equal(settled.screen, "reward-settled");
+  assert.equal(
+    transition(settled, { type: "REWARD_SETTLE_COMPLETE" }).screen,
+    "meal-prep",
+  );
 });
 
-test("moves from feedback to meal preparation and demo meal time", () => {
-  const reflection = { ...createInitialState(), screen: "reflection", secondsRemaining: 0 };
-  const confirmed = transition(reflection, {
+test("ignores feedback events while reward settling", () => {
+  const settled = { ...createInitialState(), screen: "reward-settled", secondsRemaining: 0 };
+  assert.strictEqual(
+    transition(settled, {
     type: "SELECT_MOOD",
     mood: "lighter",
-  });
-  assert.equal(confirmed.screen, "feedback-confirmed");
-  assert.equal(confirmed.mood, "lighter");
+    }),
+    settled,
+  );
+  assert.strictEqual(transition(settled, { type: "SKIP_FEEDBACK" }), settled);
+});
 
-  const prep = transition(confirmed, { type: "FEEDBACK_COMPLETE" });
-  assert.equal(prep.screen, "meal-prep");
-  assert.equal(transition(reflection, { type: "SKIP_FEEDBACK" }).screen, "meal-prep");
+test("moves from meal preparation to demo meal time", () => {
+  const prep = { ...createInitialState(), screen: "meal-prep", secondsRemaining: 0 };
 
   const shifting = transition(prep, { type: "SET_MEAL_REMINDER" });
   assert.equal(shifting.screen, "demo-time-shift");
