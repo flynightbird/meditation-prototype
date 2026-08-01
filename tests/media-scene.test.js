@@ -12,7 +12,10 @@ test("maps application states to video-only media scenes", () => {
   assert.equal(recommendation.segmentEnd, 2);
 
   assert.equal(getMediaScene("active").muted, false);
-  assert.equal(getMediaScene("completion").src, "./assets/video-greeting.mp4");
+  assert.equal(
+    getMediaScene("completion").src,
+    "./assets/video-meditation-complete.mp4",
+  );
   assert.equal(getMediaScene("completion").loopMode, "none");
   assert.equal(getMediaScene("reward").src, "./assets/video-greeting.mp4");
   assert.equal(getMediaScene("reward").loopMode, "full");

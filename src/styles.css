@@ -927,23 +927,32 @@ button:focus-visible {
 .reward-particles {
   position: absolute;
   z-index: 13;
-  top: 35%;
-  right: auto;
-  bottom: auto;
-  left: 74%;
-  width: 1px;
-  height: 1px;
+  inset: 0;
+  overflow: hidden;
   opacity: 0;
-  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .reward-particles i {
   position: absolute;
-  width: 8px;
-  height: 13px;
+  top: -18px;
+  left: var(--left);
+  width: calc(8px * var(--s));
+  height: calc(13px * var(--s));
   border-radius: 80% 20% 70% 30%;
-  background: #ffe06b;
-  box-shadow: 0 0 5px rgba(255, 217, 68, 0.38);
+  background: var(--c);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.28);
+  will-change: transform, opacity;
+}
+
+.reward-particles i:nth-child(3n) {
+  border-radius: 50%;
+}
+
+.reward-particles i:nth-child(4n) {
+  width: calc(11px * var(--s));
+  height: calc(7px * var(--s));
+  border-radius: 70% 30% 65% 35%;
 }
 
 .is-reward-entered .reward-particles {
@@ -951,7 +960,7 @@ button:focus-visible {
 }
 
 .is-reward-entered .reward-particles i {
-  animation: petal-fall 1100ms var(--ease-out) var(--d) both;
+  animation: petal-fall calc(1800ms - var(--d)) cubic-bezier(0.18, 0.68, 0.24, 1) var(--d) both;
 }
 
 .object-dialog {
@@ -1250,14 +1259,17 @@ button:focus-visible {
 @keyframes petal-fall {
   0% {
     opacity: 0;
-    transform: translate(0, -4px) rotate(0) scale(0.45);
+    transform: translate3d(0, -8px, 0) rotate(0) scale(0.45);
   }
-  18% {
+  14% {
     opacity: 1;
+  }
+  72% {
+    opacity: 0.92;
   }
   100% {
     opacity: 0;
-    transform: translate(var(--x), 78px) rotate(var(--r)) scale(0.9);
+    transform: translate3d(var(--drift), var(--fall), 0) rotate(var(--r)) scale(0.9);
   }
 }
 

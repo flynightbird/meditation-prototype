@@ -92,6 +92,19 @@ test("places the claim label inside a face-safe reward bubble", () => {
   assert.match(css, /\.claim-label\s*{[^}]*background:\s*transparent[^}]*font-weight:\s*400/s);
 });
 
+test("spreads one-shot reward confetti across the full viewport", () => {
+  const particles = html.match(/<i style="--left:/g) ?? [];
+  assert.ok(particles.length >= 24);
+  assert.match(
+    css,
+    /\.reward-particles\s*{[^}]*inset:\s*0[^}]*overflow:\s*hidden[^}]*pointer-events:\s*none/s,
+  );
+  assert.match(css, /\.is-reward-entered \.reward-particles i\s*{[^}]*1800ms/s);
+  assert.match(css, /calc\(1800ms - var\(--d\)\)/);
+  assert.match(html, /--d: 420ms/);
+  assert.match(css, /translate3d\(var\(--drift\),\s*var\(--fall\),\s*0\)/);
+});
+
 test("uses regular weight outside task cards", () => {
   assert.match(css, /\.app-shell,\s*\.app-shell \*\s*{[^}]*font-weight:\s*400/s);
   assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*680/s);

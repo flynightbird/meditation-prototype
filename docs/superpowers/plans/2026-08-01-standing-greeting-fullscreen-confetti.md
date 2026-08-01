@@ -17,7 +17,7 @@
 - Modify: `src/media-scene.js`
 - Test: `tests/media-scene.test.js`
 
-- [ ] **Step 1: Write the failing media mapping test**
+- [x] **Step 1: Write the failing media mapping test**
 
 Change the completion expectation while preserving reward expectations:
 
@@ -31,19 +31,19 @@ assert.equal(getMediaScene("reward").src, "./assets/video-greeting.mp4");
 assert.equal(getMediaScene("reward").loopMode, "full");
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `node --test tests/media-scene.test.js`
 
 Expected: FAIL because `completion.src` still equals `./assets/video-greeting.mp4`.
 
-- [ ] **Step 3: Restore the tracked completion asset**
+- [x] **Step 3: Restore the tracked completion asset**
 
 Run: `git restore --source=3927787 -- assets/video-meditation-complete.mp4`
 
 Verify: `ffprobe` reports a readable H.264 video.
 
-- [ ] **Step 4: Update the media scene mapping**
+- [x] **Step 4: Update the media scene mapping**
 
 Use this completion scene in `src/media-scene.js`:
 
@@ -58,7 +58,7 @@ completion: {
 
 Do not change `reward` or `reward-settled`; both remain full loops of `video-greeting.mp4`.
 
-- [ ] **Step 5: Run the focused test and verify GREEN**
+- [x] **Step 5: Run the focused test and verify GREEN**
 
 Run: `node --test tests/media-scene.test.js`
 
@@ -71,7 +71,7 @@ Expected: all media-scene tests PASS.
 - Modify: `src/styles.css`
 - Test: `tests/visual-contract.test.js`
 
-- [ ] **Step 1: Write the failing visual contract test**
+- [x] **Step 1: Write the failing visual contract test**
 
 Add a test that requires a viewport-sized, non-interactive particle layer, at least 24 particles, and the 1.8-second animation:
 
@@ -85,13 +85,13 @@ test("spreads one-shot reward confetti across the full viewport", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `node --test tests/visual-contract.test.js`
 
 Expected: FAIL because the current particle layer is a one-pixel anchor with ten particles.
 
-- [ ] **Step 3: Expand the particle markup**
+- [x] **Step 3: Expand the particle markup**
 
 Replace the ten anchored particles with 28 `<i>` elements using per-particle variables:
 
@@ -102,7 +102,7 @@ Replace the ten anchored particles with 28 `<i>` elements using per-particle var
 
 Distribute all 28 `--left` values from `3%` through `98%`; vary delays from `0ms` to `420ms`, fall distances from `68vh` to `104vh`, and use warm yellow, soft white, and pale blue colors.
 
-- [ ] **Step 4: Replace the anchored particle CSS**
+- [x] **Step 4: Replace the anchored particle CSS**
 
 Use a full-screen layer and the existing reward-entry class:
 
@@ -141,7 +141,7 @@ transform: translate3d(var(--drift), var(--fall), 0) rotate(var(--r)) scale(0.9)
 
 Keep the existing reduced-motion rule that hides `.reward-particles`.
 
-- [ ] **Step 5: Run the focused visual test and verify GREEN**
+- [x] **Step 5: Run the focused visual test and verify GREEN**
 
 Run: `node --test tests/visual-contract.test.js`
 
@@ -152,7 +152,7 @@ Expected: all visual contract tests PASS.
 **Files:**
 - Modify only if needed: GitHub Pages configuration outside the repository working tree
 
-- [ ] **Step 1: Run complete local verification**
+- [x] **Step 1: Run complete local verification**
 
 Run:
 
@@ -164,7 +164,7 @@ git diff --check
 
 Expected: 40 tests PASS, JavaScript syntax valid, no whitespace errors.
 
-- [ ] **Step 2: Verify the mobile sequence with agent-browser**
+- [x] **Step 2: Verify the mobile sequence with agent-browser**
 
 At both 402×874 and 375×812, verify:
 

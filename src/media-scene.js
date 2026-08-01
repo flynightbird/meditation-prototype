@@ -13,7 +13,7 @@ const SCENES = {
     seamMask: false,
   },
   completion: {
-    src: "./assets/video-greeting.mp4",
+    src: "./assets/video-meditation-complete.mp4",
     loopMode: "none",
     muted: false,
     seamMask: false,
