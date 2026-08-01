@@ -1,10 +1,22 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+
+test("uses video as the only large IP carrier", () => {
+  assert.doesNotMatch(html, /class="character-stage"|id="character"/);
+  assert.doesNotMatch(app, /assets\/ip-(lift|meditate|stretch|walk)\.png/);
+  for (const name of ["ip-lift.png", "ip-meditate.png", "ip-stretch.png", "ip-walk.png"]) {
+    assert.equal(
+      existsSync(new URL(`../assets/${name}`, import.meta.url)),
+      false,
+      `${name} should be removed`,
+    );
+  }
+});
 
 test("provides one reusable full-screen media layer", () => {
   assert.match(html, /<video[^>]*id="sceneVideo"[^>]*playsinline/);

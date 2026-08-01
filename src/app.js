@@ -9,7 +9,6 @@ const TENT_SEEN_KEY = "growth-base.tent-seen";
 const app = document.querySelector("#app");
 const message = document.querySelector("#message");
 const timerPanel = document.querySelector("#timerPanel");
-const character = document.querySelector("#character");
 const actionZone = document.querySelector("#actionZone");
 const taskRail = document.querySelector("#taskRail");
 const bottomNav = document.querySelector(".bottom-nav");
@@ -316,7 +315,6 @@ function render(animate = true) {
   claimReward.setAttribute("aria-hidden", String(!claimVisible));
 
   if (state.screen === "recommendation") {
-    character.src = "./assets/ip-meditate.png";
     message.innerHTML = `
       <h1>今天恢复得不错</h1>
       <p class="time-label">15:30 · AI健康建议</p>
@@ -327,7 +325,6 @@ function render(animate = true) {
   }
 
   if (state.screen === "active") {
-    character.src = "./assets/ip-stretch.png";
     message.innerHTML = "";
     const progress = (state.secondsRemaining / 20) * 100;
     timerPanel.style.setProperty("--progress", `${progress}%`);
@@ -360,7 +357,6 @@ function render(animate = true) {
   }
 
   if (state.screen === "reflection") {
-    character.src = "./assets/ip-meditate.png";
     message.innerHTML = `
       <p class="time-label">静心帐篷已放入营地</p>
       <h1>这次感觉如何？</h1>
@@ -375,7 +371,6 @@ function render(animate = true) {
   }
 
   if (state.screen === "feedback-confirmed") {
-    character.src = "./assets/ip-meditate.png";
     message.innerHTML = `
       <p class="time-label">反馈已记录</p>
       <h1>下次建议会更贴合你</h1>
