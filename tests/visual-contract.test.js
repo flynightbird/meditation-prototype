@@ -138,3 +138,16 @@ test("the wide dumbbell asset gets a larger task-specific frame", () => {
   assert.match(css, /\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*52px/s);
   assert.match(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
 });
+
+test("uses the approved compact schedule dimensions", () => {
+  assert.match(css, /\.task-rail\s*{[^}]*height:\s*102px/s);
+  assert.match(css, /\.task-card\s*{[^}]*height:\s*72px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*height:\s*90px/s);
+});
+
+test("styles reward settling without standalone character CSS", () => {
+  assert.doesNotMatch(css, /\.character(?:-stage)?\b/);
+  assert.match(css, /\.reward-layer\s*{/);
+  assert.match(css, /\.is-tent-dropping \.reward-object\s*{/);
+  assert.match(css, /\.is-settled-components-visible\[data-screen="reward-settled"\] \.message/);
+});

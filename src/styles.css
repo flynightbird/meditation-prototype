@@ -226,10 +226,6 @@ button:focus-visible {
   pointer-events: none;
 }
 
-.is-welcoming .character {
-  transform: translateX(-50%) scale(0.98);
-}
-
 .app-header {
   position: absolute;
   z-index: 20;
@@ -344,29 +340,15 @@ button:focus-visible {
   background: var(--accent);
 }
 
-.character-stage {
+.reward-layer {
   position: absolute;
   z-index: 4;
   inset: 0;
   pointer-events: none;
 }
 
-.character {
-  position: absolute;
-  left: 50%;
-  bottom: 198px;
-  width: min(69vw, 292px);
-  max-height: 47vh;
-  object-fit: contain;
-  object-position: bottom center;
-  filter: drop-shadow(0 14px 14px rgba(45, 26, 12, 0.18));
-  transform: translateX(-50%);
-  transition:
-    width 440ms var(--ease-out),
-    bottom 440ms var(--ease-out),
-    left 440ms var(--ease-out),
-    opacity 200ms ease,
-    transform 440ms var(--ease-out);
+.reward-layer button {
+  pointer-events: auto;
 }
 
 .timer-panel {
@@ -494,7 +476,7 @@ button:focus-visible {
   bottom: 72px;
   left: 0;
   display: flex;
-  height: 108px;
+  height: 102px;
   align-items: end;
   gap: 10px;
   padding: 5px calc(50% - 75px) 7px;
@@ -517,9 +499,9 @@ button:focus-visible {
   display: grid;
   flex: 0 0 90px;
   width: 90px;
-  height: 76px;
-  padding: 7px 6px 6px;
-  grid-template-rows: 12px minmax(0, 1fr) 16px;
+  height: 72px;
+  padding: 5px 6px 5px;
+  grid-template-rows: 11px minmax(0, 1fr) 16px;
   row-gap: 2px;
   place-items: center;
   overflow: hidden;
@@ -536,9 +518,9 @@ button:focus-visible {
 .task-card.is-current {
   flex-basis: 150px;
   width: 150px;
-  height: 96px;
-  padding: 9px 10px 8px;
-  grid-template-rows: 14px minmax(0, 1fr) 18px;
+  height: 90px;
+  padding: 7px 10px 7px;
+  grid-template-rows: 13px minmax(0, 1fr) 18px;
   background: linear-gradient(
     135deg,
     rgba(255, 241, 138, 0.86),
@@ -760,56 +742,6 @@ button:focus-visible {
   transform: translateY(-50%);
 }
 
-.mood-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  width: min(100%, 358px);
-}
-
-.mood-actions button {
-  min-width: 0;
-  min-height: 48px;
-  padding: 0 6px;
-  border: 0;
-  border-radius: 999px;
-  color: var(--ink);
-  background: rgba(255, 251, 245, 0.92);
-  box-shadow: 0 4px 7px rgba(32, 15, 7, 0.13);
-  font-size: 13px;
-  font-weight: 680;
-  white-space: nowrap;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: transform 140ms ease, background 140ms ease;
-}
-
-.mood-actions button:active {
-  transform: scale(0.97);
-  background: #fff4bd;
-}
-
-.feedback-saved {
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  gap: 8px;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
-  text-shadow: 0 2px 10px rgba(30, 15, 8, 0.55);
-}
-
-.feedback-saved span {
-  display: grid;
-  width: 24px;
-  aspect-ratio: 1;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--accent);
-}
-
 .reward-copy {
   display: grid;
   gap: 2px;
@@ -948,6 +880,44 @@ button:focus-visible {
 .has-tent .reward-object {
   opacity: 1;
   pointer-events: auto;
+}
+
+[data-screen="reward-settled"] .message {
+  transition: opacity 260ms ease, transform 420ms var(--ease-out);
+}
+
+.is-settled-components-visible[data-screen="reward-settled"] .message {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+[data-screen="reward-settled"]:not(.is-settled-components-visible) .task-rail {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(104px);
+}
+
+[data-screen="reward-settled"]:not(.is-settled-components-visible) .bottom-nav {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(72px);
+}
+
+.is-settled-components-visible[data-screen="reward-settled"] .task-rail {
+  animation: rail-in 560ms var(--ease-out) both;
+}
+
+.is-settled-components-visible[data-screen="reward-settled"] .bottom-nav {
+  animation: nav-in 520ms var(--ease-out) both;
+}
+
+.is-tent-dropping .reward-object {
+  animation: tent-drop 520ms var(--ease-out) both;
+}
+
+[data-screen="reward-settled"] .reward-object {
+  pointer-events: none;
 }
 
 .is-tent-new .reward-object > span {
@@ -1106,15 +1076,6 @@ button:focus-visible {
   filter: brightness(0.9) saturate(0.95);
 }
 
-[data-screen="active"] .character,
-[data-screen="completion"] .character,
-[data-screen="reward"] .character,
-[data-screen="meal-prep"] .character,
-[data-screen="demo-time-shift"] .character,
-[data-screen="meal-time"] .character {
-  opacity: 0;
-}
-
 [data-screen="active"] .streak {
   opacity: 0;
   transform: translateY(-12px);
@@ -1126,20 +1087,13 @@ button:focus-visible {
   transform: translateY(0);
 }
 
-[data-screen="active"] .character {
-  bottom: 142px;
-  width: min(75vw, 302px);
-}
-
 [data-screen="active"] .action-zone {
   bottom: max(48px, calc(env(safe-area-inset-bottom) + 30px));
 }
 
 [data-screen="active"] .task-rail,
 [data-screen="completion"] .task-rail,
-[data-screen="reward"] .task-rail,
-[data-screen="reflection"] .task-rail,
-[data-screen="feedback-confirmed"] .task-rail {
+[data-screen="reward"] .task-rail {
   opacity: 0;
   pointer-events: none;
   transform: translateY(104px);
@@ -1147,9 +1101,7 @@ button:focus-visible {
 
 [data-screen="active"] .bottom-nav,
 [data-screen="completion"] .bottom-nav,
-[data-screen="reward"] .bottom-nav,
-[data-screen="reflection"] .bottom-nav,
-[data-screen="feedback-confirmed"] .bottom-nav {
+[data-screen="reward"] .bottom-nav {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
@@ -1157,30 +1109,12 @@ button:focus-visible {
 }
 
 [data-screen="reward"] .message h1,
-[data-screen="reflection"] .message h1,
-[data-screen="feedback-confirmed"] .message h1 {
+[data-screen="reward-settled"] .message h1 {
   font-size: 29px;
 }
 
 [data-screen="reward"] .action-zone {
   bottom: max(54px, calc(env(safe-area-inset-bottom) + 36px));
-}
-
-[data-screen="reflection"] .character,
-[data-screen="feedback-confirmed"] .character {
-  bottom: 154px;
-  width: min(58vw, 242px);
-}
-
-[data-screen="reflection"] .action-zone,
-[data-screen="feedback-confirmed"] .action-zone {
-  bottom: max(66px, calc(env(safe-area-inset-bottom) + 48px));
-}
-
-[data-screen="next-task"] .character {
-  bottom: 296px;
-  left: 36%;
-  width: min(58vw, 240px);
 }
 
 [data-screen="next-task"] .action-zone {
@@ -1193,10 +1127,6 @@ button:focus-visible {
 
 .is-changing .message {
   animation: message-in 420ms var(--ease-out) both;
-}
-
-.is-changing .character {
-  animation: character-in 400ms var(--ease-out) both;
 }
 
 .is-changing .action-zone {
@@ -1248,13 +1178,6 @@ button:focus-visible {
   }
 }
 
-@keyframes character-in {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) scale(0.97);
-  }
-}
-
 @keyframes action-in {
   from {
     opacity: 0;
@@ -1266,6 +1189,28 @@ button:focus-visible {
   from {
     opacity: 0;
     transform: translate(28px, 96px);
+  }
+}
+
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateY(72px);
+  }
+}
+
+@keyframes tent-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-210px) scale(1.08);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -1351,11 +1296,6 @@ button:focus-visible {
     margin-top: 8px;
   }
 
-  .character {
-    bottom: 188px;
-    max-height: 44vh;
-  }
-
   .action-zone {
     bottom: 202px;
   }
@@ -1364,21 +1304,6 @@ button:focus-visible {
     top: 57px;
   }
 
-  [data-screen="active"] .character {
-    bottom: 126px;
-  }
-
-  [data-screen="reward"] .character,
-  [data-screen="reflection"] .character,
-  [data-screen="feedback-confirmed"] .character {
-    bottom: 138px;
-    width: min(52vw, 214px);
-  }
-
-  [data-screen="next-task"] .character {
-    bottom: 282px;
-    width: min(54vw, 224px);
-  }
 }
 
 @media (max-width: 374px) {
@@ -1402,9 +1327,6 @@ button:focus-visible {
     left: 16px;
   }
 
-  .mood-actions button {
-    font-size: 12px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1418,11 +1340,13 @@ button:focus-visible {
   }
 
   .claim-reward,
+  .reward-object,
   .reward-particles i,
   .media-transition,
   .message,
   .action-zone,
   .task-rail,
+  .bottom-nav,
   .demo-clock-track {
     animation: none !important;
     transition-duration: 1ms !important;
@@ -1431,6 +1355,11 @@ button:focus-visible {
   .is-reward-entered .claim-reward {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+  }
+
+  .is-tent-dropping .reward-object {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
   .reward-particles {
