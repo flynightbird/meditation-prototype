@@ -34,19 +34,19 @@ const SCENES = {
     src: "./assets/video-meal-prep.mp4",
     loopMode: "full",
     muted: false,
-    seamMask: true,
+    seamMask: false,
   },
   "demo-time-shift": {
     src: "./assets/video-meal-prep.mp4",
     loopMode: "full",
     muted: false,
-    seamMask: true,
+    seamMask: false,
   },
   "meal-time": {
     src: "./assets/video-meal-cook.mp4",
     loopMode: "full",
     muted: false,
-    seamMask: true,
+    seamMask: false,
   },
 };
 

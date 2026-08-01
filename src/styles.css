@@ -3,7 +3,7 @@
   src: url("../assets/rounded-display.woff2") format("woff2");
   font-display: swap;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 :root {
@@ -159,7 +159,6 @@ button:focus-visible {
 .welcome-streak {
   position: absolute;
   left: 50%;
-  font-family: var(--display);
   text-shadow: 0 3px 18px rgba(29, 15, 8, 0.52);
   opacity: 0;
   transform: translateX(-50%);
@@ -169,8 +168,9 @@ button:focus-visible {
   top: 35%;
   width: max-content;
   max-width: calc(100% - 48px);
+  font-family: var(--display);
   font-size: 31px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.25;
 }
 
@@ -266,7 +266,7 @@ button:focus-visible {
 .message {
   position: absolute;
   z-index: 10;
-  top: 98px;
+  top: 80px;
   right: 22px;
   left: 22px;
   text-shadow: 0 2px 14px rgba(22, 11, 5, 0.55);
@@ -276,9 +276,9 @@ button:focus-visible {
 .message h1 {
   max-width: 356px;
   margin: 0;
-  font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--display);
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.22;
   letter-spacing: 0;
   text-wrap: balance;
@@ -430,9 +430,10 @@ button:focus-visible {
 }
 
 .primary-action {
-  width: min(100%, 168px);
-  min-height: 56px;
-  padding: 0 20px;
+  width: auto;
+  min-width: 150px;
+  min-height: 46px;
+  padding: 0 24px;
   border: 1px solid rgba(255, 245, 181, 0.88);
   border-radius: 999px;
   color: var(--ink);
@@ -473,7 +474,7 @@ button:focus-visible {
   position: absolute;
   z-index: 12;
   right: 0;
-  bottom: 72px;
+  bottom: 80px;
   left: 0;
   display: flex;
   height: 102px;
@@ -502,12 +503,13 @@ button:focus-visible {
   height: 72px;
   padding: 5px 6px 5px;
   grid-template-rows: 11px minmax(0, 1fr) 16px;
-  row-gap: 2px;
+  row-gap: 0;
   place-items: center;
   overflow: hidden;
   border: 0;
   border-radius: 12px;
   color: #2b1d15;
+  font-family: var(--display);
   background: var(--surface);
   box-shadow: 0 4px 7px rgba(29, 15, 7, 0.12), inset 0 1px rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(12px) saturate(1.08);
@@ -521,6 +523,7 @@ button:focus-visible {
   height: 90px;
   padding: 7px 10px 7px;
   grid-template-rows: 13px minmax(0, 1fr) 18px;
+  row-gap: 2px;
   background: linear-gradient(
     135deg,
     rgba(255, 241, 138, 0.86),
@@ -557,14 +560,9 @@ button:focus-visible {
 }
 
 .is-current .task-visual {
-  width: 64px;
-  height: 50px;
-  transform: translateY(-4px);
-}
-
-[data-task-icon="fitness"] .task-visual {
-  width: 52px;
-  height: 31px;
+  width: 72px;
+  height: 56px;
+  transform: translateY(-12px);
 }
 
 .is-current[data-task-icon="fitness"] .task-visual {
@@ -575,7 +573,7 @@ button:focus-visible {
 .is-current[data-task-icon="meal"] .task-visual {
   width: 88px;
   height: 59px;
-  transform: translateY(-6px);
+  transform: translateY(-12px);
 }
 
 .task-card img {
@@ -609,15 +607,12 @@ button:focus-visible {
 }
 
 .task-card .check {
-  display: grid;
+  display: block;
   flex: 0 0 16px;
   width: 16px;
-  aspect-ratio: 1;
-  place-items: center;
-  border-radius: 50%;
-  color: #fff;
-  background: rgba(55, 52, 48, 0.9);
-  font-size: 10px;
+  height: 16px;
+  color: rgba(55, 52, 48, 0.9);
+  fill: currentColor;
 }
 
 .task-card.is-done .task-footer strong {
@@ -639,19 +634,72 @@ button:focus-visible {
 .bottom-nav {
   position: absolute;
   z-index: 18;
-  right: 20px;
-  bottom: max(13px, env(safe-area-inset-bottom));
-  left: 20px;
-  height: 52px;
-  opacity: 0.94;
-  filter: saturate(0.94) brightness(0.96) drop-shadow(0 4px 5px rgba(28, 15, 8, 0.15));
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 74px;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px 22px 0 0;
+  background: rgba(20, 13, 9, 0.72);
+  backdrop-filter: blur(18px) saturate(1.2);
   transition: opacity 220ms ease, transform 420ms var(--ease-out), visibility 420ms;
 }
 
-.bottom-nav img {
-  width: 100%;
+.nav-item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
   height: 100%;
-  object-fit: fill;
+  padding: 4px 2px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  border-radius: 16px;
+  color: rgba(255, 248, 239, 0.62);
+  background: transparent;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.nav-item.is-active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  color: rgba(255, 248, 239, 0.72);
+  background: transparent;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.nav-item.is-active .nav-icon {
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
+}
+
+.nav-label {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(255, 248, 239, 0.62);
+  font-size: 9.5px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item.is-active .nav-label {
+  color: #fff;
 }
 
 .session-controls {
@@ -667,7 +715,7 @@ button:focus-visible {
 }
 
 .session-controls button {
-  min-height: 56px;
+  min-height: 46px;
   border: 0;
   color: #fff;
   background: transparent;
@@ -688,12 +736,13 @@ button:focus-visible {
 
 .glass-action {
   display: inline-flex;
-  min-width: 232px;
-  min-height: 58px;
+  width: auto;
+  min-width: 150px;
+  min-height: 46px;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0 20px;
+  padding: 0 24px;
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 999px;
   color: #fff;
@@ -1288,12 +1337,12 @@ button:focus-visible {
 .task-footer strong,
 .current-label,
 .task-card .check {
-  font-weight: 680;
+  font-weight: 400;
 }
 
 @media (max-height: 790px) {
   .message {
-    top: 82px;
+    top: 72px;
   }
 
   .message h1 {

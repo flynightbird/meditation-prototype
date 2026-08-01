@@ -21,7 +21,9 @@ test("maps application states to video-only media scenes", () => {
   assert.equal(getMediaScene("reward").loopMode, "full");
   assert.equal(getMediaScene("reward-settled").src, "./assets/video-greeting.mp4");
   assert.equal(getMediaScene("reward-settled").loopMode, "full");
-  assert.equal(getMediaScene("meal-prep").seamMask, true);
+  assert.equal(getMediaScene("meal-prep").seamMask, false);
+  assert.equal(getMediaScene("demo-time-shift").seamMask, false);
+  assert.equal(getMediaScene("meal-time").seamMask, false);
 });
 
 test("calculates approved replay positions", () => {
