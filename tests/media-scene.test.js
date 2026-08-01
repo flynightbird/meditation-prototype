@@ -1,22 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getMediaScene, getReplayTime, shouldRunMediaTimer } from "../src/media-scene.js";
+import * as mediaScene from "../src/media-scene.js";
 
-test("maps application states to the approved media assets", () => {
-  assert.equal(getMediaScene("recommendation"), null);
-  assert.equal(getMediaScene("active").src, "./assets/video-meditation.mp4");
-  assert.equal(getMediaScene("completion").src, "./assets/video-meditation-complete.mp4");
-  assert.equal(getMediaScene("reward").loopMode, "tail");
+const { getMediaScene, getReplayTime, shouldRunMediaTimer } = mediaScene;
+
+test("maps application states to video-only media scenes", () => {
+  const recommendation = getMediaScene("recommendation");
+  assert.equal(recommendation.src, "./assets/video-meditation.mp4");
+  assert.equal(recommendation.muted, true);
+  assert.equal(recommendation.segmentEnd, 2);
+
+  assert.equal(getMediaScene("active").muted, false);
+  assert.equal(getMediaScene("completion").loopMode, "none");
+  assert.equal(getMediaScene("reward").tailSeconds, 1);
+  assert.equal(getMediaScene("reward-settled").tailSeconds, 1);
   assert.equal(getMediaScene("meal-prep").seamMask, true);
-  assert.equal(getMediaScene("meal-time").src, "./assets/video-meal-cook.mp4");
 });
 
-test("replays the reward from the final two and a half seconds", () => {
-  assert.equal(getReplayTime("reward", 10.08), 7.58);
+test("calculates approved replay positions", () => {
+  assert.equal(getReplayTime("recommendation", 10.08), 0);
+  assert.equal(getReplayTime("reward", 10.08), 9.08);
+  assert.equal(getReplayTime("reward-settled", 10.08), 9.08);
   assert.equal(getReplayTime("active", 10.08), 0);
-  assert.equal(getReplayTime("meal-prep", 10.08), 0);
   assert.equal(getReplayTime("completion", 10.08), null);
+});
+
+test("loops the recommendation when it reaches two seconds", () => {
+  assert.equal(typeof mediaScene.shouldReplaySegment, "function");
+  const { shouldReplaySegment } = mediaScene;
+  assert.equal(shouldReplaySegment("recommendation", 1.99), false);
+  assert.equal(shouldReplaySegment("recommendation", 2), true);
+  assert.equal(shouldReplaySegment("active", 2), false);
 });
 
 test("starts the meditation timer only after media playback is ready", () => {
