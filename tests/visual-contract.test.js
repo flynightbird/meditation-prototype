@@ -150,4 +150,5 @@ test("styles reward settling without standalone character CSS", () => {
   assert.match(css, /\.reward-layer\s*{/);
   assert.match(css, /\.is-tent-dropping \.reward-object\s*{/);
   assert.match(css, /\.is-settled-components-visible\[data-screen="reward-settled"\] \.message/);
+  assert.match(css, /\.reward-object\s*{[^}]*bottom:\s*188px/s);
 });
