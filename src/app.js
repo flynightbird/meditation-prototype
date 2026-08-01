@@ -1,5 +1,10 @@
 import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
-import { getMediaScene, getReplayTime, shouldRunMediaTimer } from "./media-scene.js";
+import {
+  getMediaScene,
+  getReplayTime,
+  shouldReplaySegment,
+  shouldRunMediaTimer,
+} from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
@@ -19,13 +24,15 @@ const welcomeOverlay = document.querySelector("#welcomeOverlay");
 const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
 const claimReward = document.querySelector("#claimReward");
+const rewardLayer = document.querySelector("#rewardLayer");
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
 let previousScreen = null;
 let timerId = null;
-let feedbackTimer = null;
-let feedbackConfirmTimer = null;
+let settledUiTimer = null;
+let rewardToMealTimer = null;
+let rewardVeilTimer = null;
 let demoShiftTimer = null;
 let mediaVeilTimer = null;
 let claimDispatchTimer = null;
@@ -130,13 +137,15 @@ function setTimerRunning() {
 }
 
 function clearScreenTimers() {
-  window.clearTimeout(feedbackTimer);
-  window.clearTimeout(feedbackConfirmTimer);
+  window.clearTimeout(settledUiTimer);
+  window.clearTimeout(rewardToMealTimer);
+  window.clearTimeout(rewardVeilTimer);
   window.clearTimeout(demoShiftTimer);
   window.clearTimeout(mediaVeilTimer);
   window.clearTimeout(claimDispatchTimer);
-  feedbackTimer = null;
-  feedbackConfirmTimer = null;
+  settledUiTimer = null;
+  rewardToMealTimer = null;
+  rewardVeilTimer = null;
   demoShiftTimer = null;
   mediaVeilTimer = null;
   claimDispatchTimer = null;
@@ -152,21 +161,12 @@ function stopMedia() {
 function playCurrentScene({ fromScreen = null } = {}) {
   const scene = getMediaScene(state.screen);
   if (!scene) {
-    if (state.screen === "recommendation") {
-      const preloadSource = getMediaScene("active").src;
-      sceneVideo.pause();
-      if (sceneVideo.getAttribute("src") !== preloadSource) {
-        sceneVideo.src = preloadSource;
-        sceneVideo.load();
-      }
-      app.classList.remove("has-media", "is-media-veiled", "is-time-shifting");
-      return;
-    }
     stopMedia();
     return;
   }
 
   const sourceChanged = sceneVideo.getAttribute("src") !== scene.src;
+  sceneVideo.muted = scene.muted;
   app.classList.remove("media-failed");
   if (sourceChanged) {
     sceneVideo.pause();
@@ -177,8 +177,12 @@ function playCurrentScene({ fromScreen = null } = {}) {
   app.classList.add("has-media");
 
   const startPlayback = () => {
-    if (state.screen === "reward") {
-      sceneVideo.currentTime = getReplayTime("reward", sceneVideo.duration);
+    if (["reward", "reward-settled"].includes(state.screen)) {
+      sceneVideo.currentTime = getReplayTime(state.screen, sceneVideo.duration);
+    }
+
+    if (state.screen === "active" && fromScreen === "recommendation") {
+      sceneVideo.currentTime = 0;
     }
 
     if (state.screen === "active" && state.isPaused) {
@@ -192,6 +196,13 @@ function playCurrentScene({ fromScreen = null } = {}) {
       mediaVeilTimer = window.setTimeout(() => {
         app.classList.remove("is-media-veiled", "is-time-shifting");
       }, 300);
+    }
+
+    if (state.screen === "meal-prep" && fromScreen === "reward-settled") {
+      window.clearTimeout(mediaVeilTimer);
+      mediaVeilTimer = window.setTimeout(() => {
+        app.classList.remove("is-media-veiled");
+      }, reducedMotion.matches ? 1 : 350);
     }
   };
 
@@ -213,6 +224,12 @@ function replayCurrentMedia() {
 }
 
 sceneVideo.addEventListener("timeupdate", () => {
+  if (shouldReplaySegment(state.screen, sceneVideo.currentTime)) {
+    sceneVideo.currentTime = getReplayTime(state.screen, sceneVideo.duration);
+    sceneVideo.play().catch(() => {});
+    return;
+  }
+
   if (
     state.screen === "completion" &&
     !highFiveHapticFired &&
@@ -249,6 +266,10 @@ sceneVideo.addEventListener("error", () => {
 function scheduleScreenEntry(fromScreen) {
   clearScreenTimers();
 
+  if (state.screen !== "reward-settled") {
+    app.classList.remove("is-settled-components-visible", "is-tent-dropping");
+  }
+
   if (state.screen !== "reward") {
     app.classList.remove("is-reward-entered", "is-claiming");
   }
@@ -259,21 +280,31 @@ function scheduleScreenEntry(fromScreen) {
 
   if (state.screen === "reward") {
     app.classList.remove("is-reward-entered", "is-claiming");
+    claimReward.classList.remove("is-claiming");
+    void rewardLayer.offsetWidth;
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => app.classList.add("is-reward-entered"));
     });
   }
 
-  if (state.screen === "reflection") {
-    feedbackTimer = window.setTimeout(() => {
-      dispatch({ type: "SKIP_FEEDBACK" });
-    }, 5000);
-  }
+  if (state.screen === "reward-settled") {
+    app.classList.remove("is-settled-components-visible", "is-tent-dropping");
+    window.requestAnimationFrame(() => app.classList.add("is-tent-dropping"));
 
-  if (state.screen === "feedback-confirmed") {
-    feedbackConfirmTimer = window.setTimeout(() => {
-      dispatch({ type: "FEEDBACK_COMPLETE" });
-    }, 650);
+    settledUiTimer = window.setTimeout(() => {
+      app.classList.add("is-settled-components-visible");
+      taskRail.setAttribute("aria-hidden", "false");
+      bottomNav.setAttribute("aria-hidden", "false");
+      renderSchedule();
+      centerCurrentTask("smooth");
+    }, reducedMotion.matches ? 1 : 1500);
+
+    rewardToMealTimer = window.setTimeout(() => {
+      app.classList.add("is-media-veiled");
+      rewardVeilTimer = window.setTimeout(() => {
+        dispatch({ type: "REWARD_SETTLE_COMPLETE" });
+      }, reducedMotion.matches ? 1 : 350);
+    }, 5000);
   }
 
   if (state.screen === "demo-time-shift") {
@@ -297,18 +328,22 @@ function render(animate = true) {
   app.classList.toggle("is-paused", state.isPaused);
   app.classList.toggle("is-changing", animate && screenChanged);
 
-  const focused = ["active", "completion", "reward", "reflection", "feedback-confirmed"].includes(state.screen);
+  const settledComponentsVisible = app.classList.contains("is-settled-components-visible");
+  const focused = ["active", "completion", "reward"].includes(state.screen) ||
+    (state.screen === "reward-settled" && !settledComponentsVisible);
   const claimStatus = readStorage(CLAIM_KEY);
+  const tentSettling = state.screen === "reward-settled";
   const hasTent = claimStatus === "claimed" && state.screen !== "reward";
   const canInspectTent = hasTent && !getMediaScene(state.screen);
+  const showGroundTent = tentSettling || canInspectTent;
   const tentIsNew = canInspectTent && readStorage(TENT_SEEN_KEY) !== "true";
   const claimVisible = state.screen === "reward";
 
-  app.classList.toggle("has-tent", canInspectTent);
+  app.classList.toggle("has-tent", showGroundTent);
   app.classList.toggle("is-tent-new", tentIsNew);
   taskRail.setAttribute("aria-hidden", String(focused));
   bottomNav.setAttribute("aria-hidden", String(focused));
-  rewardObject.setAttribute("aria-hidden", String(!canInspectTent));
+  rewardObject.setAttribute("aria-hidden", String(!showGroundTent));
   rewardObject.tabIndex = canInspectTent ? 0 : -1;
   claimReward.hidden = !claimVisible;
   claimReward.tabIndex = claimVisible ? 0 : -1;
@@ -356,27 +391,12 @@ function render(animate = true) {
     actionZone.innerHTML = "";
   }
 
-  if (state.screen === "reflection") {
+  if (state.screen === "reward-settled") {
     message.innerHTML = `
-      <p class="time-label">静心帐篷已放入营地</p>
-      <h1>这次感觉如何？</h1>
-      <p class="supporting">你的回答会用于调整下一次冥想时长和推荐时间。</p>`;
+      <p class="time-label">领取成功</p>
+      <h1>静心帐篷已放入营地</h1>`;
     timerPanel.innerHTML = "";
-    actionZone.innerHTML = `
-      <div class="mood-actions" role="group" aria-label="选择现在的感受">
-        <button data-action="mood" data-mood="lighter">轻松一些</button>
-        <button data-action="mood" data-mood="same">差不多</button>
-        <button data-action="mood" data-mood="tense">没进入状态</button>
-      </div>`;
-  }
-
-  if (state.screen === "feedback-confirmed") {
-    message.innerHTML = `
-      <p class="time-label">反馈已记录</p>
-      <h1>下次建议会更贴合你</h1>
-      <p class="supporting">我会结合这次感受，调整下一次建议。</p>`;
-    timerPanel.innerHTML = "";
-    actionZone.innerHTML = '<div class="feedback-saved" role="status"><span>✓</span> 已用于调整下次建议</div>';
+    actionZone.innerHTML = "";
   }
 
   if (state.screen === "meal-prep" || state.screen === "demo-time-shift") {
@@ -497,7 +517,6 @@ app.addEventListener("click", (event) => {
   if (action === "start") dispatch({ type: "START" });
   if (action === "pause") dispatch({ type: "TOGGLE_PAUSE" });
   if (action === "end") dispatch({ type: "END" });
-  if (action === "mood") dispatch({ type: "SELECT_MOOD", mood: button.dataset.mood });
   if (action === "claim-reward") {
     if (state.screen !== "reward" || claimReward.classList.contains("is-claiming")) return;
     claimReward.classList.add("is-claiming");

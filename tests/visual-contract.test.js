@@ -55,6 +55,26 @@ test("synchronizes the meditation timer with actual video playback", () => {
   assert.match(app, /mediaReady:\s*sceneVideo\.readyState\s*>=\s*HTMLMediaElement\.HAVE_CURRENT_DATA/);
 });
 
+test("applies media mute policy and segment replay", () => {
+  assert.match(app, /sceneVideo\.muted\s*=\s*scene\.muted/);
+  assert.match(app, /fromScreen === "recommendation"[\s\S]*sceneVideo\.currentTime\s*=\s*0/);
+  assert.match(app, /shouldReplaySegment\(state\.screen, sceneVideo\.currentTime\)/);
+});
+
+test("runs the approved five-second settled reward timeline", () => {
+  assert.match(app, /state\.screen === "reward-settled"/);
+  assert.match(app, /1500/);
+  assert.match(app, /5000/);
+  assert.match(app, /REWARD_SETTLE_COMPLETE/);
+  assert.match(app, /is-settled-components-visible/);
+  assert.match(app, /is-tent-dropping/);
+});
+
+test("removes meditation feedback UI and handlers", () => {
+  assert.doesNotMatch(app, /这次感觉如何|轻松一些|没进入状态|反馈已记录/);
+  assert.doesNotMatch(app, /SELECT_MOOD|SKIP_FEEDBACK|FEEDBACK_COMPLETE/);
+});
+
 test("uses full-screen media and a warm transition veil", () => {
   assert.match(css, /\.scene-video\s*{[^}]*object-fit:\s*cover/s);
   assert.match(css, /\.media-transition\s*{/);
