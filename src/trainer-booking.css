@@ -12,6 +12,7 @@
 .trainer-scroll {
   height: 100%;
   overflow: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   scrollbar-width: none;
 }
@@ -21,17 +22,18 @@
 .trainer-hero {
   position: relative;
   height: 320px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .trainer-hero > img {
   position: absolute;
-  right: -24px;
-  bottom: -24px;
+  right: -54px;
+  top: 24px;
+  bottom: auto;
   width: auto;
-  height: 100%;
+  height: 150%;
   object-fit: contain;
-  object-position: right bottom;
+  object-position: right top;
 }
 
 .trainer-hero-shade {
@@ -68,7 +70,7 @@
   box-shadow: 0 0 8px rgba(248, 213, 83, 0.7);
 }
 
-.trainer-identity { bottom: 40px; }
+.trainer-identity { bottom: 110px; }
 
 .trainer-identity small {
   display: inline-flex;
@@ -81,7 +83,7 @@
 }
 
 .trainer-identity h1 {
-  margin: 12px 0 6px;
+  margin: 12px 0 12px;
   font-family: var(--display);
   font-size: 34px;
   font-weight: 400;
@@ -95,6 +97,7 @@
 }
 
 .trainer-hero-cut {
+  display: none;
   position: absolute;
   right: 0;
   bottom: -1px;

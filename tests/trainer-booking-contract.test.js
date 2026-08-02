@@ -112,7 +112,7 @@ test("positions the trainer behind the booking card and strengthens store cues",
 });
 
 test("uses the approved full trainer and vertical date capsules", () => {
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*right bottom/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*150%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
   assert.match(css, /\.booking-date\s*{[^}]*height:\s*68px[^}]*border-radius:\s*999px/s);
   assert.match(css, /\.booking-date strong\s*{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*border-radius:\s*50%/s);
   assert.match(css, /\.booking-date\[aria-pressed="true"\]\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s);
