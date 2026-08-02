@@ -247,18 +247,28 @@
 }
 
 .map-pin {
+  --pin-fill: #f8d553;
   position: absolute;
   display: grid;
-  width: 26px;
-  height: 32px;
+  width: 28px;
+  height: 34px;
   padding-bottom: 5px;
+  isolation: isolate;
   place-items: center;
   color: #0b0e14;
-  background: #f8d553;
-  -webkit-mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
-  mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
+  background: transparent;
   filter: drop-shadow(0 0 7px rgba(248, 213, 83, 0.48));
   font-size: 9px;
+}
+
+.map-pin::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--pin-fill);
+  -webkit-mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
+  mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
+  content: "";
 }
 
 .pin-one { top: 54%; left: 51%; }
@@ -266,8 +276,8 @@
 .pin-three { top: 20%; left: 73%; }
 
 .map-pin.is-closed {
+  --pin-fill: rgba(205, 211, 219, 0.72);
   color: rgba(11, 14, 20, 0.7);
-  background: rgba(255, 255, 255, 0.38);
   filter: none;
 }
 

@@ -92,9 +92,10 @@ test("routes the trainer tab without changing stores", () => {
 
 test("uses the supplied map pin and lighter map treatment", () => {
   assert.match(mapPin, /viewBox="0 0 200 200"/);
-  assert.match(css, /\.map-pin\s*{[^}]*mask:\s*url\("\.\.\/assets\/trainer-map-pin\.svg"\)/s);
+  assert.match(css, /\.map-pin::before\s*{[^}]*mask:\s*url\("\.\.\/assets\/trainer-map-pin\.svg"\)/s);
+  assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate/s);
   assert.match(css, /\.trainer-map > img\s*{[^}]*saturate\(0\.72\)[^}]*brightness\(0\.88\)[^}]*opacity:\s*0\.9/s);
-  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*background:\s*rgba\(255, 255, 255, 0\.38\)/s);
+  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)/s);
   assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
 });
 
