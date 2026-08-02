@@ -24,6 +24,18 @@ test("provides one reusable full-screen media layer", () => {
   assert.match(html, /id="mediaTransition"/);
 });
 
+test("provides an inert hidden next-scene preloader", () => {
+  assert.match(
+    html,
+    /<video[^>]*id="scenePreloader"[^>]*muted[^>]*playsinline[^>]*preload="auto"[^>]*hidden[^>]*aria-hidden="true"[^>]*tabindex="-1"/,
+  );
+  assert.match(app, /const scenePreloader = document\.querySelector\("#scenePreloader"\)/);
+  assert.match(
+    app,
+    /syncPreloadSource\(scenePreloader, getNextMediaSource\(state\.screen\)\)/,
+  );
+});
+
 test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="claimReward"[^>]*data-action="claim-reward"/);
   assert.match(html, /class="claim-label">点击领取/);

@@ -1,10 +1,12 @@
 import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
 import {
   getMediaScene,
+  getNextMediaSource,
   getReplayTime,
   shouldReplaySegment,
   shouldRunMediaTimer,
 } from "./media-scene.js";
+import { syncPreloadSource } from "./media-preload.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
@@ -23,6 +25,7 @@ const objectDialog = document.querySelector("#objectDialog");
 const welcomeOverlay = document.querySelector("#welcomeOverlay");
 const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
+const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
 
@@ -453,6 +456,9 @@ function render(animate = true) {
     scheduleScreenEntry(fromScreen);
   }
   playCurrentScene({ fromScreen });
+  if (screenChanged) {
+    syncPreloadSource(scenePreloader, getNextMediaSource(state.screen));
+  }
 
   window.setTimeout(() => app.classList.remove("is-changing"), 620);
 }
