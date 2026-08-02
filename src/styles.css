@@ -738,7 +738,7 @@ button:focus-visible {
   justify-content: space-around;
   padding: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px 22px 0 0;
+  border-radius: 32px 32px 0 0;
   background: rgba(20, 13, 9, 0.72);
   backdrop-filter: blur(18px) saturate(1.2);
   transition: opacity 220ms ease, transform 420ms var(--ease-out), visibility 420ms;
@@ -763,6 +763,7 @@ button:focus-visible {
 }
 
 .nav-item.is-active {
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
 }
 
