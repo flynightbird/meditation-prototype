@@ -1,11 +1,11 @@
 const BASE_SCHEDULE = [
-  { id: "water-am", time: "08:00", label: "补充水分", icon: "water" },
-  { id: "lunch", time: "12:00", label: "营养午餐", icon: "meal" },
-  { id: "meditation", time: "15:30", label: "冥想", icon: "meditation" },
-  { id: "dinner", time: "17:30", label: "健康晚餐", icon: "meal" },
-  { id: "water-pm", time: "18:30", label: "补充水分", icon: "water" },
-  { id: "fitness", time: "19:00", label: "力量训练", icon: "fitness" },
-  { id: "stretch", time: "22:30", label: "睡前拉伸", icon: "fitness" },
+  { id: "water-am", time: "08:00", label: "补充水分", icon: "water", reward: { attribute: "vitality", label: "活力", value: 10 } },
+  { id: "lunch", time: "12:00", label: "营养午餐", icon: "meal", reward: { attribute: "stamina", label: "体力", value: 10 } },
+  { id: "meditation", time: "15:30", label: "冥想", icon: "meditation", reward: { attribute: "focus", label: "专注", value: 10 } },
+  { id: "dinner", time: "17:30", label: "健康晚餐", icon: "meal", reward: { attribute: "stamina", label: "体力", value: 10 } },
+  { id: "water-pm", time: "18:30", label: "补充水分", icon: "water", reward: { attribute: "vitality", label: "活力", value: 10 } },
+  { id: "fitness", time: "19:00", label: "力量训练", icon: "fitness", reward: { attribute: "vitality", label: "活力", value: 10 } },
+  { id: "stretch", time: "22:30", label: "睡前拉伸", icon: "fitness", reward: { attribute: "vitality", label: "活力", value: 10 } },
 ];
 
 export function getGreeting(hour) {
