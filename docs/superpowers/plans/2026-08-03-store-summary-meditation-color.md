@@ -24,7 +24,7 @@ Add this assertion to the existing `keeps the map and all three nearby stores` t
 ```js
 assert.match(
   html,
-  /<span class="nearby-summary">附近有3家 <i aria-hidden="true">›<\/i> 深圳市有128家 <i aria-hidden="true">›<\/i><\/span>/,
+  /<span class="nearby-summary">附近有3家 ｜ 深圳市有128家 <i aria-hidden="true">›<\/i><\/span>/,
 );
 ```
 
@@ -45,7 +45,7 @@ Expected: FAIL because `index.html` still contains `共 3 家` and `.nearby-summ
 Replace the existing summary in `index.html` with:
 
 ```html
-<span class="nearby-summary">附近有3家 <i aria-hidden="true">›</i> 深圳市有128家 <i aria-hidden="true">›</i></span>
+<span class="nearby-summary">附近有3家 ｜ 深圳市有128家 <i aria-hidden="true">›</i></span>
 ```
 
 Update `src/trainer-booking.css` without adding click behavior:
@@ -132,7 +132,7 @@ Refresh the persistent preview and use agent-browser at `375x812` and `402x874` 
 
 ```text
 Home: “开始冥想” retains its prior capsule geometry and shows the yellow-to-light-yellow-green color family.
-Trainer: “附近有3家 › 深圳市有128家 ›” stays on one line, does not overlap “附近门店”, and causes no horizontal overflow.
+Trainer: “附近有3家 ｜ 深圳市有128家 ›” stays on one line, does not overlap “附近门店”, and causes no horizontal overflow.
 Regression: trainer, map, booking panel, six-tab Dock, and active-tab animation remain unchanged.
 ```
 
