@@ -4,6 +4,8 @@ import test from "node:test";
 
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/trainer-booking.css", import.meta.url), "utf8");
+const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
+const view = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.url), "utf8");
 
 test("provides the complete trainer booking surface", () => {
   for (const id of ["trainerPage", "bookingDates", "bookingTimes", "bookingActionBar", "bookingDialog"]) {
@@ -57,4 +59,27 @@ test("uses one full-width 70px bottom context and approved button size", () => {
 test("keeps success status in normal layout flow", () => {
   assert.match(css, /\.booking-status\s*{[^}]*position:\s*relative/s);
   assert.doesNotMatch(css, /\.booking-status\s*{[^}]*position:\s*absolute/s);
+});
+
+test("renders accessible copy-free unavailable slots", () => {
+  assert.match(view, /BOOKING_TIMES\.map/);
+  assert.match(view, /button\.disabled = unavailable/);
+  assert.match(view, /button\.textContent = time/);
+  assert.match(view, /aria-pressed/);
+  assert.doesNotMatch(view, /textContent\s*=\s*["'`]已约/);
+});
+
+test("restores tabs and persists the success row", () => {
+  assert.match(view, /bookingStatus\.hidden = !confirmed/);
+  assert.match(view, /app\.classList\.toggle\("is-booking-action"/);
+  assert.match(view, /setTimeout[\s\S]*1200/s);
+  assert.match(view, /bookingDialog\.close\(\)/);
+  assert.match(view, /bottomNav\.inert = selected/);
+  assert.match(view, /actionBar\.inert = !selected/);
+});
+
+test("routes the trainer tab without changing stores", () => {
+  assert.match(app, /mountTrainerBooking/);
+  assert.match(app, /nav === "trainer"/);
+  assert.doesNotMatch(view, /SELECT_STORE|selectedStore|store-detail/);
 });

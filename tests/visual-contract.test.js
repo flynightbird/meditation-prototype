@@ -164,7 +164,9 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
     assert.match(html, new RegExp(`class="nav-label">${label}<`));
   }
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
-  assert.match(app, /action === "nav-tap"[^\n]*button\.dataset\.nav !== "coach"[^\n]*敬请期待/);
+  assert.match(app, /nav === "trainer"[\s\S]*trainerBooking\.show\(\)/);
+  assert.match(app, /nav === "coach"[\s\S]*trainerBooking\.hide\(\)/);
+  assert.match(app, /else \{\s*showToast\("敬请期待"\)/);
   assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
   assert.doesNotMatch(
     css,
