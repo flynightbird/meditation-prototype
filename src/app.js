@@ -6,11 +6,25 @@ import {
   shouldRunMediaTimer,
 } from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
-import { createGrowthState, getDailyProgress } from "./growth.js";
+import {
+  addTaskReward,
+  collectBubble,
+  createGrowthState,
+  getDailyProgress,
+  getVisibleBubbles,
+  normalizeGrowthState,
+} from "./growth.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
 const TENT_SEEN_KEY = "growth-base.tent-seen";
+const GROWTH_KEY = "growth-base.growth-state";
+
+const ATTRIBUTE_LABELS = {
+  stamina: "体力",
+  focus: "专注",
+  vitality: "活力",
+};
 
 const app = document.querySelector("#app");
 const message = document.querySelector("#message");
@@ -26,12 +40,11 @@ const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
+const growthBubbleLayer = document.querySelector("#growthBubbleLayer");
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
-let growthState = createGrowthState(getLocalDateKey(), {
-  initialProgress: readStorage(CLAIM_KEY) === "claimed" ? 4 : 3,
-});
+let growthState = loadGrowthState();
 let previousScreen = null;
 let timerId = null;
 let countdownCompleteTimer = null;
@@ -74,6 +87,84 @@ function removeStorage(key) {
   } catch {
     // The prototype remains usable when storage is unavailable.
   }
+}
+
+function loadGrowthState() {
+  const dateKey = getLocalDateKey();
+  const raw = readStorage(GROWTH_KEY);
+  if (!raw) return createGrowthState(dateKey, { initialProgress: 3 });
+  try {
+    return normalizeGrowthState(JSON.parse(raw), dateKey);
+  } catch {
+    return createGrowthState(dateKey, { initialProgress: 3 });
+  }
+}
+
+function writeGrowthState(nextState) {
+  try {
+    window.localStorage.setItem(GROWTH_KEY, JSON.stringify(nextState));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function renderGrowthBubbles() {
+  growthBubbleLayer.innerHTML = getVisibleBubbles(growthState)
+    .map((bubble, index) => `
+      <button
+        class="growth-bubble bubble-${bubble.attribute} anchor-${index + 1}"
+        type="button"
+        data-action="collect-growth"
+        data-reward-ids="${bubble.rewardIds.join(",")}"
+        aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
+        style="--bubble-index:${index}"
+      >
+        <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
+        <strong>+${bubble.value}</strong>
+      </button>`)
+    .join("");
+}
+
+function addMeditationGrowthReward() {
+  const dateKey = getLocalDateKey();
+  const nextState = addTaskReward(growthState, {
+    id: `${dateKey}:meditation`,
+    taskId: "meditation",
+    attribute: "focus",
+    value: 10,
+    createdAt: Date.now(),
+  });
+  if (nextState === growthState || !writeGrowthState(nextState)) return;
+  growthState = nextState;
+  renderGrowthBubbles();
+}
+
+function commitGrowthCollection(button, rewardIds) {
+  const nextState = collectBubble(growthState, rewardIds);
+  if (nextState !== growthState && writeGrowthState(nextState)) {
+    growthState = nextState;
+    renderGrowthBubbles();
+    return;
+  }
+  button.classList.remove("is-collecting");
+  button.disabled = false;
+}
+
+function collectGrowthReward(button) {
+  if (button.classList.contains("is-collecting")) return;
+  const rewardIds = button.dataset.rewardIds.split(",").filter(Boolean);
+  button.classList.add("is-collecting");
+  button.disabled = true;
+  if (reducedMotion.matches) {
+    commitGrowthCollection(button, rewardIds);
+    return;
+  }
+  button.addEventListener("animationend", (event) => {
+    if (event.animationName === "collect-growth-bubble") {
+      commitGrowthCollection(button, rewardIds);
+    }
+  }, { once: true });
 }
 
 function taskCard({ id, time, label, icon, reward, status }) {
@@ -266,6 +357,7 @@ function scheduleScreenEntry(fromScreen) {
   }
 
   if (state.screen === "reward") {
+    if (fromScreen === "completion") addMeditationGrowthReward();
     app.classList.remove("is-reward-entered", "is-claiming");
     claimReward.classList.remove("is-claiming");
     void rewardLayer.offsetWidth;
@@ -537,6 +629,7 @@ app.addEventListener("click", (event) => {
       dispatch({ type: "CLAIM_REWARD" });
     }, reducedMotion.matches ? 1 : 360);
   }
+  if (action === "collect-growth") collectGrowthReward(button);
   if (action === "nav-tap" && button.dataset.nav !== "coach") showToast("敬请期待");
   if (action === "meal-reminder") dispatch({ type: "SET_MEAL_REMINDER" });
   if (action === "start-meal") resetExperience("START_MEAL");
@@ -550,4 +643,5 @@ app.addEventListener("click", (event) => {
 });
 
 render(false);
+renderGrowthBubbles();
 setupDailyWelcome();

@@ -239,6 +239,20 @@ test("places task rewards top-right and the current label bottom-right", () => {
   assert.match(css, /\.current-label\s*{[^}]*right:\s*7px[^}]*bottom:\s*6px/s);
 });
 
+test("provides a persistent collectible growth bubble layer", () => {
+  assert.match(html, /id="growthBubbleLayer"[^>]*aria-label="待领取成长奖励"/);
+  assert.match(app, /getVisibleBubbles\(growthState\)/);
+  assert.match(app, /data-action="collect-growth"/);
+  assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
+});
+
+test("persists one growth envelope and adds the meditation reward once", () => {
+  assert.match(app, /const GROWTH_KEY = "growth-base\.growth-state"/);
+  assert.match(app, /window\.localStorage\.setItem\(GROWTH_KEY, JSON\.stringify\(nextState\)\)/);
+  assert.match(app, /addTaskReward\(growthState,[\s\S]*id: `\$\{dateKey\}:meditation`/);
+  assert.match(app, /collectBubble\(growthState, rewardIds\)/);
+});
+
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);
