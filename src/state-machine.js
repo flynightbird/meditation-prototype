@@ -29,9 +29,13 @@ export function transition(state, event) {
         : state;
     case "TICK":
       if (state.screen !== "active" || state.isPaused) return state;
-      return state.secondsRemaining <= 1
-        ? startCompletion(state)
+      return state.secondsRemaining <= 0
+        ? state
         : { ...state, secondsRemaining: state.secondsRemaining - 1 };
+    case "COUNTDOWN_COMPLETE":
+      return state.screen === "active" && state.secondsRemaining === 0
+        ? startCompletion(state)
+        : state;
     case "END":
       return state.screen === "active" ? startCompletion(state) : state;
     case "COMPLETION_VIDEO_ENDED":

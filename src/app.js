@@ -30,6 +30,7 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
 let previousScreen = null;
 let timerId = null;
+let countdownCompleteTimer = null;
 let settledUiTimer = null;
 let rewardToMealTimer = null;
 let rewardVeilTimer = null;
@@ -120,14 +121,16 @@ function growthCue() {
 function setTimerRunning() {
   window.clearInterval(timerId);
   timerId = null;
-  if (
+  const canRun =
+    state.secondsRemaining > 0 &&
     shouldRunMediaTimer({
       screen: state.screen,
       isPaused: state.isPaused,
       mediaReady:
         sceneVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !sceneVideo.paused,
-    })
-  ) {
+    });
+  app.classList.toggle("is-timer-running", canRun);
+  if (canRun) {
     timerId = window.setInterval(() => {
       state = transition(state, { type: "TICK" });
       render(false);
@@ -136,12 +139,14 @@ function setTimerRunning() {
 }
 
 function clearScreenTimers() {
+  window.clearTimeout(countdownCompleteTimer);
   window.clearTimeout(settledUiTimer);
   window.clearTimeout(rewardToMealTimer);
   window.clearTimeout(rewardVeilTimer);
   window.clearTimeout(demoShiftTimer);
   window.clearTimeout(mediaVeilTimer);
   window.clearTimeout(claimDispatchTimer);
+  countdownCompleteTimer = null;
   settledUiTimer = null;
   rewardToMealTimer = null;
   rewardVeilTimer = null;
@@ -347,15 +352,38 @@ function render(animate = true) {
 
   if (state.screen === "active") {
     message.innerHTML = "";
-    const progress = (state.secondsRemaining / 20) * 100;
-    timerPanel.style.setProperty("--progress", `${progress}%`);
-    timerPanel.innerHTML = `
-      <div class="timer-ring">
-        <span>静心练习</span>
-        <time>${formatTime(state.secondsRemaining)}</time>
-        <small>剩余时间</small>
-      </div>
-      <p>${state.isPaused ? "已暂停，准备好再继续" : "缓慢吸气，再慢慢呼出"}</p>`;
+    if (!timerPanel.querySelector(".timer-ring")) {
+      timerPanel.innerHTML = `
+        <div class="timer-ring" role="timer">
+          <svg class="timer-art" viewBox="0 0 156 156" aria-hidden="true">
+            <defs>
+              <linearGradient id="timerProgressGradient" x1="78" y1="17" x2="78" y2="139" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#FFE98A"></stop>
+                <stop offset="1" stop-color="#BDEBFA"></stop>
+              </linearGradient>
+            </defs>
+            <circle class="timer-track" cx="78" cy="78" r="50" pathLength="100" stroke-dasharray="2 3"></circle>
+            <circle class="timer-progress" cx="78" cy="78" r="61" pathLength="100"></circle>
+          </svg>
+          <span class="timer-dot-orbit" aria-hidden="true"><i class="timer-dot"></i></span>
+          <span class="timer-copy">
+            <time>${formatTime(state.secondsRemaining)}</time>
+            <small>剩余时间</small>
+          </span>
+        </div>
+        <p></p>`;
+    }
+    const timerRing = timerPanel.querySelector(".timer-ring");
+    const timerTime = timerPanel.querySelector("time");
+    const timerPrompt = timerPanel.querySelector("p");
+    timerRing.setAttribute("aria-label", `剩余时间${formatTime(state.secondsRemaining)}`);
+    timerTime.textContent = formatTime(state.secondsRemaining);
+    timerPrompt.textContent = state.isPaused ? "已暂停，准备好再继续" : "缓慢吸气，再慢慢呼出";
+    if (state.secondsRemaining === 0 && !countdownCompleteTimer) {
+      countdownCompleteTimer = window.setTimeout(() => {
+        dispatch({ type: "COUNTDOWN_COMPLETE" });
+      }, reducedMotion.matches ? 1 : 300);
+    }
     actionZone.innerHTML = `
       <div class="session-controls" role="group" aria-label="冥想控制">
         <button data-action="pause" aria-pressed="${state.isPaused}">${state.isPaused ? "继续" : "暂停"}</button>

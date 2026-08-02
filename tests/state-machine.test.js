@@ -20,7 +20,10 @@ test("moves from meditation into the one-shot completion video", () => {
   assert.equal(state.screen, "active");
 
   state = { ...state, secondsRemaining: 1 };
-  assert.equal(transition(state, { type: "TICK" }).screen, "completion");
+  const completedRing = transition(state, { type: "TICK" });
+  assert.equal(completedRing.screen, "active");
+  assert.equal(completedRing.secondsRemaining, 0);
+  assert.equal(transition(completedRing, { type: "COUNTDOWN_COMPLETE" }).screen, "completion");
   assert.equal(transition(state, { type: "END" }).screen, "completion");
 });
 

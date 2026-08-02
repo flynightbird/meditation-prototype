@@ -53,6 +53,29 @@ test("handles completion, manual claiming, and presenter-controlled meal time", 
 test("synchronizes the meditation timer with actual video playback", () => {
   assert.match(app, /sceneVideo\.addEventListener\("playing", setTimerRunning\)/);
   assert.match(app, /mediaReady:\s*sceneVideo\.readyState\s*>=\s*HTMLMediaElement\.HAVE_CURRENT_DATA/);
+  assert.match(app, /classList\.toggle\("is-timer-running"/);
+  assert.match(app, /COUNTDOWN_COMPLETE/);
+  assert.match(app, /countdownCompleteTimer\s*=\s*window\.setTimeout[\s\S]*300/s);
+});
+
+test("renders a rounded clockwise SVG meditation timer", () => {
+  assert.match(app, /class="timer-track"[^>]*stroke-dasharray="2 3"/);
+  assert.match(app, /class="timer-progress"[^>]*pathLength="100"/);
+  assert.match(app, /class="timer-dot"/);
+  assert.match(app, /id="timerProgressGradient" x1="78" y1="17" x2="78" y2="139"/);
+  assert.doesNotMatch(app, /<span>静心练习<\/span>/);
+  assert.match(app, /<time[^>]*>\$\{formatTime\(state\.secondsRemaining\)\}<\/time>[\s\S]*<small>剩余时间<\/small>/);
+  assert.match(css, /\.timer-ring\s*{[^}]*width:\s*156px/s);
+  assert.match(css, /\.timer-progress\s*{[^}]*stroke-width:\s*14[^}]*stroke-linecap:\s*round/s);
+  assert.match(css, /\.timer-dot\s*{[^}]*width:\s*20px[^}]*border:\s*4px solid #fff[^}]*background:\s*transparent/s);
+  assert.match(css, /\.timer-progress\s*{[^}]*animation:\s*timer-progress 20s linear forwards/s);
+  assert.match(css, /\.timer-dot-orbit\s*{[^}]*animation:\s*timer-dot-orbit 20s linear forwards/s);
+  assert.match(css, /\.is-timer-running \.timer-progress,[\s\S]*animation-play-state:\s*running/s);
+  assert.match(css, /\.timer-copy\s*{[^}]*position:\s*absolute[^}]*inset:\s*0/s);
+  assert.match(css, /\.timer-copy time\s*{[^}]*top:\s*50%[^}]*left:\s*50%[^}]*transform:\s*translate\(-50%,\s*-50%\)/s);
+  assert.match(css, /\.timer-copy small\s*{[^}]*top:\s*104px[^}]*left:\s*50%[^}]*font-size:\s*11px[^}]*transform:\s*translateX\(-50%\)/s);
+  assert.match(css, /\.timer-panel > p\s*{[^}]*font-weight:\s*400/s);
+  assert.doesNotMatch(css, /\.timer-ring::after/);
 });
 
 test("applies media mute policy and segment replay", () => {
