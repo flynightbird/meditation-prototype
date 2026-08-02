@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const css = readFileSync(new URL("../src/trainer-booking.css", import.meta.url), "utf8");
 
 test("provides the complete trainer booking surface", () => {
   for (const id of ["trainerPage", "bookingDates", "bookingTimes", "bookingActionBar", "bookingDialog"]) {
@@ -27,9 +28,33 @@ test("uses cancel then confirm and omits payment copy", () => {
     /data-action="cancel-booking-selection"[\s\S]*data-action="open-booking-dialog"/,
   );
   assert.doesNotMatch(html, /扣除 1 课时|剩余\s*\d+\s*节/);
+  assert.doesNotMatch(html, /费用|价格|实付/);
+});
+
+test("keeps the fixed coach identity concise", () => {
+  assert.match(html, /中田健身 · 南山旗舰店/);
+  assert.match(html, /id="bookingDialog" aria-labelledby="bookingDialogTitle"/);
+  assert.doesNotMatch(html, /评分|好评率|完课数|认证教练/);
 });
 
 test("omits redundant schedule labels", () => {
   assert.doesNotMatch(html, />可约时间</);
   assert.doesNotMatch(html, />已选择/);
+});
+
+test("preserves the dark Hero and glass panel framework", () => {
+  assert.match(css, /\.trainer-page\s*{[^}]*background:\s*#0b0e14/s);
+  assert.match(css, /\.trainer-hero\s*{[^}]*height:\s*320px/s);
+  assert.match(css, /\.booking-panel[\s\S]*backdrop-filter:\s*blur\(24px\)/s);
+});
+
+test("uses one full-width 70px bottom context and approved button size", () => {
+  assert.match(css, /\.booking-action-bar\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
+  assert.match(css, /\.booking-cancel-action,\s*\.booking-confirm-action\s*{[^}]*height:\s*46px/s);
+  assert.match(css, /\.booking-confirm-action\s*{[^}]*padding:\s*0 24px/s);
+});
+
+test("keeps success status in normal layout flow", () => {
+  assert.match(css, /\.booking-status\s*{[^}]*position:\s*relative/s);
+  assert.doesNotMatch(css, /\.booking-status\s*{[^}]*position:\s*absolute/s);
 });

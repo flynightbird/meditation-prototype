@@ -187,9 +187,9 @@
               </header>
               <div class="trainer-map">
                 <img src="./assets/trainer-map.png" alt="深圳南山区附近门店地图" />
-                <span class="map-pin pin-one">1</span>
-                <span class="map-pin pin-two">2</span>
-                <span class="map-pin pin-three is-closed">3</span>
+                <span class="map-pin pin-one" aria-hidden="true">1</span>
+                <span class="map-pin pin-two" aria-hidden="true">2</span>
+                <span class="map-pin pin-three is-closed" aria-hidden="true">3</span>
               </div>
               <div class="store-list">
                 <article class="store-row">
@@ -225,7 +225,7 @@
         </div>
       </section>
 
-      <section class="booking-action-bar" id="bookingActionBar" aria-hidden="true">
+      <section class="booking-action-bar" id="bookingActionBar" aria-hidden="true" inert>
         <p>
           <strong id="bookingActionTime"></strong>
           <span>李教练 · 60分钟</span>
@@ -236,13 +236,13 @@
         </div>
       </section>
 
-      <dialog class="booking-dialog" id="bookingDialog">
+      <dialog class="booking-dialog" id="bookingDialog" aria-labelledby="bookingDialogTitle">
         <form method="dialog" class="booking-sheet">
           <span class="booking-sheet-handle" aria-hidden="true"></span>
           <header>
             <div>
               <small>预约确认</small>
-              <h2>李教练私教课</h2>
+              <h2 id="bookingDialogTitle">李教练私教课</h2>
             </div>
             <img src="./assets/trainer-avatar.png" alt="李教练" />
           </header>
