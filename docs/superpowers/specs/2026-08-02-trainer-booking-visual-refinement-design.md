@@ -35,6 +35,15 @@ Refine the existing private-trainer booking page without changing its booking mo
 - Increase the space between the two actions from 6px to 14px.
 - Preserve the 46px button height and 24px horizontal padding on the primary action.
 
+### Map and store status
+
+- Reduce the map image desaturation and darkening so street details remain legible.
+- Replace the current circular map markers with the supplied `/Users/admin/Downloads/Frame.svg` pin silhouette.
+- Reuse the SVG as a colorable mask: available locations use the yellow accent and the closed location uses a neutral gray.
+- Keep location numbers centered in the circular head of each pin.
+- Render the third store row's numbered badge in a neutral gray, not a dimmed yellow.
+- Preserve all three map positions, store rows, and their non-navigating Demo behavior.
+
 ## Responsive And Verification Criteria
 
 - Verify at 402×874 and 375×812.
@@ -42,4 +51,6 @@ Refine the existing private-trainer booking page without changing its booking mo
 - Seven date capsules remain on one row without text clipping.
 - The action summary, cancel, and confirmation controls do not overlap at 375px.
 - The Dock background reaches both bottom corners with no brown remnant.
+- The map remains readable without a heavy dark overlay, and all three SVG pin shapes are visible.
+- The third map pin and third list number are both visibly gray.
 - Existing booking tests and interaction states continue to pass.
