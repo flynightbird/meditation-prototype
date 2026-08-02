@@ -90,13 +90,20 @@ test("routes the trainer tab without changing stores", () => {
   assert.doesNotMatch(view, /SELECT_STORE|selectedStore|store-detail/);
 });
 
-test("uses the supplied map pin and lighter map treatment", () => {
+test("uses the supplied map pin without dimming the map", () => {
   assert.match(mapPin, /viewBox="0 0 200 200"/);
   assert.match(css, /\.map-pin::before\s*{[^}]*mask:\s*url\("\.\.\/assets\/trainer-map-pin\.svg"\)/s);
-  assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate/s);
-  assert.match(css, /\.trainer-map > img\s*{[^}]*saturate\(0\.72\)[^}]*brightness\(0\.88\)[^}]*opacity:\s*0\.9/s);
-  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)/s);
+  assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate[^}]*color:\s*#745400[^}]*font-size:\s*9px[^}]*font-weight:\s*600/s);
+  assert.match(css, /\.trainer-map > img\s*{[^}]*filter:\s*none[^}]*opacity:\s*1/s);
+  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)[^}]*color:\s*#3f4650/s);
   assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
+});
+
+test("positions the trainer behind the booking card and strengthens store cues", () => {
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-24px[^}]*bottom:\s*-24px[^}]*height:\s*100%/s);
+  assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
+  assert.match(css, /\.nearby-heading span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
+  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)[^}]*font-size:\s*32px/s);
 });
 
 test("uses the approved full trainer and vertical date capsules", () => {
