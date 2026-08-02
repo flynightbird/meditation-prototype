@@ -42,14 +42,14 @@ export function createInitialBookingState(now = new Date()) {
     selectedDateKey: dates[0].key,
     selectedTime: null,
     confirmedBooking: null,
-    bookedTimesByDate: new Map(),
   };
 }
 
-export function isTimeUnavailable(state, dateKeyValue, time) {
+export function isTimeUnavailable(state, time) {
   return (
     DEFAULT_UNAVAILABLE_TIMES.has(time) ||
-    state.bookedTimesByDate.get(dateKeyValue)?.has(time) === true
+    (state.confirmedBooking?.dateKey === state.selectedDateKey &&
+      state.confirmedBooking.time === time)
   );
 }
 
@@ -64,18 +64,13 @@ export function transitionBooking(state, event) {
         ? { ...state, selectedDateKey: event.dateKey, selectedTime: null }
         : state;
     case "SELECT_TIME":
-      return BOOKING_TIMES.includes(event.time) && !isTimeUnavailable(state, state.selectedDateKey, event.time)
+      return BOOKING_TIMES.includes(event.time) && !isTimeUnavailable(state, event.time)
         ? { ...state, selectedTime: event.time }
         : state;
     case "CANCEL_SELECTION":
       return state.selectedTime === null ? state : { ...state, selectedTime: null };
     case "CONFIRM_BOOKING": {
       if (state.selectedTime === null) return state;
-
-      const bookedTimesByDate = new Map(state.bookedTimesByDate);
-      const bookedTimes = new Set(bookedTimesByDate.get(state.selectedDateKey));
-      bookedTimes.add(state.selectedTime);
-      bookedTimesByDate.set(state.selectedDateKey, bookedTimes);
 
       return {
         ...state,
@@ -86,7 +81,6 @@ export function transitionBooking(state, event) {
           coach: COACH,
           store: STORE,
         },
-        bookedTimesByDate,
       };
     }
     default:

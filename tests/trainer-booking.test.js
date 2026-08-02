@@ -46,8 +46,8 @@ test("creates an initial state with today's date and no selection", () => {
 test("only permits available times to be selected", () => {
   const state = createInitialBookingState(today);
 
-  assert.equal(isTimeUnavailable(state, todayKey, "10:30"), true);
-  assert.equal(isTimeUnavailable(state, todayKey, "14:00"), true);
+  assert.equal(isTimeUnavailable(state, "10:30"), true);
+  assert.equal(isTimeUnavailable(state, "14:00"), true);
   assert.strictEqual(transitionBooking(state, { type: "SELECT_TIME", time: "10:30" }), state);
   assert.equal(
     transitionBooking(state, { type: "SELECT_TIME", time: "11:00" }).selectedTime,
@@ -91,7 +91,7 @@ test("confirming an available time stores the booking and blocks it for that dat
     store: "中田健身 · 南山旗舰店",
   });
   assert.equal(confirmed.selectedTime, null);
-  assert.equal(isTimeUnavailable(confirmed, todayKey, "11:00"), true);
+  assert.equal(isTimeUnavailable(confirmed, "11:00"), true);
 });
 
 test("ignores invalid booking events and confirmation without a selected time", () => {
