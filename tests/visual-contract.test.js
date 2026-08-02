@@ -105,7 +105,10 @@ test("uses full-screen media and a warm transition veil", () => {
 });
 
 test("uses outlined translucent yellow and black controls", () => {
-  assert.match(css, /\.primary-action\s*{[^}]*border:\s*1px[^}]*rgba\(255,\s*212,\s*42,\s*0\.82\)/s);
+  assert.match(
+    css,
+    /\.primary-action\s*{[^}]*border:\s*1px solid rgba\(255, 245, 181, 0\.88\)[^}]*background:\s*linear-gradient\(135deg, #f8d553, #e8ff66\)/s,
+  );
   assert.match(css, /\.session-controls\s*{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255/s);
   assert.match(css, /\.session-controls button:last-child\s*{[^}]*rgba\(24,\s*16,\s*12,\s*0\.74\)/s);
 });
