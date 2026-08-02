@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#2d1d16" />
     <title>成长基地 · 冥想闭环原型</title>
     <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/trainer-booking.css" />
   </head>
   <body>
     <main class="app-shell" id="app" data-screen="recommendation">
@@ -153,6 +154,107 @@
           <span class="nav-label">我的</span>
         </button>
       </nav>
+
+      <section class="trainer-page" id="trainerPage" aria-label="预约私教" hidden>
+        <div class="trainer-scroll" id="trainerScroll">
+          <header class="trainer-hero">
+            <img src="./assets/trainer-hero.png" alt="李教练" />
+            <div class="trainer-hero-shade" aria-hidden="true"></div>
+            <p class="trainer-store"><span aria-hidden="true"></span>中田健身 · 南山旗舰店</p>
+            <div class="trainer-identity">
+              <small>我的教练</small>
+              <h1>李教练</h1>
+              <p>已陪伴训练 16 次</p>
+            </div>
+            <div class="trainer-hero-cut" aria-hidden="true"></div>
+          </header>
+
+          <div class="trainer-content">
+            <section class="booking-panel" aria-labelledby="bookingTitle">
+              <header class="booking-heading">
+                <h2 id="bookingTitle">选择预约时间</h2>
+                <span>未来 7 天</span>
+              </header>
+              <p class="booking-status" id="bookingStatus" role="status" hidden></p>
+              <div class="booking-dates" id="bookingDates" aria-label="选择日期"></div>
+              <div class="booking-times" id="bookingTimes" aria-label="选择时间"></div>
+            </section>
+
+            <section class="nearby-panel" aria-labelledby="nearbyTitle">
+              <header class="nearby-heading">
+                <h2 id="nearbyTitle">附近门店</h2>
+                <span>共 3 家</span>
+              </header>
+              <div class="trainer-map">
+                <img src="./assets/trainer-map.png" alt="深圳南山区附近门店地图" />
+                <span class="map-pin pin-one">1</span>
+                <span class="map-pin pin-two">2</span>
+                <span class="map-pin pin-three is-closed">3</span>
+              </div>
+              <div class="store-list">
+                <article class="store-row">
+                  <b>1</b>
+                  <div>
+                    <h3>南浦大桥店 <em>营业中</em></h3>
+                    <p>756m · 南浦一路111号一层</p>
+                    <small>10:00–24:00 · 私教体验 · 体态检测</small>
+                  </div>
+                  <span aria-hidden="true">›</span>
+                </article>
+                <article class="store-row">
+                  <b>2</b>
+                  <div>
+                    <h3>前海湾旗舰店 <em>营业中</em></h3>
+                    <p>2.8km · 前海路99号B1层</p>
+                    <small>09:00–22:00 · 私教体验 · 停车方便</small>
+                  </div>
+                  <span aria-hidden="true">›</span>
+                </article>
+                <article class="store-row is-closed">
+                  <b>3</b>
+                  <div>
+                    <h3>海上世界店 <em>已打烊</em></h3>
+                    <p>4.1km · 望海路1187号商业中心</p>
+                    <small>10:00–21:30 · 体态检测 · 停车方便</small>
+                  </div>
+                  <span aria-hidden="true">›</span>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="booking-action-bar" id="bookingActionBar" aria-hidden="true">
+        <p>
+          <strong id="bookingActionTime"></strong>
+          <span>李教练 · 60分钟</span>
+        </p>
+        <div>
+          <button class="booking-cancel-action" type="button" data-action="cancel-booking-selection">取消</button>
+          <button class="booking-confirm-action" type="button" data-action="open-booking-dialog">确认预约</button>
+        </div>
+      </section>
+
+      <dialog class="booking-dialog" id="bookingDialog">
+        <form method="dialog" class="booking-sheet">
+          <span class="booking-sheet-handle" aria-hidden="true"></span>
+          <header>
+            <div>
+              <small>预约确认</small>
+              <h2>李教练私教课</h2>
+            </div>
+            <img src="./assets/trainer-avatar.png" alt="李教练" />
+          </header>
+          <dl>
+            <div><dt>课程</dt><dd>减脂塑形 · 60分钟</dd></div>
+            <div><dt>时间</dt><dd id="bookingDialogTime"></dd></div>
+            <div><dt>地点</dt><dd>中田健身 · 南山旗舰店</dd></div>
+          </dl>
+          <button class="booking-sheet-confirm" id="bookingSheetConfirm" type="button">确认预约</button>
+          <button class="booking-sheet-cancel" value="cancel">取消</button>
+        </form>
+      </dialog>
 
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
