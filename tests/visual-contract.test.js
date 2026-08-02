@@ -42,6 +42,19 @@ test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
 });
 
+test("defers reward artwork until the completion scene", () => {
+  const deferred = html.match(/data-deferred-src="\.\/assets\/reward-bed\.png"/g) ?? [];
+  assert.equal(deferred.length, 3);
+  assert.doesNotMatch(
+    html,
+    /<img(?=[^>]*reward-bed\.png)[^>]*\ssrc="\.\/assets\/reward-bed\.png"/,
+  );
+  assert.match(
+    app,
+    /state\.screen === "completion"[\s\S]*ensureRewardImages\(\)/,
+  );
+});
+
 test("renders the approved meal preparation and meal-time actions", () => {
   assert.match(app, /晚餐正在准备中/);
   assert.match(app, /17:30 提醒我/);

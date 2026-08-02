@@ -28,6 +28,7 @@ const sceneVideo = document.querySelector("#sceneVideo");
 const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
+const deferredRewardImages = [...document.querySelectorAll("img[data-deferred-src]")];
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
@@ -43,6 +44,7 @@ let claimDispatchTimer = null;
 let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
+let rewardImagesRequested = false;
 
 const assets = {
   meal: "./assets/task-meal.png?v=20260802",
@@ -261,8 +263,21 @@ sceneVideo.addEventListener("error", () => {
   app.classList.add("media-failed");
 });
 
+function ensureRewardImages() {
+  if (rewardImagesRequested) return;
+  rewardImagesRequested = true;
+  for (const image of deferredRewardImages) {
+    const source = image.dataset.deferredSrc;
+    if (source) image.src = source;
+  }
+}
+
 function scheduleScreenEntry(fromScreen) {
   clearScreenTimers();
+
+  if (state.screen === "completion") {
+    ensureRewardImages();
+  }
 
   if (state.screen !== "reward-settled") {
     app.classList.remove("is-settled-components-visible", "is-tent-dropping");
