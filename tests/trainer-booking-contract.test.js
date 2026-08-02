@@ -76,10 +76,15 @@ test("restores tabs and persists the success row", () => {
   assert.match(view, /bookingDialog\.close\(\)/);
   assert.match(view, /bottomNav\.inert = selected/);
   assert.match(view, /actionBar\.inert = !selected/);
+  assert.match(view, /bookingStatus\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(view, /if \(submitting\) event\.preventDefault\(\)/);
 });
 
 test("routes the trainer tab without changing stores", () => {
   assert.match(app, /mountTrainerBooking/);
   assert.match(app, /nav === "trainer"/);
+  assert.match(app, /onShow: pauseHomeExperience/);
+  assert.match(app, /onHide: resumeHomeExperience/);
+  assert.match(app, /if \(trainerBooking\.isVisible\(\)\)[\s\S]*sceneVideo\.pause\(\)/);
   assert.doesNotMatch(view, /SELECT_STORE|selectedStore|store-detail/);
 });

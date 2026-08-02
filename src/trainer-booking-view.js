@@ -5,12 +5,17 @@ import {
   transitionBooking,
 } from "./trainer-booking.js";
 
-function dateLabel(dates, dateKey) {
+function fullDateLabel(dates, dateKey) {
   const date = dates.find(({ key }) => key === dateKey);
   return date ? `${date.weekday} ${date.day}日` : dateKey;
 }
 
-export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
+function weekdayLabel(dateKey) {
+  return new Intl.DateTimeFormat("zh-CN", { weekday: "short" })
+    .format(new Date(`${dateKey}T12:00:00`));
+}
+
+export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide }) {
   const trainerPage = document.querySelector("#trainerPage");
   const trainerScroll = document.querySelector("#trainerScroll");
   const bookingDates = document.querySelector("#bookingDates");
@@ -21,8 +26,10 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
   const bookingDialog = document.querySelector("#bookingDialog");
   const dialogTime = document.querySelector("#bookingDialogTime");
   const sheetConfirm = document.querySelector("#bookingSheetConfirm");
+  const sheetCancel = bookingDialog.querySelector(".booking-sheet-cancel");
   let state = createInitialBookingState();
   let visible = false;
+  let submitting = false;
   let successTimer = null;
 
   function renderDates() {
@@ -58,8 +65,10 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
     const confirmed = state.confirmedBooking;
     bookingStatus.hidden = !confirmed;
     bookingStatus.textContent = confirmed
-      ? `✓ 已预约 · ${dateLabel(state.dates, confirmed.dateKey)} ${confirmed.time} · ${confirmed.coach}`
+      ? `✓ 已预约 · ${weekdayLabel(confirmed.dateKey)} ${confirmed.time} · ${confirmed.coach}`
       : "";
+    if (confirmed) bookingStatus.tabIndex = -1;
+    else bookingStatus.removeAttribute("tabindex");
   }
 
   function renderActionBar() {
@@ -71,7 +80,7 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
     actionBar.inert = !selected;
     bottomNav.inert = selected;
     actionTime.textContent = selected
-      ? `${dateLabel(state.dates, state.selectedDateKey)} ${state.selectedTime}`
+      ? `${weekdayLabel(state.selectedDateKey)} ${state.selectedTime}`
       : "";
   }
 
@@ -83,15 +92,17 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
   }
 
   function show() {
+    if (visible) return;
     visible = true;
     trainerPage.hidden = false;
     app.classList.add("is-trainer-view");
-    sceneVideo.pause();
+    onShow?.();
     trainerScroll.scrollTop = 0;
     render();
   }
 
   function hide() {
+    if (!visible) return;
     visible = false;
     trainerPage.hidden = true;
     app.classList.remove("is-trainer-view", "is-booking-action");
@@ -100,13 +111,17 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
     actionBar.inert = true;
     bottomNav.setAttribute("aria-hidden", "false");
     bottomNav.inert = false;
+    onHide?.();
   }
 
   function openDialog() {
     if (!state.selectedTime) return;
-    dialogTime.textContent = `${dateLabel(state.dates, state.selectedDateKey)} ${state.selectedTime}`;
+    submitting = false;
+    dialogTime.textContent = `${fullDateLabel(state.dates, state.selectedDateKey)} ${state.selectedTime}`;
     sheetConfirm.textContent = "确认预约";
     sheetConfirm.classList.remove("is-success");
+    sheetConfirm.disabled = false;
+    sheetCancel.disabled = false;
     bookingDialog.showModal();
   }
 
@@ -136,16 +151,26 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo }) {
   });
 
   sheetConfirm.addEventListener("click", () => {
+    if (submitting) return;
+    submitting = true;
     state = transitionBooking(state, { type: "CONFIRM_BOOKING" });
     sheetConfirm.textContent = "✓ 预约成功";
     sheetConfirm.classList.add("is-success");
+    sheetConfirm.disabled = true;
+    sheetCancel.disabled = true;
     window.clearTimeout(successTimer);
     successTimer = window.setTimeout(() => {
-      bookingDialog.close();
       render();
+      bookingDialog.close();
+      bookingStatus.focus({ preventScroll: true });
+      submitting = false;
     }, 1200);
   });
 
+  bookingDialog.addEventListener("cancel", (event) => {
+    if (submitting) event.preventDefault();
+  });
+
   render();
-  return { show, hide };
+  return { show, hide, isVisible: () => visible };
 }

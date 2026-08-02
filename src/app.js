@@ -26,7 +26,13 @@ const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
-const trainerBooking = mountTrainerBooking({ app, bottomNav, sceneVideo });
+const trainerBooking = mountTrainerBooking({
+  app,
+  bottomNav,
+  sceneVideo,
+  onShow: pauseHomeExperience,
+  onHide: resumeHomeExperience,
+});
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
@@ -157,6 +163,19 @@ function clearScreenTimers() {
   claimDispatchTimer = null;
 }
 
+function pauseHomeExperience() {
+  clearScreenTimers();
+  window.clearInterval(timerId);
+  timerId = null;
+  app.classList.remove("is-timer-running");
+  sceneVideo.pause();
+}
+
+function resumeHomeExperience() {
+  scheduleScreenEntry(state.screen);
+  playCurrentScene({ fromScreen: state.screen });
+}
+
 function stopMedia() {
   sceneVideo.pause();
   sceneVideo.removeAttribute("src");
@@ -165,6 +184,10 @@ function stopMedia() {
 }
 
 function playCurrentScene({ fromScreen = null } = {}) {
+  if (trainerBooking.isVisible()) {
+    sceneVideo.pause();
+    return;
+  }
   const scene = getMediaScene(state.screen);
   if (!scene) {
     stopMedia();
@@ -183,6 +206,10 @@ function playCurrentScene({ fromScreen = null } = {}) {
   app.classList.add("has-media");
 
   const startPlayback = () => {
+    if (trainerBooking.isVisible()) {
+      sceneVideo.pause();
+      return;
+    }
     if (["reward", "reward-settled"].includes(state.screen)) {
       sceneVideo.currentTime = getReplayTime(state.screen, sceneVideo.duration);
     }
@@ -561,7 +588,6 @@ app.addEventListener("click", (event) => {
     } else if (nav === "coach") {
       trainerBooking.hide();
       setActiveNavigation("coach");
-      playCurrentScene({ fromScreen: state.screen });
     } else {
       showToast("敬请期待");
     }
