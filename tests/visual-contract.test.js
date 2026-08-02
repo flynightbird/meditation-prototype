@@ -239,6 +239,11 @@ test("places task rewards top-right and the current label bottom-right", () => {
   assert.match(css, /\.current-label\s*{[^}]*right:\s*7px[^}]*bottom:\s*6px/s);
 });
 
+test("keeps task reward labels on one compact line", () => {
+  assert.match(css, /\.task-reward\s*{[^}]*display:\s*flex[^}]*white-space:\s*nowrap/s);
+  assert.match(css, /\.task-reward small,[\s\S]*\.task-reward b\s*{[^}]*display:\s*inline/s);
+});
+
 test("provides a persistent collectible growth bubble layer", () => {
   assert.match(html, /id="growthBubbleLayer"[^>]*aria-label="待领取成长奖励"/);
   assert.match(app, /getVisibleBubbles\(growthState\)/);
