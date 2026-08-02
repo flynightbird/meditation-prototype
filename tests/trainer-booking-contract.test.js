@@ -100,8 +100,13 @@ test("uses the supplied map pin without dimming the map", () => {
 });
 
 test("positions the trainer behind the booking card and strengthens store cues", () => {
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-24px[^}]*bottom:\s*-24px[^}]*height:\s*100%/s);
+  assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
+  assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-54px[^}]*top:\s*24px[^}]*bottom:\s*auto[^}]*height:\s*150%/s);
+  assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
+  assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
+  assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
   assert.match(css, /\.nearby-heading span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
   assert.match(css, /\.store-row > span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)[^}]*font-size:\s*32px/s);
 });
