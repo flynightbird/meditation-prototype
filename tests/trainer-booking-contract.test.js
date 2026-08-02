@@ -6,6 +6,7 @@ const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/trainer-booking.css", import.meta.url), "utf8");
 const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const view = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.url), "utf8");
+const mapPin = readFileSync(new URL("../assets/trainer-map-pin.svg", import.meta.url), "utf8");
 
 test("provides the complete trainer booking surface", () => {
   for (const id of ["trainerPage", "bookingDates", "bookingTimes", "bookingActionBar", "bookingDialog"]) {
@@ -87,4 +88,25 @@ test("routes the trainer tab without changing stores", () => {
   assert.match(app, /onHide: resumeHomeExperience/);
   assert.match(app, /if \(trainerBooking\.isVisible\(\)\)[\s\S]*sceneVideo\.pause\(\)/);
   assert.doesNotMatch(view, /SELECT_STORE|selectedStore|store-detail/);
+});
+
+test("uses the supplied map pin and lighter map treatment", () => {
+  assert.match(mapPin, /viewBox="0 0 200 200"/);
+  assert.match(css, /\.map-pin\s*{[^}]*mask:\s*url\("\.\.\/assets\/trainer-map-pin\.svg"\)/s);
+  assert.match(css, /\.trainer-map > img\s*{[^}]*saturate\(0\.72\)[^}]*brightness\(0\.88\)[^}]*opacity:\s*0\.9/s);
+  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*background:\s*rgba\(255, 255, 255, 0\.38\)/s);
+  assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
+});
+
+test("uses the approved full trainer and vertical date capsules", () => {
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*right bottom/s);
+  assert.match(css, /\.booking-date\s*{[^}]*height:\s*68px[^}]*border-radius:\s*999px/s);
+  assert.match(css, /\.booking-date strong\s*{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*border-radius:\s*50%/s);
+  assert.match(css, /\.booking-date\[aria-pressed="true"\]\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s);
+});
+
+test("extends the trainer background through the Dock and separates actions", () => {
+  assert.match(css, /\.is-trainer-view \.bottom-nav\s*{[^}]*background:\s*rgba\(11, 14, 20, 0\.96\)/s);
+  assert.match(css, /\.booking-action-bar > div\s*{[^}]*gap:\s*14px/s);
+  assert.match(css, /\.booking-cancel-action\s*{[^}]*background:\s*transparent/s);
 });
