@@ -16,6 +16,10 @@ test("provides the complete trainer booking surface", () => {
 
 test("keeps the map and all three nearby stores", () => {
   assert.match(html, /assets\/trainer-map\.png/);
+  assert.match(
+    html,
+    /<span class="nearby-summary">附近有3家 ｜ 深圳市有128家 <i aria-hidden="true">›<\/i><\/span>/,
+  );
   for (const store of ["南浦大桥店", "前海湾旗舰店", "海上世界店"]) {
     assert.match(html, new RegExp(store));
   }
@@ -107,7 +111,7 @@ test("positions the trainer behind the booking card and strengthens store cues",
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
-  assert.match(css, /\.nearby-heading span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
+  assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
   assert.match(css, /\.store-row > span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)[^}]*font-size:\s*32px/s);
 });
 
