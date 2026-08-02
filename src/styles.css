@@ -240,20 +240,47 @@ button:focus-visible {
 
 .streak {
   display: flex;
-  min-height: 38px;
+  min-height: 32px;
+  padding: 0 10px 0 8px;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  border-radius: 12px;
   color: rgba(255, 255, 255, 0.94);
-  font-size: 13px;
-  font-weight: 650;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   text-shadow: 0 1px 7px rgba(20, 10, 5, 0.5);
   transition: opacity 220ms ease, transform 380ms var(--ease-out);
 }
 
 .streak img {
-  width: 21px;
-  height: 26px;
+  width: 18px;
+  height: 22px;
   object-fit: contain;
+}
+
+.streak-primary {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.streak-divider {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.base-level {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.base-level strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 400;
 }
 
 .capsule {
@@ -542,16 +569,16 @@ button:focus-visible {
   position: absolute;
   z-index: 12;
   right: 0;
-  bottom: 80px;
+  bottom: 76px;
   left: 0;
   display: flex;
-  height: 102px;
+  height: 98px;
   align-items: end;
-  gap: 10px;
-  padding: 5px calc(50% - 75px) 7px;
+  gap: 4px;
+  padding: 5px calc(50% - 73px) 5px;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-padding-inline: calc(50% - 75px);
+  scroll-padding-inline: calc(50% - 73px);
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -566,16 +593,16 @@ button:focus-visible {
 .task-card {
   position: relative;
   display: grid;
-  flex: 0 0 90px;
-  width: 90px;
-  height: 72px;
+  flex: 0 0 88px;
+  width: 88px;
+  height: 70px;
   padding: 5px 6px 5px;
   grid-template-rows: 11px minmax(0, 1fr) 16px;
   row-gap: 0;
   place-items: center;
   overflow: hidden;
   border: 0;
-  border-radius: 12px;
+  border-radius: 14px;
   color: #2b1d15;
   font-family: var(--display);
   background: var(--surface);
@@ -586,9 +613,9 @@ button:focus-visible {
 }
 
 .task-card.is-current {
-  flex-basis: 150px;
-  width: 150px;
-  height: 90px;
+  flex-basis: 146px;
+  width: 146px;
+  height: 88px;
   padding: 7px 10px 7px;
   grid-template-rows: 13px minmax(0, 1fr) 18px;
   row-gap: 2px;
@@ -706,7 +733,7 @@ button:focus-visible {
   bottom: 0;
   left: 0;
   display: flex;
-  height: 74px;
+  height: 70px;
   align-items: center;
   justify-content: space-around;
   padding: 8px;
@@ -1449,11 +1476,6 @@ button:focus-visible {
   .growth-cue {
     gap: 6px;
     font-size: 11px;
-  }
-
-  .bottom-nav {
-    right: 16px;
-    left: 16px;
   }
 
 }
