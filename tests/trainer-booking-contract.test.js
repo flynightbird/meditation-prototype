@@ -111,3 +111,8 @@ test("extends the trainer background through the Dock and separates actions", ()
   assert.match(css, /\.booking-action-bar > div\s*{[^}]*gap:\s*14px/s);
   assert.match(css, /\.booking-cancel-action\s*{[^}]*background:\s*transparent/s);
 });
+
+test("extends the trainer page behind the rounded Dock corners", () => {
+  assert.match(css, /\.trainer-page\s*{[^}]*inset:\s*0;/s);
+  assert.match(css, /\.trainer-content\s*{[^}]*padding:\s*0 14px 94px/s);
+});
