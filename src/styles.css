@@ -240,20 +240,47 @@ button:focus-visible {
 
 .streak {
   display: flex;
-  min-height: 38px;
+  min-height: 32px;
+  padding: 0 10px 0 8px;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  border-radius: 12px;
   color: rgba(255, 255, 255, 0.94);
-  font-size: 13px;
-  font-weight: 650;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   text-shadow: 0 1px 7px rgba(20, 10, 5, 0.5);
   transition: opacity 220ms ease, transform 380ms var(--ease-out);
 }
 
 .streak img {
-  width: 21px;
-  height: 26px;
+  width: 18px;
+  height: 22px;
   object-fit: contain;
+}
+
+.streak-primary {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.streak-divider {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.base-level {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.base-level strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 400;
 }
 
 .capsule {
@@ -285,10 +312,10 @@ button:focus-visible {
 }
 
 .time-label {
-  margin: 10px 0 0;
-  color: var(--accent-soft);
-  font-size: 13px;
-  font-weight: 700;
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .message > .time-label:first-child {
@@ -298,7 +325,7 @@ button:focus-visible {
 
 .supporting {
   max-width: 354px;
-  margin: 7px 0 0;
+  margin: 3px 0 0;
   color: var(--text-muted);
   font-size: 15px;
   font-weight: 400;
@@ -307,37 +334,12 @@ button:focus-visible {
 }
 
 .growth-cue {
-  display: flex;
-  min-height: 24px;
-  margin-top: 11px;
-  align-items: center;
-  gap: 8px;
-  color: rgba(255, 250, 243, 0.86);
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 12px;
+  font-weight: 400;
   line-height: 1.25;
-  white-space: nowrap;
-}
-
-.growth-cue strong {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.growth-dots {
-  display: flex;
-  gap: 4px;
-}
-
-.growth-dots i {
-  width: 7px;
-  aspect-ratio: 1;
-  border: 1px solid rgba(255, 233, 144, 0.9);
-  border-radius: 50%;
-  background: transparent;
-}
-
-.growth-dots i.is-filled {
-  background: var(--accent);
+  text-shadow: 0 2px 10px rgba(22, 11, 5, 0.5);
 }
 
 .reward-layer {
@@ -542,16 +544,16 @@ button:focus-visible {
   position: absolute;
   z-index: 12;
   right: 0;
-  bottom: 80px;
+  bottom: 76px;
   left: 0;
   display: flex;
-  height: 102px;
+  height: 98px;
   align-items: end;
-  gap: 10px;
-  padding: 5px calc(50% - 75px) 7px;
+  gap: 4px;
+  padding: 5px calc(50% - 73px) 5px;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-padding-inline: calc(50% - 75px);
+  scroll-padding-inline: calc(50% - 73px);
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -566,16 +568,16 @@ button:focus-visible {
 .task-card {
   position: relative;
   display: grid;
-  flex: 0 0 90px;
-  width: 90px;
-  height: 72px;
+  flex: 0 0 88px;
+  width: 88px;
+  height: 70px;
   padding: 5px 6px 5px;
   grid-template-rows: 11px minmax(0, 1fr) 16px;
   row-gap: 0;
   place-items: center;
   overflow: hidden;
   border: 0;
-  border-radius: 12px;
+  border-radius: 14px;
   color: #2b1d15;
   font-family: var(--display);
   background: var(--surface);
@@ -586,9 +588,9 @@ button:focus-visible {
 }
 
 .task-card.is-current {
-  flex-basis: 150px;
-  width: 150px;
-  height: 90px;
+  flex-basis: 146px;
+  width: 146px;
+  height: 88px;
   padding: 7px 10px 7px;
   grid-template-rows: 13px minmax(0, 1fr) 18px;
   row-gap: 2px;
@@ -610,14 +612,46 @@ button:focus-visible {
 
 .task-card time {
   align-self: center;
-  justify-self: center;
+  justify-self: start;
   font-size: 10px;
   font-variant-numeric: tabular-nums;
   font-weight: 550;
 }
 
-.task-card.is-current time {
-  justify-self: start;
+.task-reward {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  min-width: 28px;
+  min-height: 21px;
+  padding: 2px 4px;
+  place-content: center;
+  border-radius: 7px;
+  color: #4a2b1c;
+  background: rgba(255, 238, 210, 0.88);
+  box-shadow: inset 0 0 0 1px rgba(134, 91, 55, 0.16);
+  line-height: 1;
+  text-align: center;
+}
+
+.task-reward small,
+.task-reward b {
+  display: block;
+  font-size: 8px;
+  font-weight: 400;
+}
+
+.reward-focus {
+  background: rgba(226, 232, 228, 0.9);
+}
+
+.reward-vitality {
+  background: rgba(248, 192, 166, 0.9);
+}
+
+.reward-stamina {
+  background: rgba(244, 218, 143, 0.9);
 }
 
 .task-visual {
@@ -689,8 +723,8 @@ button:focus-visible {
 
 .current-label {
   position: absolute;
-  top: 6px;
   right: 7px;
+  bottom: 6px;
   padding: 2px 5px;
   border-radius: 999px;
   color: #5a4004;
@@ -706,7 +740,7 @@ button:focus-visible {
   bottom: 0;
   left: 0;
   display: flex;
-  height: 74px;
+  height: 70px;
   align-items: center;
   justify-content: space-around;
   padding: 8px;
@@ -1449,11 +1483,6 @@ button:focus-visible {
   .growth-cue {
     gap: 6px;
     font-size: 11px;
-  }
-
-  .bottom-nav {
-    right: 16px;
-    left: 16px;
   }
 
 }

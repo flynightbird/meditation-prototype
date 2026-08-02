@@ -6,6 +6,7 @@ import {
   shouldRunMediaTimer,
 } from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
+import { createGrowthState, getDailyProgress } from "./growth.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
@@ -28,6 +29,9 @@ const rewardLayer = document.querySelector("#rewardLayer");
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
+let growthState = createGrowthState(getLocalDateKey(), {
+  initialProgress: readStorage(CLAIM_KEY) === "claimed" ? 4 : 3,
+});
 let previousScreen = null;
 let timerId = null;
 let countdownCompleteTimer = null;
@@ -72,12 +76,13 @@ function removeStorage(key) {
   }
 }
 
-function taskCard({ id, time, label, icon, status }) {
+function taskCard({ id, time, label, icon, reward, status }) {
   const current = status === "current";
   const done = status === "done";
   return `
-    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}${done ? "，已完成" : current ? "，当前任务" : ""}">
+    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}，${reward.label}加${reward.value}${done ? "，已完成" : current ? "，当前任务" : ""}">
       <time>${time}</time>
+      ${!done ? `<span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${reward.label}</small><b>+${reward.value}</b></span>` : ""}
       <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
       <span class="task-footer">
         <strong>${label}</strong>
@@ -104,18 +109,9 @@ function centerCurrentTask(behavior = "smooth") {
 }
 
 function growthCue() {
-  const claimed = readStorage(CLAIM_KEY) === "claimed";
-  const filled = claimed ? 4 : 3;
-  const dots = Array.from(
-    { length: 4 },
-    (_, index) => `<i class="${index < filled ? "is-filled" : ""}"></i>`,
-  ).join("");
-  return `
-    <div class="growth-cue" aria-label="静心营地进度${filled}分之4">
-      <strong>静心营地</strong>
-      <span class="growth-dots" aria-hidden="true">${dots}</span>
-      <span>${claimed ? "静心帐篷已加入营地" : "再完成1次解锁帐篷"}</span>
-    </div>`;
+  const progress = getDailyProgress(growthState);
+  const status = progress === 4 ? "帐篷营地已获得" : "完成可获得帐篷营地";
+  return `<p class="growth-cue">今日任务 ${progress}/4，${status}</p>`;
 }
 
 function setTimerRunning() {
@@ -342,7 +338,7 @@ function render(animate = true) {
 
   if (state.screen === "recommendation") {
     message.innerHTML = `
-      <h1>今天恢复得不错</h1>
+      <h1>${getGreeting(new Date().getHours())}，Maggie</h1>
       <p class="time-label">15:30 · AI健康建议</p>
       <p class="supporting">你通常在下午3点后注意力下降，今天安排5分钟放松吧。</p>
       ${growthCue()}`;

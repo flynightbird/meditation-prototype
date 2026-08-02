@@ -133,6 +133,19 @@ test("uses regular weight across the interface", () => {
   assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
 });
 
+test("shows a compact single-line growth base identity on subtle glass", () => {
+  assert.match(
+    html,
+    /class="streak-primary">连续18天<[\s\S]*class="streak-divider">·<[\s\S]*class="base-level">成长基地\s*<strong>Lv\.2<\/strong>/,
+  );
+  assert.match(css, /\.streak\s*{[^}]*display:\s*flex[^}]*min-height:\s*32px[^}]*padding:\s*0 10px 0 8px/s);
+  assert.match(css, /\.streak\s*{[^}]*border-radius:\s*12px[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*backdrop-filter:\s*blur\(10px\)/s);
+  assert.match(css, /\.streak-primary\s*{[^}]*font-size:\s*12px[^}]*line-height:\s*16px/s);
+  assert.match(css, /\.base-level\s*{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.74\)[^}]*font-size:\s*11px[^}]*line-height:\s*16px/s);
+  assert.match(css, /\.base-level strong\s*{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.92\)[^}]*font-weight:\s*400/s);
+  assert.doesNotMatch(css, /\.streak\s*{[^}]*border:/s);
+});
+
 test("uses regular Chill Round for display and task copy only", () => {
   assert.match(
     css,
@@ -152,13 +165,17 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   }
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
   assert.match(app, /action === "nav-tap"[^\n]*button\.dataset\.nav !== "coach"[^\n]*敬请期待/);
-  assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*74px/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
+  assert.doesNotMatch(
+    css,
+    /@media \(max-width:\s*374px\)[\s\S]*?\.bottom-nav\s*{[^}]*right:\s*16px[^}]*left:\s*16px/s,
+  );
   assert.match(css, /\.bottom-nav\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)/s);
   assert.match(css, /\.bottom-nav\s*{[^}]*padding:\s*8px/s);
   assert.match(css, /\.nav-item\.is-active\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)/s);
   assert.match(css, /\.nav-item\.is-active \.nav-icon\s*{[^}]*color:\s*#fff[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
   assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#fff/s);
-  assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*80px[^}]*height:\s*102px[^}]*gap:\s*10px/s);
+  assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*76px[^}]*height:\s*98px[^}]*gap:\s*4px/s);
 });
 
 test("uses compact content-sized primary controls", () => {
@@ -206,6 +223,22 @@ test("supporting recommendation copy uses regular weight", () => {
   assert.match(css, /\.supporting\s*{[^}]*font-weight:\s*400/s);
 });
 
+test("renders the approved greeting and lightweight daily goal copy", () => {
+  assert.match(app, /\$\{getGreeting\(new Date\(\)\.getHours\(\)\)\}，Maggie/);
+  assert.match(app, /今日任务 \$\{progress\}\/4，\$\{status\}/);
+  assert.match(app, /progress === 4 \? "帐篷营地已获得" : "完成可获得帐篷营地"/);
+  assert.doesNotMatch(app, /growth-dots/);
+  assert.match(css, /\.growth-cue\s*{[^}]*font-size:\s*12px[^}]*font-weight:\s*400/s);
+  assert.doesNotMatch(css, /\.growth-cue\s*{[^}]*background:/s);
+});
+
+test("places task rewards top-right and the current label bottom-right", () => {
+  assert.match(app, /class="task-reward reward-\$\{reward\.attribute\}"/);
+  assert.match(app, /<small>\$\{reward\.label\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
+  assert.match(css, /\.task-reward\s*{[^}]*top:\s*5px[^}]*right:\s*5px/s);
+  assert.match(css, /\.current-label\s*{[^}]*right:\s*7px[^}]*bottom:\s*6px/s);
+});
+
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);
@@ -230,9 +263,9 @@ test("small task cards use one centered icon frame without row gaps", () => {
 });
 
 test("uses the approved compact schedule dimensions", () => {
-  assert.match(css, /\.task-rail\s*{[^}]*height:\s*102px/s);
-  assert.match(css, /\.task-card\s*{[^}]*height:\s*72px/s);
-  assert.match(css, /\.task-card\.is-current\s*{[^}]*height:\s*90px/s);
+  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 73px\) 5px/s);
+  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 88px[^}]*width:\s*88px[^}]*height:\s*70px[^}]*border-radius:\s*14px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*146px[^}]*width:\s*146px[^}]*height:\s*88px/s);
 });
 
 test("styles reward settling without standalone character CSS", () => {
