@@ -25,10 +25,13 @@
 }
 
 .trainer-hero > img {
-  width: 100%;
+  position: absolute;
+  right: -4px;
+  bottom: 0;
+  width: auto;
   height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
+  object-fit: contain;
+  object-position: right bottom;
 }
 
 .trainer-hero-shade {
@@ -169,19 +172,35 @@
 .booking-date {
   display: grid;
   min-width: 0;
-  height: 58px;
-  padding: 8px 0;
+  height: 68px;
+  padding: 7px 0 6px;
   place-items: center;
-  border-radius: 13px;
+  border-radius: 999px;
   font-size: 9px;
 }
 
 .booking-date strong {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
   font-size: 15px;
   font-weight: 400;
 }
 
-.booking-date[aria-pressed="true"],
+.booking-date[aria-pressed="true"] {
+  border-color: #f8d553;
+  color: #16130b;
+  background: #f8d553;
+  box-shadow: 0 0 16px rgba(248, 213, 83, 0.18);
+}
+
+.booking-date[aria-pressed="true"] strong {
+  background: rgba(255, 255, 255, 0.56);
+}
+
 .booking-time[aria-pressed="true"] {
   border-color: rgba(248, 213, 83, 0.52);
   color: #f8d553;
@@ -223,21 +242,23 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(0.42) brightness(0.62);
-  opacity: 0.66;
+  filter: saturate(0.72) brightness(0.88);
+  opacity: 0.9;
 }
 
 .map-pin {
   position: absolute;
   display: grid;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 32px;
+  padding-bottom: 5px;
   place-items: center;
-  border-radius: 50%;
   color: #0b0e14;
   background: #f8d553;
-  box-shadow: 0 0 12px rgba(248, 213, 83, 0.45);
-  font-size: 10px;
+  -webkit-mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
+  mask: url("../assets/trainer-map-pin.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 7px rgba(248, 213, 83, 0.48));
+  font-size: 9px;
 }
 
 .pin-one { top: 54%; left: 51%; }
@@ -245,9 +266,9 @@
 .pin-three { top: 20%; left: 73%; }
 
 .map-pin.is-closed {
-  color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: none;
+  color: rgba(11, 14, 20, 0.7);
+  background: rgba(255, 255, 255, 0.38);
+  filter: none;
 }
 
 .store-list { padding: 0 16px 8px; }
@@ -308,6 +329,12 @@
 
 .store-row.is-closed { opacity: 0.56; }
 
+.store-row.is-closed > b {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .booking-action-bar {
   position: absolute;
   z-index: 30;
@@ -362,7 +389,7 @@
 .booking-action-bar > div {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 14px;
 }
 
 .booking-cancel-action,
@@ -378,6 +405,10 @@
   border: 0;
   color: rgba(255, 255, 255, 0.6);
   background: transparent;
+}
+
+.booking-cancel-action:active {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .booking-confirm-action {
@@ -501,6 +532,10 @@
 .is-trainer-view .action-zone,
 .is-trainer-view .task-rail {
   visibility: hidden;
+}
+
+.is-trainer-view .bottom-nav {
+  background: rgba(11, 14, 20, 0.96);
 }
 
 .is-booking-action .bottom-nav {
