@@ -3,7 +3,7 @@ import test from "node:test";
 
 import * as mediaScene from "../src/media-scene.js";
 
-const { getMediaScene, getReplayTime, shouldRunMediaTimer } = mediaScene;
+const { getMediaScene, getNextMediaSource, getReplayTime, shouldRunMediaTimer } = mediaScene;
 
 test("maps application states to video-only media scenes", () => {
   const recommendation = getMediaScene("recommendation");
@@ -24,6 +24,24 @@ test("maps application states to video-only media scenes", () => {
   assert.equal(getMediaScene("meal-prep").seamMask, false);
   assert.equal(getMediaScene("demo-time-shift").seamMask, false);
   assert.equal(getMediaScene("meal-time").seamMask, false);
+});
+
+test("maps each screen to only its next unique video", () => {
+  const expected = new Map([
+    ["recommendation", null],
+    ["active", "./assets/video-meditation-complete.mp4"],
+    ["completion", "./assets/video-greeting.mp4"],
+    ["reward", "./assets/video-meal-prep.mp4"],
+    ["reward-settled", "./assets/video-meal-prep.mp4"],
+    ["meal-prep", "./assets/video-meal-cook.mp4"],
+    ["demo-time-shift", "./assets/video-meal-cook.mp4"],
+    ["meal-time", null],
+    ["unknown", null],
+  ]);
+
+  for (const [screen, source] of expected) {
+    assert.equal(getNextMediaSource(screen), source, screen);
+  }
 });
 
 test("calculates approved replay positions", () => {

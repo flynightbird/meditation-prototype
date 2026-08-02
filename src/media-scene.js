@@ -50,8 +50,21 @@ const SCENES = {
   },
 };
 
+const NEXT_MEDIA_SOURCES = Object.freeze({
+  active: "./assets/video-meditation-complete.mp4",
+  completion: "./assets/video-greeting.mp4",
+  reward: "./assets/video-meal-prep.mp4",
+  "reward-settled": "./assets/video-meal-prep.mp4",
+  "meal-prep": "./assets/video-meal-cook.mp4",
+  "demo-time-shift": "./assets/video-meal-cook.mp4",
+});
+
 export function getMediaScene(screen) {
   return SCENES[screen] ?? null;
+}
+
+export function getNextMediaSource(screen) {
+  return NEXT_MEDIA_SOURCES[screen] ?? null;
 }
 
 export function getReplayTime(screen, duration) {
