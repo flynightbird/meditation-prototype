@@ -6,6 +6,7 @@ import {
   shouldRunMediaTimer,
 } from "./media-scene.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
+import { mountTrainerBooking } from "./trainer-booking-view.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
@@ -25,6 +26,13 @@ const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
+const trainerBooking = mountTrainerBooking({
+  app,
+  bottomNav,
+  sceneVideo,
+  onShow: pauseHomeExperience,
+  onHide: resumeHomeExperience,
+});
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
@@ -155,6 +163,19 @@ function clearScreenTimers() {
   claimDispatchTimer = null;
 }
 
+function pauseHomeExperience() {
+  clearScreenTimers();
+  window.clearInterval(timerId);
+  timerId = null;
+  app.classList.remove("is-timer-running");
+  sceneVideo.pause();
+}
+
+function resumeHomeExperience() {
+  scheduleScreenEntry(state.screen);
+  playCurrentScene({ fromScreen: state.screen });
+}
+
 function stopMedia() {
   sceneVideo.pause();
   sceneVideo.removeAttribute("src");
@@ -163,6 +184,10 @@ function stopMedia() {
 }
 
 function playCurrentScene({ fromScreen = null } = {}) {
+  if (trainerBooking.isVisible()) {
+    sceneVideo.pause();
+    return;
+  }
   const scene = getMediaScene(state.screen);
   if (!scene) {
     stopMedia();
@@ -181,6 +206,10 @@ function playCurrentScene({ fromScreen = null } = {}) {
   app.classList.add("has-media");
 
   const startPlayback = () => {
+    if (trainerBooking.isVisible()) {
+      sceneVideo.pause();
+      return;
+    }
     if (["reward", "reward-settled"].includes(state.screen)) {
       sceneVideo.currentTime = getReplayTime(state.screen, sceneVideo.duration);
     }
@@ -518,6 +547,15 @@ function resetExperience(eventType = "RESET") {
   render();
 }
 
+function setActiveNavigation(nav) {
+  bottomNav.querySelectorAll(".nav-item").forEach((item) => {
+    const active = item.dataset.nav === nav;
+    item.classList.toggle("is-active", active);
+    if (active) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  });
+}
+
 welcomeOverlay.addEventListener("click", finishWelcome);
 document.addEventListener("keydown", (event) => {
   if (!welcomeOverlay.hidden && event.key === "Escape") finishWelcome();
@@ -541,7 +579,19 @@ app.addEventListener("click", (event) => {
       dispatch({ type: "CLAIM_REWARD" });
     }, reducedMotion.matches ? 1 : 360);
   }
-  if (action === "nav-tap" && button.dataset.nav !== "coach") showToast("敬请期待");
+  if (action === "nav-tap") {
+    const nav = button.dataset.nav;
+    if (nav === "trainer") {
+      finishWelcome();
+      trainerBooking.show();
+      setActiveNavigation("trainer");
+    } else if (nav === "coach") {
+      trainerBooking.hide();
+      setActiveNavigation("coach");
+    } else {
+      showToast("敬请期待");
+    }
+  }
   if (action === "meal-reminder") dispatch({ type: "SET_MEAL_REMINDER" });
   if (action === "start-meal") resetExperience("START_MEAL");
   if (action === "reset") resetExperience();
