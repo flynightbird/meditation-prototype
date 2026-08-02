@@ -235,13 +235,17 @@ test("renders the approved greeting and lightweight daily goal copy", () => {
 test("places task rewards top-right and the current label bottom-right", () => {
   assert.match(app, /class="task-reward reward-\$\{reward\.attribute\}"/);
   assert.match(app, /<small>\$\{reward\.label\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
-  assert.match(css, /\.task-reward\s*{[^}]*top:\s*5px[^}]*right:\s*5px/s);
+  assert.match(css, /\.task-reward\s*{[^}]*grid-row:\s*1[^}]*grid-column:\s*1[^}]*justify-self:\s*end/s);
   assert.match(css, /\.current-label\s*{[^}]*right:\s*7px[^}]*bottom:\s*6px/s);
 });
 
-test("keeps task reward labels on one compact line", () => {
-  assert.match(css, /\.task-reward\s*{[^}]*display:\s*flex[^}]*white-space:\s*nowrap/s);
-  assert.match(css, /\.task-reward small,[\s\S]*\.task-reward b\s*{[^}]*display:\s*inline/s);
+test("renders task rewards as plain text aligned with card times", () => {
+  assert.match(css, /\.task-card time\s*{[^}]*grid-row:\s*1[^}]*grid-column:\s*1/s);
+  assert.match(css, /\.task-reward\s*{[^}]*position:\s*static[^}]*align-self:\s*center/s);
+  assert.match(css, /\.task-reward\s*{[^}]*padding:\s*0[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
+  assert.match(css, /\.task-reward\s*{[^}]*font-size:\s*10px[^}]*white-space:\s*nowrap/s);
+  assert.match(css, /\.task-reward small,[\s\S]*\.task-reward b\s*{[^}]*font-size:\s*10px/s);
+  assert.doesNotMatch(css, /\.is-current \.task-reward\s*{/);
 });
 
 test("provides a persistent collectible growth bubble layer", () => {

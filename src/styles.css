@@ -755,6 +755,8 @@ button:focus-visible {
 }
 
 .task-card time {
+  grid-row: 1;
+  grid-column: 1;
   align-self: center;
   justify-self: start;
   font-size: 10px;
@@ -763,20 +765,22 @@ button:focus-visible {
 }
 
 .task-reward {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+  position: static;
   display: flex;
-  min-width: 28px;
-  min-height: 21px;
-  padding: 2px 5px;
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: end;
+  align-self: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
   align-items: center;
-  justify-content: center;
-  border-radius: 7px;
-  color: #4a2b1c;
-  background: rgba(255, 238, 210, 0.88);
-  box-shadow: inset 0 0 0 1px rgba(134, 91, 55, 0.16);
-  line-height: 1;
+  border-radius: 0;
+  color: inherit;
+  background: transparent;
+  box-shadow: none;
+  font-size: 10px;
+  line-height: normal;
   text-align: center;
   white-space: nowrap;
 }
@@ -784,20 +788,8 @@ button:focus-visible {
 .task-reward small,
 .task-reward b {
   display: inline;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 400;
-}
-
-.reward-focus {
-  background: rgba(226, 232, 228, 0.9);
-}
-
-.reward-vitality {
-  background: rgba(248, 192, 166, 0.9);
-}
-
-.reward-stamina {
-  background: rgba(244, 218, 143, 0.9);
 }
 
 .task-visual {
