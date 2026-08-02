@@ -24,10 +24,35 @@ test("provides one reusable full-screen media layer", () => {
   assert.match(html, /id="mediaTransition"/);
 });
 
+test("provides an inert hidden next-scene preloader", () => {
+  assert.match(
+    html,
+    /<video[^>]*id="scenePreloader"[^>]*muted[^>]*playsinline[^>]*preload="auto"[^>]*hidden[^>]*aria-hidden="true"[^>]*tabindex="-1"/,
+  );
+  assert.match(app, /const scenePreloader = document\.querySelector\("#scenePreloader"\)/);
+  assert.match(
+    app,
+    /syncPreloadSource\(scenePreloader, getNextMediaSource\(state\.screen\)\)/,
+  );
+});
+
 test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="claimReward"[^>]*data-action="claim-reward"/);
   assert.match(html, /class="claim-label">点击领取/);
   assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
+});
+
+test("defers reward artwork until the completion scene", () => {
+  const deferred = html.match(/data-deferred-src="\.\/assets\/reward-bed\.png"/g) ?? [];
+  assert.equal(deferred.length, 3);
+  assert.doesNotMatch(
+    html,
+    /<img(?=[^>]*reward-bed\.png)[^>]*\ssrc="\.\/assets\/reward-bed\.png"/,
+  );
+  assert.match(
+    app,
+    /state\.screen === "completion"[\s\S]*ensureRewardImages\(\)/,
+  );
 });
 
 test("renders the approved meal preparation and meal-time actions", () => {

@@ -1,10 +1,12 @@
 import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
 import {
   getMediaScene,
+  getNextMediaSource,
   getReplayTime,
   shouldReplaySegment,
   shouldRunMediaTimer,
 } from "./media-scene.js";
+import { syncPreloadSource } from "./media-preload.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
 import { mountTrainerBooking } from "./trainer-booking-view.js";
 
@@ -24,6 +26,7 @@ const objectDialog = document.querySelector("#objectDialog");
 const welcomeOverlay = document.querySelector("#welcomeOverlay");
 const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
+const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
 const trainerBooking = mountTrainerBooking({
@@ -33,6 +36,7 @@ const trainerBooking = mountTrainerBooking({
   onShow: pauseHomeExperience,
   onHide: resumeHomeExperience,
 });
+const deferredRewardImages = [...document.querySelectorAll("img[data-deferred-src]")];
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
@@ -48,6 +52,7 @@ let claimDispatchTimer = null;
 let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
+let rewardImagesRequested = false;
 
 const assets = {
   meal: "./assets/task-meal.png?v=20260802",
@@ -287,8 +292,21 @@ sceneVideo.addEventListener("error", () => {
   app.classList.add("media-failed");
 });
 
+function ensureRewardImages() {
+  if (rewardImagesRequested) return;
+  rewardImagesRequested = true;
+  for (const image of deferredRewardImages) {
+    const source = image.dataset.deferredSrc;
+    if (source) image.src = source;
+  }
+}
+
 function scheduleScreenEntry(fromScreen) {
   clearScreenTimers();
+
+  if (state.screen === "completion") {
+    ensureRewardImages();
+  }
 
   if (state.screen !== "reward-settled") {
     app.classList.remove("is-settled-components-visible", "is-tent-dropping");
@@ -482,6 +500,9 @@ function render(animate = true) {
     scheduleScreenEntry(fromScreen);
   }
   playCurrentScene({ fromScreen });
+  if (screenChanged) {
+    syncPreloadSource(scenePreloader, getNextMediaSource(state.screen));
+  }
 
   window.setTimeout(() => app.classList.remove("is-changing"), 620);
 }

@@ -72,7 +72,7 @@ button:focus-visible {
 
 .room {
   z-index: -3;
-  background: url("../assets/room.png") 84% 48% / cover no-repeat;
+  background: url("../assets/room.webp") 84% 48% / cover no-repeat;
   transform: scale(1.01);
 }
 
