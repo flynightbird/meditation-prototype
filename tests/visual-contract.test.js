@@ -253,6 +253,20 @@ test("persists one growth envelope and adds the meditation reward once", () => {
   assert.match(app, /collectBubble\(growthState, rewardIds\)/);
 });
 
+test("uses the approved attached gradient bubble rim and palette", () => {
+  assert.match(css, /\.growth-bubble\s*{[^}]*width:\s*62px[^}]*84%/s);
+  assert.match(css, /\.growth-bubble::before\s*{[^}]*inset:\s*-2px[^}]*padding:\s*2px[^}]*conic-gradient/s);
+  assert.match(css, /\.bubble-focus\s*{[^}]*#c5cec8/i);
+  assert.match(css, /\.bubble-vitality\s*{[^}]*#e58a63/i);
+  assert.match(css, /\.bubble-stamina\s*{[^}]*#ddb64c/i);
+});
+
+test("floats gently, flies top-right, and respects reduced motion", () => {
+  assert.match(css, /@keyframes growth-bubble-float[\s\S]*translate3d\(0,\s*var\(--float-y\),\s*0\)/);
+  assert.match(css, /@keyframes collect-growth-bubble[\s\S]*translate3d\(var\(--collect-x\),\s*var\(--collect-y\),\s*0\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble/);
+});
+
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);
