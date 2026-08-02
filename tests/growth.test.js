@@ -64,6 +64,20 @@ test("normalization keeps a valid same-day state and preserves permanent state o
   });
 });
 
+test("normalization resets malformed persisted entries to the approved baseline", () => {
+  const malformed = {
+    version: 1,
+    daily: { dateKey: "2026-08-03", initialProgress: 2, completedTaskIds: [{ id: "task-1" }] },
+    totals: { stamina: 4, focus: 5, vitality: 6 },
+    pendingRewards: [{ nope: true }],
+    claimedRewardIds: [{ id: "old" }],
+  };
+
+  assert.deepEqual(normalizeGrowthState(malformed, "2026-08-03"), createGrowthState("2026-08-03", {
+    initialProgress: 3,
+  }));
+});
+
 test("five rewards render four bubbles by merging the earliest matching attribute pair", () => {
   let state = createGrowthState("2026-08-03");
   for (const entry of [

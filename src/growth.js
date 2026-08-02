@@ -106,8 +106,20 @@ function isValidGrowthState(value) {
     && typeof value.daily.dateKey === "string"
     && Number.isFinite(value.daily.initialProgress)
     && Array.isArray(value.daily.completedTaskIds)
+    && value.daily.completedTaskIds.every((id) => typeof id === "string")
     && value.totals
     && ATTRIBUTES.every((attribute) => Number.isFinite(value.totals[attribute]))
     && Array.isArray(value.pendingRewards)
-    && Array.isArray(value.claimedRewardIds);
+    && value.pendingRewards.every(isValidReward)
+    && Array.isArray(value.claimedRewardIds)
+    && value.claimedRewardIds.every((id) => typeof id === "string");
+}
+
+function isValidReward(reward) {
+  return reward
+    && typeof reward.id === "string"
+    && typeof reward.taskId === "string"
+    && ATTRIBUTES.includes(reward.attribute)
+    && Number.isFinite(reward.value)
+    && Number.isFinite(reward.createdAt);
 }
