@@ -548,7 +548,13 @@ function resetExperience(eventType = "RESET") {
 }
 
 function setActiveNavigation(nav) {
-  bottomNav.querySelectorAll(".nav-item").forEach((item) => {
+  const items = [...bottomNav.querySelectorAll(".nav-item")];
+  const activeIndex = items.findIndex((item) => item.dataset.nav === nav);
+  if (activeIndex >= 0) {
+    bottomNav.style.setProperty("--nav-indicator-x", `${activeIndex * 100}%`);
+  }
+
+  items.forEach((item) => {
     const active = item.dataset.nav === nav;
     item.classList.toggle("is-active", active);
     if (active) item.setAttribute("aria-current", "page");

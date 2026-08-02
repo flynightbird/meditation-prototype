@@ -727,6 +727,7 @@ button:focus-visible {
 }
 
 .bottom-nav {
+  --nav-indicator-x: 0%;
   position: absolute;
   z-index: 18;
   right: 0;
@@ -739,12 +740,30 @@ button:focus-visible {
   padding: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 32px 32px 0 0;
+  isolation: isolate;
   background: rgba(20, 13, 9, 0.72);
   backdrop-filter: blur(18px) saturate(1.2);
   transition: opacity 220ms ease, transform 420ms var(--ease-out), visibility 420ms;
 }
 
+.bottom-nav::before {
+  position: absolute;
+  z-index: 0;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  width: calc((100% - 16px) / 6);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  content: "";
+  pointer-events: none;
+  transform: translateX(var(--nav-indicator-x));
+  transition: transform 300ms cubic-bezier(0.22, 1.18, 0.36, 1);
+}
+
 .nav-item {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex: 1;
   min-width: 0;
@@ -764,7 +783,7 @@ button:focus-visible {
 
 .nav-item.is-active {
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: transparent;
 }
 
 .nav-icon {
@@ -1502,6 +1521,10 @@ button:focus-visible {
   .demo-clock-track {
     animation: none !important;
     transition-duration: 1ms !important;
+  }
+
+  .bottom-nav::before {
+    transition: none !important;
   }
 
   .is-reward-entered .claim-reward {
