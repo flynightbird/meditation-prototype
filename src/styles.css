@@ -448,12 +448,12 @@ button:focus-visible {
 }
 
 .growth-bubble.anchor-1 {
-  top: 9%;
+  top: 30%;
   left: 7%;
   --float-y: -3px;
   --float-duration: 4.4s;
   --collect-x: 76vw;
-  --collect-y: -29vh;
+  --collect-y: -43vh;
 }
 
 .growth-bubble.anchor-2 {
