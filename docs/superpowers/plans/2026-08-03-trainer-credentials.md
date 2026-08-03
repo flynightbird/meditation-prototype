@@ -195,7 +195,7 @@ git commit -m "feat: add trainer credential highlights"
 
 - [ ] **Step 1: Open the trainer screen at 375 x 812**
 
-Use the running local preview at `http://127.0.0.1:4174/`, select `预约私教`, and inspect the Hero.
+Use the running local preview, select `预约私教`, and inspect the Hero.
 
 Expected: all three credentials are in one row inside the lower-left gap; the group does not cover the experience copy or booking panel.
 
@@ -218,3 +218,122 @@ git diff --check
 ```
 
 Expected: zero console issues and no whitespace errors.
+
+### Task 3: Add depth and breathing room
+
+**Files:**
+- Modify: `src/trainer-booking.css`
+- Test: `tests/trainer-booking-contract.test.js`
+
+- [ ] **Step 1: Write the failing polish contract test**
+
+Add this test to `tests/trainer-booking-contract.test.js`:
+
+```js
+test("adds restrained depth and breathing room to the trainer Hero", () => {
+  assert.match(
+    css,
+    /\.trainer-credential-icon\s*{[^}]*position:\s*relative[^}]*border:\s*0[^}]*background:\s*rgba\(23, 20, 17, 0\.7\)/s,
+  );
+  assert.match(
+    css,
+    /\.trainer-credential-icon::before\s*{[^}]*inset:\s*0[^}]*padding:\s*1px[^}]*conic-gradient\([^}]*rgba\(255, 232, 133, 0\.96\)[^}]*rgba\(181, 127, 25, 0\.34\)[^}]*mask-composite:\s*exclude/s,
+  );
+  assert.match(css, /\.trainer-content\s*{[^}]*margin-top:\s*0/s);
+  assert.match(
+    css,
+    /\.trainer-hero::before\s*{[^}]*right:\s*-54px[^}]*width:\s*270px[^}]*height:\s*390px[^}]*linear-gradient\(112deg[^}]*rgba\(125, 173, 194, 0\.12\)[^}]*filter:\s*blur\(22px\)[^}]*pointer-events:\s*none/s,
+  );
+});
+```
+
+- [ ] **Step 2: Run the focused test and verify RED**
+
+Run:
+
+```bash
+node --test tests/trainer-booking-contract.test.js --test-name-pattern="adds restrained depth"
+```
+
+Expected: FAIL because the flat border, negative content margin, and no cool light band are still present.
+
+- [ ] **Step 3: Implement the gradient rings, spacing, and cool light band**
+
+Update `src/trainer-booking.css` with these rules:
+
+```css
+.trainer-hero {
+  isolation: isolate;
+}
+
+.trainer-hero::before {
+  position: absolute;
+  z-index: 0;
+  top: 12px;
+  right: -54px;
+  width: 270px;
+  height: 390px;
+  background: linear-gradient(
+    112deg,
+    transparent 18%,
+    rgba(125, 173, 194, 0.04) 38%,
+    rgba(125, 173, 194, 0.12) 52%,
+    rgba(125, 173, 194, 0.05) 66%,
+    transparent 82%
+  );
+  filter: blur(22px);
+  content: "";
+  pointer-events: none;
+}
+
+.trainer-credential-icon {
+  position: relative;
+  border: 0;
+  background: rgba(23, 20, 17, 0.7);
+}
+
+.trainer-credential-icon::before {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 210deg,
+    rgba(181, 127, 25, 0.34),
+    rgba(255, 232, 133, 0.96) 28%,
+    rgba(248, 213, 83, 0.7) 52%,
+    rgba(181, 127, 25, 0.34) 78%,
+    rgba(181, 127, 25, 0.34)
+  );
+  content: "";
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.trainer-content {
+  margin-top: 0;
+}
+```
+
+- [ ] **Step 4: Run focused and complete tests**
+
+Run:
+
+```bash
+node --test tests/trainer-booking-contract.test.js --test-name-pattern="adds restrained depth"
+npm test
+```
+
+Expected: both commands pass with zero failures.
+
+- [ ] **Step 5: Verify at 375 x 812 and 402 x 874**
+
+Expected: credential-to-booking gap is about 28 px; rings have a restrained left-side highlight; the light band stays behind the trainer and does not cover left-side copy.
+
+- [ ] **Step 6: Commit the refinement**
+
+```bash
+git add src/trainer-booking.css tests/trainer-booking-contract.test.js
+git commit -m "style: polish trainer credential depth"
+```
