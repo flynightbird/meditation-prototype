@@ -157,17 +157,19 @@ test("warms booking controls and chrome while preserving map color", () => {
 test("positions the trainer behind the booking card and strengthens store cues", () => {
   assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
   assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-54px[^}]*top:\s*24px[^}]*bottom:\s*auto[^}]*height:\s*150%/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*64px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
+  assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*400px[^}]*rgba\(23, 20, 17, 0\.94\) 38%[^}]*rgba\(23, 20, 17, 0\.94\) 100%[^}]*pointer-events:\s*none/s);
   assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
   assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
   assert.match(css, /\.store-row > span\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*32px/s);
+  assert.match(css, /\.store-list \.store-row:first-child\s*{[^}]*border-top:\s*0/s);
 });
 
 test("uses the approved full trainer and vertical date capsules", () => {
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*150%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*175%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
   assert.match(css, /\.booking-date\s*{[^}]*height:\s*68px[^}]*border-radius:\s*999px/s);
   assert.match(css, /\.booking-date strong\s*{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*border-radius:\s*50%/s);
   assert.match(css, /\.booking-date\[aria-pressed="true"\]\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s);
