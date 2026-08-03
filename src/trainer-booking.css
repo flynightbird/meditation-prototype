@@ -162,6 +162,76 @@
   font-size: 12px;
 }
 
+.trainer-credentials {
+  position: absolute;
+  z-index: 2;
+  left: 22px;
+  bottom: 28px;
+  display: grid;
+  width: 184px;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+}
+
+.trainer-credential {
+  position: relative;
+  min-width: 0;
+  text-align: center;
+}
+
+.trainer-credential + .trainer-credential::before {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 250, 243, 0.18);
+  content: "";
+}
+
+.trainer-credential-icon {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  margin: 0 auto 5px;
+  place-items: center;
+  border: 1px solid rgba(248, 213, 83, 0.72);
+  border-radius: 50%;
+  color: #f8d553;
+}
+
+.trainer-credential-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trainer-credential strong,
+.trainer-credential small {
+  display: block;
+  overflow: hidden;
+  font-weight: 400;
+  line-height: 1.2;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.trainer-credential strong {
+  color: rgba(255, 250, 243, 0.9);
+  font-size: 10px;
+}
+
+.trainer-credential small {
+  margin-top: 3px;
+  color: rgba(255, 250, 243, 0.5);
+  font-size: 8px;
+}
+
 .trainer-hero-cut {
   display: none;
   position: absolute;

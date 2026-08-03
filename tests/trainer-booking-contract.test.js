@@ -61,6 +61,21 @@ test("keeps the fixed coach identity concise", () => {
   assert.doesNotMatch(html, /评分|好评率|完课数|认证教练/);
 });
 
+test("places three coach credentials in the lower-left Hero gap", () => {
+  assert.match(
+    html,
+    /<ul class="trainer-credentials" aria-label="教练资质">[\s\S]*专业认证[\s\S]*NASM-CPT[\s\S]*减脂塑形[\s\S]*专项训练[\s\S]*科学指导[\s\S]*定制计划[\s\S]*<\/ul>/,
+  );
+  assert.equal((html.match(/class="trainer-credential"/g) ?? []).length, 3);
+  assert.match(html, /class="trainer-credential-icon" aria-hidden="true"/);
+  assert.match(
+    css,
+    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*184px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*list-style:\s*none/s,
+  );
+  assert.match(css, /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*height:\s*28px/s);
+  assert.match(css, /\.trainer-credential strong,[\s\S]*white-space:\s*nowrap/s);
+});
+
 test("links the complete store row to map navigation", () => {
   assert.match(html, /<p>减脂塑形教练 · 8年经验<\/p>/);
   assert.match(
