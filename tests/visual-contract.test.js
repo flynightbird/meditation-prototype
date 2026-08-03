@@ -129,13 +129,20 @@ test("uses full-screen media and a warm transition veil", () => {
   assert.match(css, /\.is-media-veiled \.media-transition\s*{[^}]*opacity:\s*1/s);
 });
 
-test("uses outlined translucent yellow and black controls", () => {
+test("uses independent icon controls on a navigation-style meditation dock", () => {
   assert.match(
     css,
     /\.primary-action\s*{[^}]*border:\s*1px solid rgba\(255, 245, 181, 0\.88\)[^}]*background:\s*linear-gradient\(135deg, #f8d553, #e8ff66\)/s,
   );
-  assert.match(css, /\.session-controls\s*{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255/s);
-  assert.match(css, /\.session-controls button:last-child\s*{[^}]*rgba\(24,\s*16,\s*12,\s*0\.74\)/s);
+  assert.match(app, /aria-label="\$\{state\.isPaused \? "继续冥想" : "暂停冥想"\}"/);
+  assert.match(app, /src="\.\/assets\/\$\{state\.isPaused \? "play" : "pause"\}\.svg"/);
+  assert.match(app, /data-action="end" aria-label="结束冥想"/);
+  assert.match(app, /src="\.\/assets\/stop\.svg"/);
+  assert.match(css, /\.session-controls\s*{[^}]*width:\s*100%[^}]*height:\s*110px[^}]*gap:\s*12px/s);
+  assert.match(css, /\.session-controls\s*{[^}]*border-top:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*border-radius:\s*32px 32px 0 0/s);
+  assert.match(css, /\.session-controls\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)[^}]*backdrop-filter:\s*blur\(18px\) saturate\(1\.2\)/s);
+  assert.match(css, /\.session-control\s*{[^}]*width:\s*64px[^}]*height:\s*64px[^}]*border-radius:\s*50%/s);
+  assert.match(css, /\.session-control img\s*{[^}]*width:\s*24px[^}]*height:\s*24px/s);
 });
 
 test("places the claim label inside a face-safe reward bubble", () => {
@@ -223,7 +230,6 @@ test("uses compact content-sized primary controls", () => {
     css,
     /\.glass-action\s*{[^}]*min-width:\s*150px[^}]*min-height:\s*46px[^}]*padding:\s*0 24px/s,
   );
-  assert.match(css, /\.session-controls button\s*{[^}]*min-height:\s*46px/s);
 });
 
 test("keeps the current meal icon inside the shared current-card frame", () => {
