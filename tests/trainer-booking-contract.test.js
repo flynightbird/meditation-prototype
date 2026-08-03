@@ -61,6 +61,18 @@ test("keeps the fixed coach identity concise", () => {
   assert.doesNotMatch(html, /评分|好评率|完课数|认证教练/);
 });
 
+test("links the complete store row to map navigation", () => {
+  assert.match(html, /<p>减脂塑形教练 · 8年经验<\/p>/);
+  assert.match(
+    html,
+    /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"/,
+  );
+  assert.match(html, /class="trainer-store-navigation"[^>]*aria-hidden="true"/);
+  assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none/s);
+  assert.match(css, /\.trainer-store:focus-visible\s*{[^}]*outline:/s);
+  assert.match(css, /\.trainer-store:active\s*{[^}]*transform:\s*translateY\(1px\)/s);
+});
+
 test("omits redundant schedule labels", () => {
   assert.doesNotMatch(html, />可约时间</);
   assert.doesNotMatch(html, />已选择/);
@@ -157,7 +169,7 @@ test("warms booking controls and chrome while preserving map color", () => {
 test("positions the trainer behind the booking card and strengthens store cues", () => {
   assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
   assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*64px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*40px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
   assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*400px[^}]*rgba\(23, 20, 17, 0\.94\) 38%[^}]*rgba\(23, 20, 17, 0\.94\) 100%[^}]*pointer-events:\s*none/s);
   assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);

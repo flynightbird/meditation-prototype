@@ -47,7 +47,7 @@
 .trainer-hero > img {
   position: absolute;
   right: -112px;
-  top: 64px;
+  top: 40px;
   bottom: auto;
   width: auto;
   height: 175%;
@@ -95,20 +95,45 @@
 
 .trainer-store {
   top: 54px;
+  right: auto;
+  left: 22px;
   display: flex;
+  width: fit-content;
+  max-width: calc(100% - 44px);
+  min-height: 32px;
+  padding: 4px 0;
   gap: 7px;
   align-items: center;
   margin: 0;
   color: rgba(248, 213, 83, 0.78);
   font-size: 11px;
+  text-decoration: none;
+  transition: color 160ms ease, transform 160ms ease;
 }
 
-.trainer-store span {
+.trainer-store-dot {
+  flex: 0 0 5px;
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: #f8d553;
   box-shadow: 0 0 8px rgba(248, 213, 83, 0.7);
+}
+
+.trainer-store-navigation {
+  margin-left: 2px;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.78;
+}
+
+.trainer-store:focus-visible {
+  outline: 2px solid rgba(248, 213, 83, 0.82);
+  outline-offset: 4px;
+}
+
+.trainer-store:active {
+  transform: translateY(1px);
 }
 
 .trainer-identity { bottom: 110px; }
