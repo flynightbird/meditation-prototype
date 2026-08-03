@@ -211,7 +211,7 @@ test("completed task cards use the Remix checkbox-circle SVG", () => {
   assert.doesNotMatch(app, />✓</);
   assert.match(app, /<svg class="check"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
   assert.match(app, /M12 22C6\.47715 22 2 17\.5228 2 12/);
-  assert.match(css, /\.task-card \.check\s*{[^}]*position:\s*absolute[^}]*top:\s*6px[^}]*left:\s*6px[^}]*width:\s*18px[^}]*fill:\s*currentColor/s);
+  assert.match(css, /\.task-card \.check\s*{[^}]*position:\s*absolute[^}]*top:\s*6px[^}]*right:\s*6px[^}]*width:\s*18px[^}]*fill:\s*currentColor/s);
 });
 
 test("current card uses the approved diagonal glass gradient without an outline", () => {

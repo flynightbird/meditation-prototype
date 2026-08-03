@@ -845,7 +845,7 @@ button:focus-visible {
 .task-card .check {
   position: absolute;
   top: 6px;
-  left: 6px;
+  right: 6px;
   display: block;
   width: 18px;
   height: 18px;
