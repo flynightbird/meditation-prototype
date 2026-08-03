@@ -144,14 +144,27 @@
 .nearby-panel {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--trainer-glass-border);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.045);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06), 0 18px 42px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(24px) saturate(1.5);
+  background: var(--trainer-glass);
+  box-shadow: inset 0 1px rgba(255, 248, 230, 0.08), 0 18px 42px rgba(9, 7, 6, 0.34);
+  backdrop-filter: blur(24px) saturate(1.35);
 }
 
 .booking-panel { padding: 18px 18px 20px; }
+
+.booking-panel::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  width: 58%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(248, 213, 83, 0.72) 50%, transparent 100%);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
 
 .booking-heading,
 .nearby-heading {
@@ -169,7 +182,7 @@
 }
 
 .booking-heading span {
-  color: rgba(255, 255, 255, 0.34);
+  color: rgba(255, 250, 243, 0.34);
   font-size: 10px;
 }
 
@@ -177,13 +190,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--trainer-text-muted);
   font-size: 10px;
   white-space: nowrap;
 }
 
 .nearby-summary i {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 250, 243, 0.72);
   font-size: 13px;
   font-style: normal;
   line-height: 1;
@@ -209,9 +222,9 @@
 
 .booking-date,
 .booking-time {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.62);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--trainer-slot-border);
+  color: var(--trainer-text-muted);
+  background: var(--trainer-slot);
 }
 
 .booking-date {
@@ -267,8 +280,8 @@
 }
 
 .booking-time:disabled {
-  color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.018);
+  color: rgba(232, 224, 214, 0.24);
+  background: rgba(232, 224, 214, 0.025);
   cursor: not-allowed;
 }
 
@@ -367,19 +380,19 @@
 
 .store-row p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.46);
+  color: rgba(255, 250, 243, 0.46);
   font-size: 11px;
 }
 
 .store-row small {
   display: block;
   margin-top: 5px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 250, 243, 0.3);
   font-size: 9px;
 }
 
 .store-row > span {
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--trainer-text-muted);
   font-size: 32px;
 }
 
@@ -387,7 +400,7 @@
 
 .store-row.is-closed > b {
   border-color: rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(232, 224, 214, 0.48);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -403,8 +416,8 @@
   gap: 10px;
   align-items: center;
   padding: 8px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(11, 14, 20, 0.96);
+  border-top: 1px solid var(--trainer-glass-border);
+  background: var(--trainer-dock);
   backdrop-filter: blur(20px);
   opacity: 0;
   pointer-events: none;
@@ -438,7 +451,7 @@
 
 .booking-action-bar > p span {
   margin-top: 3px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 250, 243, 0.4);
   font-size: 9px;
 }
 
@@ -459,12 +472,12 @@
 .booking-cancel-action {
   padding: 0 10px;
   border: 0;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 250, 243, 0.6);
   background: transparent;
 }
 
 .booking-cancel-action:active {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 250, 243, 0.9);
 }
 
 .booking-confirm-action {
@@ -481,15 +494,15 @@
   padding: 0;
   border: 0;
   border-radius: 30px 30px 0 0;
-  color: #fff;
-  background: linear-gradient(170deg, #1e2430, #0e121a);
+  color: var(--trainer-text);
+  background: linear-gradient(170deg, #2a211a, #0d0e10);
   box-shadow: 0 -20px 80px rgba(0, 0, 0, 0.7);
 }
 
 .booking-dialog[open] { animation: booking-sheet-in 320ms var(--ease-out) both; }
 
 .booking-dialog::backdrop {
-  background: rgba(8, 11, 16, 0.72);
+  background: rgba(15, 10, 8, 0.72);
   backdrop-filter: blur(2px);
 }
 
@@ -503,7 +516,7 @@
   height: 4px;
   margin: 0 auto 18px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 250, 243, 0.16);
 }
 
 .booking-sheet header {
@@ -543,7 +556,7 @@
 }
 
 .booking-sheet dt {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 250, 243, 0.4);
   font-size: 12px;
 }
 
@@ -572,9 +585,9 @@
 
 .booking-sheet-cancel {
   margin-top: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.54);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 236, 200, 0.07);
+  color: rgba(255, 250, 243, 0.54);
+  background: rgba(255, 248, 230, 0.04);
 }
 
 .is-trainer-view .room,
@@ -591,7 +604,7 @@
 }
 
 .is-trainer-view .bottom-nav {
-  background: rgba(11, 14, 20, 0.96);
+  background: var(--trainer-dock);
 }
 
 .is-booking-action .bottom-nav {

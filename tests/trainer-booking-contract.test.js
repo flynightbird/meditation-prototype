@@ -117,7 +117,7 @@ test("uses the supplied map pin without dimming the map", () => {
   assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate[^}]*color:\s*#745400[^}]*font-size:\s*9px[^}]*font-weight:\s*600/s);
   assert.match(css, /\.trainer-map > img\s*{[^}]*filter:\s*none[^}]*opacity:\s*1/s);
   assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)[^}]*color:\s*#3f4650/s);
-  assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
+  assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(232, 224, 214, 0\.48\)/s);
 });
 
 test("uses the approved warm charcoal trainer foundation", () => {
@@ -131,6 +131,29 @@ test("uses the approved warm charcoal trainer foundation", () => {
   );
 });
 
+test("uses warm glass cards with a centered yellow booking edge", () => {
+  assert.match(
+    css,
+    /\.booking-panel,\s*\.nearby-panel\s*{[^}]*border:\s*1px solid var\(--trainer-glass-border\)[^}]*background:\s*var\(--trainer-glass\)/s,
+  );
+  assert.match(
+    css,
+    /\.booking-panel::before\s*{[^}]*top:\s*0[^}]*left:\s*50%[^}]*width:\s*58%[^}]*height:\s*1px[^}]*background:\s*linear-gradient\(90deg, transparent 0%, rgba\(248, 213, 83, 0\.72\) 50%, transparent 100%\)[^}]*transform:\s*translateX\(-50%\)/s,
+  );
+});
+
+test("warms booking controls and chrome while preserving map color", () => {
+  assert.match(
+    css,
+    /\.booking-date,\s*\.booking-time\s*{[^}]*border:\s*1px solid var\(--trainer-slot-border\)[^}]*color:\s*var\(--trainer-text-muted\)[^}]*background:\s*var\(--trainer-slot\)/s,
+  );
+  assert.match(css, /\.booking-time:disabled\s*{[^}]*color:\s*rgba\(232, 224, 214, 0\.24\)[^}]*background:\s*rgba\(232, 224, 214, 0\.025\)/s);
+  assert.match(css, /\.booking-dialog\s*{[^}]*color:\s*var\(--trainer-text\)[^}]*background:\s*linear-gradient\(170deg, #2a211a, #0d0e10\)/s);
+  assert.match(css, /\.booking-action-bar\s*{[^}]*background:\s*var\(--trainer-dock\)/s);
+  assert.match(css, /\.is-trainer-view \.bottom-nav\s*{[^}]*background:\s*var\(--trainer-dock\)/s);
+  assert.match(css, /\.trainer-map > img\s*{[^}]*filter:\s*none[^}]*opacity:\s*1/s);
+});
+
 test("positions the trainer behind the booking card and strengthens store cues", () => {
   assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
   assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
@@ -139,8 +162,8 @@ test("positions the trainer behind the booking card and strengthens store cues",
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
-  assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
-  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)[^}]*font-size:\s*32px/s);
+  assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
+  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*32px/s);
 });
 
 test("uses the approved full trainer and vertical date capsules", () => {
@@ -151,7 +174,7 @@ test("uses the approved full trainer and vertical date capsules", () => {
 });
 
 test("extends the trainer background through the Dock and separates actions", () => {
-  assert.match(css, /\.is-trainer-view \.bottom-nav\s*{[^}]*background:\s*rgba\(11, 14, 20, 0\.96\)/s);
+  assert.match(css, /\.is-trainer-view \.bottom-nav\s*{[^}]*background:\s*var\(--trainer-dock\)/s);
   assert.match(css, /\.booking-action-bar > div\s*{[^}]*gap:\s*14px/s);
   assert.match(css, /\.booking-cancel-action\s*{[^}]*background:\s*transparent/s);
 });
