@@ -25,6 +25,23 @@ test("keeps the map and all three nearby stores", () => {
   }
 });
 
+test("defers large trainer images until the trainer page opens", () => {
+  const deferred = html.match(/data-deferred-src="\.\/assets\/trainer-(?:hero|map)\.png"/g) ?? [];
+  assert.equal(deferred.length, 2);
+  assert.doesNotMatch(
+    html,
+    /<img(?=[^>]*trainer-(?:hero|map)\.png)[^>]*\ssrc="\.\/assets\/trainer-(?:hero|map)\.png"/,
+  );
+  assert.match(
+    view,
+    /const deferredTrainerImages = \[\.\.\.trainerPage\.querySelectorAll\("img\[data-deferred-src\]"\)\]/,
+  );
+  assert.match(
+    view,
+    /function show\(\)[\s\S]*loadDeferredTrainerImages\(deferredTrainerImages\)[\s\S]*trainerPage\.hidden = false/,
+  );
+});
+
 test("places persistent status before the date cards", () => {
   assert.match(html, /id="bookingStatus"[\s\S]*id="bookingDates"/);
 });

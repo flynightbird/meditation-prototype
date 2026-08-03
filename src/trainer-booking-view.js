@@ -5,6 +5,17 @@ import {
   transitionBooking,
 } from "./trainer-booking.js";
 
+export function loadDeferredTrainerImages(images) {
+  let changed = false;
+  for (const image of images) {
+    const source = image.dataset.deferredSrc;
+    if (!source || image.getAttribute("src") !== null) continue;
+    image.setAttribute("src", source);
+    changed = true;
+  }
+  return changed;
+}
+
 function fullDateLabel(dates, dateKey) {
   const date = dates.find(({ key }) => key === dateKey);
   return date ? `${date.weekday} ${date.day}日` : dateKey;
@@ -17,6 +28,7 @@ function weekdayLabel(dateKey) {
 
 export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide }) {
   const trainerPage = document.querySelector("#trainerPage");
+  const deferredTrainerImages = [...trainerPage.querySelectorAll("img[data-deferred-src]")];
   const trainerScroll = document.querySelector("#trainerScroll");
   const bookingDates = document.querySelector("#bookingDates");
   const bookingTimes = document.querySelector("#bookingTimes");
@@ -94,6 +106,7 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   function show() {
     if (visible) return;
     visible = true;
+    loadDeferredTrainerImages(deferredTrainerImages);
     trainerPage.hidden = false;
     app.classList.add("is-trainer-view");
     onShow?.();
