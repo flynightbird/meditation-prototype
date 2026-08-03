@@ -4,7 +4,7 @@
 
 **Goal:** Restyle the trainer booking page with the approved A1 warm-charcoal gradient, warm glass surfaces, centered yellow card-edge highlight, and warm booking chrome while preserving all layout and behavior.
 
-**Architecture:** Scope all new color tokens to `.trainer-page` and consume them only from `src/trainer-booking.css`. Use a CSS pseudo-element for the booking-panel edge highlight, so the DOM and JavaScript remain unchanged; protect the work with source contracts and real-browser mobile geometry checks.
+**Architecture:** Scope all new color tokens to the parent state `.app-shell.is-trainer-view`, allowing the trainer page and its sibling Dock, action bar, and dialog to inherit them without affecting the home view. Consume the tokens only from `src/trainer-booking.css`; use a CSS pseudo-element for the booking-panel edge highlight, so the DOM and JavaScript remain unchanged; protect the work with source contracts and real-browser mobile geometry checks.
 
 **Tech Stack:** Static CSS, Node.js built-in test runner, agent-browser mobile verification.
 
@@ -24,7 +24,7 @@ Add this test after `uses the supplied map pin without dimming the map`:
 test("uses the approved warm charcoal trainer foundation", () => {
   assert.match(
     css,
-    /\.trainer-page\s*{[^}]*--trainer-bg-from:\s*#2a211a[^}]*--trainer-bg-mid:\s*#171411[^}]*--trainer-bg-to:\s*#090b0e[^}]*--trainer-text:\s*#fffaf3[^}]*color:\s*var\(--trainer-text\)[^}]*background:\s*linear-gradient\(135deg, var\(--trainer-bg-from\) 0%, var\(--trainer-bg-mid\) 46%, var\(--trainer-bg-to\) 100%\)/s,
+    /\.app-shell\.is-trainer-view\s*{[^}]*--trainer-bg-from:\s*#2a211a[^}]*--trainer-bg-mid:\s*#171411[^}]*--trainer-bg-to:\s*#090b0e[^}]*--trainer-text:\s*#fffaf3[^}]*--trainer-dock:\s*rgba\(22, 16, 13, 0\.96\)/s,
   );
   assert.match(
     css,
@@ -50,7 +50,7 @@ Expected: FAIL because `.trainer-page` still uses `#0b0e14` and does not define 
 Update the opening rules in `src/trainer-booking.css`:
 
 ```css
-.trainer-page {
+.app-shell.is-trainer-view {
   --trainer-bg-from: #2a211a;
   --trainer-bg-mid: #171411;
   --trainer-bg-to: #090b0e;
@@ -62,6 +62,9 @@ Update the opening rules in `src/trainer-booking.css`:
   --trainer-slot: rgba(255, 248, 230, 0.05);
   --trainer-slot-border: rgba(255, 236, 200, 0.11);
   --trainer-dock: rgba(22, 16, 13, 0.96);
+}
+
+.trainer-page {
   position: absolute;
   z-index: 15;
   inset: 0;
