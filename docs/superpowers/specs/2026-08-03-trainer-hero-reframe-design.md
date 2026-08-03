@@ -19,8 +19,8 @@ Use the selected B2 composition:
 Retain the existing Hero shade and add a stronger lower overlay through `.trainer-hero-shade::after`:
 
 - Start at `top: 220px` within the Hero.
-- Use a `150px` overlay height so it extends slightly beyond the Hero boundary.
-- Fade vertically from transparent to the approved warm charcoal `rgba(23, 20, 17, 0.94)`.
+- Use a `400px` overlay height so it covers the enlarged trainer through the card gap and image bottom.
+- Fade from transparent to the approved warm charcoal `rgba(23, 20, 17, 0.94)` by `38%`, then hold that color through the overlay bottom.
 - Keep the overlay below `.trainer-store` and `.trainer-identity`, which remain at `z-index: 1`.
 - Keep the booking content at `z-index: 2`, so the overlay cannot cover the booking controls.
 

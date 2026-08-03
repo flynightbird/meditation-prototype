@@ -23,7 +23,7 @@ Replace the obsolete image geometry assertions and add the overlay and divider a
 
 ```js
 assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*64px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
-assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*150px[^}]*rgba\(23, 20, 17, 0\.94\)[^}]*pointer-events:\s*none/s);
+assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*400px[^}]*rgba\(23, 20, 17, 0\.94\) 38%[^}]*rgba\(23, 20, 17, 0\.94\) 100%[^}]*pointer-events:\s*none/s);
 assert.match(css, /\.store-list \.store-row:first-child\s*{[^}]*border-top:\s*0/s);
 assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*175%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
 ```
@@ -61,11 +61,12 @@ Add the stronger page-level lower overlay after `.trainer-hero-shade`:
   top: 220px;
   right: 0;
   left: 0;
-  height: 150px;
+  height: 400px;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(23, 20, 17, 0.46) 55%,
+    rgba(23, 20, 17, 0.46) 20%,
+    rgba(23, 20, 17, 0.94) 38%,
     rgba(23, 20, 17, 0.94) 100%
   );
   content: "";

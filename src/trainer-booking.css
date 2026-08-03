@@ -73,11 +73,12 @@
   top: 220px;
   right: 0;
   left: 0;
-  height: 150px;
+  height: 400px;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(23, 20, 17, 0.46) 55%,
+    rgba(23, 20, 17, 0.46) 20%,
+    rgba(23, 20, 17, 0.94) 38%,
     rgba(23, 20, 17, 0.94) 100%
   );
   content: "";
