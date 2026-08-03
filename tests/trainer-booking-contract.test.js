@@ -79,12 +79,10 @@ test("places three coach credentials in the lower-left Hero gap", () => {
 test("adds restrained depth and breathing room to the trainer Hero", () => {
   assert.match(
     css,
-    /\.trainer-credential-icon\s*{[^}]*position:\s*relative[^}]*border:\s*0[^}]*background:\s*rgba\(23, 20, 17, 0\.7\)/s,
+    /\.trainer-credential-icon\s*{[^}]*border:\s*1px solid rgba\(255, 236, 200, 0\.14\)[^}]*color:\s*rgba\(248, 213, 83, 0\.78\)[^}]*background:\s*rgba\(255, 248, 230, 0\.075\)/s,
   );
-  assert.match(
-    css,
-    /\.trainer-credential-icon::before\s*{[^}]*inset:\s*0[^}]*padding:\s*1px[^}]*conic-gradient\([^}]*rgba\(255, 232, 133, 0\.96\)[^}]*rgba\(181, 127, 25, 0\.34\)[^}]*mask-composite:\s*exclude/s,
-  );
+  assert.doesNotMatch(css, /\.trainer-credential-icon::before\s*{/);
+  assert.doesNotMatch(css, /\.trainer-credential-icon[\s\S]*?conic-gradient\(/);
   assert.match(css, /\.trainer-content\s*{[^}]*margin-top:\s*0/s);
   assert.match(
     css,
