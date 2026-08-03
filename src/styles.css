@@ -450,8 +450,8 @@ button:focus-visible {
 .growth-bubble.anchor-1 {
   top: 30%;
   left: 7%;
-  --float-y: -3px;
-  --float-duration: 4.4s;
+  --float-y: -6px;
+  --float-duration: 4.8s;
   --collect-x: 76vw;
   --collect-y: -43vh;
 }
@@ -459,8 +459,8 @@ button:focus-visible {
 .growth-bubble.anchor-2 {
   top: 24%;
   right: 7%;
-  --float-y: -5px;
-  --float-duration: 5.7s;
+  --float-y: -8px;
+  --float-duration: 6.1s;
   --collect-x: 3vw;
   --collect-y: -37vh;
 }
@@ -468,8 +468,8 @@ button:focus-visible {
 .growth-bubble.anchor-3 {
   top: 48%;
   left: 10%;
-  --float-y: -4px;
-  --float-duration: 5.1s;
+  --float-y: -7px;
+  --float-duration: 5.4s;
   --collect-x: 73vw;
   --collect-y: -49vh;
 }
@@ -477,8 +477,8 @@ button:focus-visible {
 .growth-bubble.anchor-4 {
   top: 65%;
   right: 11%;
-  --float-y: -3px;
-  --float-duration: 4.7s;
+  --float-y: -6px;
+  --float-duration: 5s;
   --collect-x: 5vw;
   --collect-y: -57vh;
 }

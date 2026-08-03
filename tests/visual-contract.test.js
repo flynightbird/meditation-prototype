@@ -305,10 +305,15 @@ test("uses the approved attached gradient bubble rim and palette", () => {
   assert.match(css, /\.bubble-stamina\s*{[^}]*#ddb64c/i);
 });
 
-test("floats gently, flies top-right, and respects reduced motion", () => {
+test("floats growth bubbles visibly with staggered vertical motion", () => {
+  assert.match(css, /\.growth-bubble\.anchor-1\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*4\.8s/s);
+  assert.match(css, /\.growth-bubble\.anchor-2\s*{[^}]*--float-y:\s*-8px[^}]*--float-duration:\s*6\.1s/s);
+  assert.match(css, /\.growth-bubble\.anchor-3\s*{[^}]*--float-y:\s*-7px[^}]*--float-duration:\s*5\.4s/s);
+  assert.match(css, /\.growth-bubble\.anchor-4\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*5s/s);
   assert.match(css, /@keyframes growth-bubble-float[\s\S]*translate3d\(0,\s*var\(--float-y\),\s*0\)/);
+  assert.doesNotMatch(css, /@keyframes growth-bubble-float\s*{[^@]*scale\(/s);
   assert.match(css, /@keyframes collect-growth-bubble[\s\S]*translate3d\(var\(--collect-x\),\s*var\(--collect-y\),\s*0\)/);
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble[\s\S]*animation:\s*none !important/s);
 });
 
 test("uses a true regular title face and leaves room above the task rail", () => {
