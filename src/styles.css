@@ -957,35 +957,51 @@ button:focus-visible {
 }
 
 .session-controls {
+  display: flex;
+  width: 100%;
+  height: 110px;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px 32px 0 0;
+  background: rgba(20, 13, 9, 0.72);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.session-control {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: min(100%, 286px);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  border-radius: 999px;
-  background: rgba(24, 16, 12, 0.74);
-  box-shadow: 0 6px 8px rgba(30, 15, 8, 0.22);
-  backdrop-filter: blur(12px) saturate(1.06);
-}
-
-.session-controls button {
-  min-height: 46px;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  padding: 0;
+  place-items: center;
   border: 0;
-  color: #fff;
-  background: transparent;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-}
-
-.session-controls button:first-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
   color: var(--ink);
-  background: rgba(255, 212, 42, 0.82);
+  box-shadow: 0 6px 16px rgba(30, 15, 8, 0.2);
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease;
 }
 
-.session-controls button:last-child {
-  background: rgba(24, 16, 12, 0.74);
+.session-control-primary {
+  background: #ffd42a;
+}
+
+.session-control-secondary {
+  background: #fff;
+}
+
+.session-control img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.session-control:active {
+  filter: brightness(0.96);
+  transform: scale(0.96);
 }
 
 .glass-action {
@@ -1400,7 +1416,9 @@ button:focus-visible {
 }
 
 [data-screen="active"] .action-zone {
-  bottom: max(48px, calc(env(safe-area-inset-bottom) + 30px));
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 [data-screen="active"] .task-rail,
