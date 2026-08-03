@@ -1,10 +1,29 @@
+.app-shell.is-trainer-view {
+  --trainer-bg-from: #2a211a;
+  --trainer-bg-mid: #171411;
+  --trainer-bg-to: #090b0e;
+  --trainer-text: #fffaf3;
+  --trainer-text-muted: rgba(255, 250, 243, 0.62);
+  --trainer-text-subtle: rgba(255, 250, 243, 0.38);
+  --trainer-glass: rgba(255, 248, 230, 0.075);
+  --trainer-glass-border: rgba(255, 236, 200, 0.16);
+  --trainer-slot: rgba(255, 248, 230, 0.05);
+  --trainer-slot-border: rgba(255, 236, 200, 0.11);
+  --trainer-dock: rgba(22, 16, 13, 0.96);
+}
+
 .trainer-page {
   position: absolute;
   z-index: 15;
   inset: 0;
   overflow: hidden;
-  color: #fff;
-  background: #0b0e14;
+  color: var(--trainer-text);
+  background: linear-gradient(
+    135deg,
+    var(--trainer-bg-from) 0%,
+    var(--trainer-bg-mid) 46%,
+    var(--trainer-bg-to) 100%
+  );
 }
 
 .trainer-page[hidden] { display: none; }
@@ -40,8 +59,13 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(11, 14, 20, 0.48), rgba(11, 14, 20, 0.08) 38%, #0b0e14 100%),
-    linear-gradient(90deg, rgba(11, 14, 20, 0.52), transparent 62%);
+    linear-gradient(
+      180deg,
+      rgba(42, 33, 26, 0.38),
+      rgba(23, 20, 17, 0.06) 38%,
+      rgba(23, 20, 17, 0.94) 100%
+    ),
+    linear-gradient(90deg, rgba(42, 33, 26, 0.52), transparent 62%);
 }
 
 .trainer-store,
@@ -92,7 +116,7 @@
 
 .trainer-identity p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--trainer-text-muted);
   font-size: 12px;
 }
 

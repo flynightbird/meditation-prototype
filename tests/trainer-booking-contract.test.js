@@ -67,7 +67,7 @@ test("omits redundant schedule labels", () => {
 });
 
 test("preserves the dark Hero and glass panel framework", () => {
-  assert.match(css, /\.trainer-page\s*{[^}]*background:\s*#0b0e14/s);
+  assert.match(css, /\.trainer-page\s*{[^}]*background:\s*linear-gradient\(\s*135deg,\s*var\(--trainer-bg-from\) 0%,\s*var\(--trainer-bg-mid\) 46%,\s*var\(--trainer-bg-to\) 100%\s*\)/s);
   assert.match(css, /\.trainer-hero\s*{[^}]*height:\s*320px/s);
   assert.match(css, /\.booking-panel[\s\S]*backdrop-filter:\s*blur\(24px\)/s);
 });
@@ -118,6 +118,17 @@ test("uses the supplied map pin without dimming the map", () => {
   assert.match(css, /\.trainer-map > img\s*{[^}]*filter:\s*none[^}]*opacity:\s*1/s);
   assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)[^}]*color:\s*#3f4650/s);
   assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
+});
+
+test("uses the approved warm charcoal trainer foundation", () => {
+  assert.match(
+    css,
+    /\.app-shell\.is-trainer-view\s*{[^}]*--trainer-bg-from:\s*#2a211a[^}]*--trainer-bg-mid:\s*#171411[^}]*--trainer-bg-to:\s*#090b0e[^}]*--trainer-text:\s*#fffaf3[^}]*--trainer-dock:\s*rgba\(22, 16, 13, 0\.96\)/s,
+  );
+  assert.match(
+    css,
+    /\.trainer-hero-shade\s*{[^}]*rgba\(23, 20, 17, 0\.94\)[^}]*rgba\(42, 33, 26, 0\.52\)/s,
+  );
 });
 
 test("positions the trainer behind the booking card and strengthens store cues", () => {
