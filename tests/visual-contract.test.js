@@ -130,7 +130,10 @@ test("uses full-screen media and a warm transition veil", () => {
 });
 
 test("uses outlined translucent yellow and black controls", () => {
-  assert.match(css, /\.primary-action\s*{[^}]*border:\s*1px[^}]*rgba\(255,\s*212,\s*42,\s*0\.82\)/s);
+  assert.match(
+    css,
+    /\.primary-action\s*{[^}]*border:\s*1px solid rgba\(255, 245, 181, 0\.88\)[^}]*background:\s*linear-gradient\(135deg, #f8d553, #e8ff66\)/s,
+  );
   assert.match(css, /\.session-controls\s*{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255/s);
   assert.match(css, /\.session-controls button:last-child\s*{[^}]*rgba\(24,\s*16,\s*12,\s*0\.74\)/s);
 });
@@ -199,9 +202,15 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   );
   assert.match(css, /\.bottom-nav\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)/s);
   assert.match(css, /\.bottom-nav\s*{[^}]*padding:\s*8px/s);
-  assert.match(css, /\.nav-item\.is-active\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*border-radius:\s*32px 32px 0 0/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*--nav-indicator-x:\s*0%[^}]*isolation:\s*isolate/s);
+  assert.match(css, /\.bottom-nav::before\s*{[^}]*top:\s*8px[^}]*bottom:\s*8px[^}]*left:\s*8px[^}]*width:\s*calc\(\(100% - 16px\) \/ 6\)[^}]*border-radius:\s*999px[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)[^}]*transform:\s*translateX\(var\(--nav-indicator-x\)\)[^}]*transition:\s*transform 300ms cubic-bezier\(0\.22, 1\.18, 0\.36, 1\)/s);
+  assert.match(css, /\.nav-item\s*{[^}]*position:\s*relative[^}]*z-index:\s*1/s);
+  assert.match(css, /\.nav-item\.is-active\s*{[^}]*border-radius:\s*999px[^}]*background:\s*transparent/s);
   assert.match(css, /\.nav-item\.is-active \.nav-icon\s*{[^}]*color:\s*#fff[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
   assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#fff/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.bottom-nav::before\s*{[^}]*transition:\s*none !important/s);
+  assert.match(app, /function setActiveNavigation\(nav\)[\s\S]*activeIndex[\s\S]*--nav-indicator-x[\s\S]*`\$\{activeIndex \* 100\}%`/s);
   assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*76px[^}]*height:\s*98px[^}]*gap:\s*4px/s);
 });
 

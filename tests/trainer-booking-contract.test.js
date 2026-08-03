@@ -16,6 +16,10 @@ test("provides the complete trainer booking surface", () => {
 
 test("keeps the map and all three nearby stores", () => {
   assert.match(html, /assets\/trainer-map\.png/);
+  assert.match(
+    html,
+    /<span class="nearby-summary">附近有3家 ｜ 深圳市有128家 <i aria-hidden="true">›<\/i><\/span>/,
+  );
   for (const store of ["南浦大桥店", "前海湾旗舰店", "海上世界店"]) {
     assert.match(html, new RegExp(store));
   }
@@ -90,17 +94,29 @@ test("routes the trainer tab without changing stores", () => {
   assert.doesNotMatch(view, /SELECT_STORE|selectedStore|store-detail/);
 });
 
-test("uses the supplied map pin and lighter map treatment", () => {
+test("uses the supplied map pin without dimming the map", () => {
   assert.match(mapPin, /viewBox="0 0 200 200"/);
   assert.match(css, /\.map-pin::before\s*{[^}]*mask:\s*url\("\.\.\/assets\/trainer-map-pin\.svg"\)/s);
-  assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate/s);
-  assert.match(css, /\.trainer-map > img\s*{[^}]*saturate\(0\.72\)[^}]*brightness\(0\.88\)[^}]*opacity:\s*0\.9/s);
-  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)/s);
+  assert.match(css, /\.map-pin\s*{[^}]*isolation:\s*isolate[^}]*color:\s*#745400[^}]*font-size:\s*9px[^}]*font-weight:\s*600/s);
+  assert.match(css, /\.trainer-map > img\s*{[^}]*filter:\s*none[^}]*opacity:\s*1/s);
+  assert.match(css, /\.map-pin\.is-closed\s*{[^}]*--pin-fill:\s*rgba\(205, 211, 219, 0\.72\)[^}]*color:\s*#3f4650/s);
   assert.match(css, /\.store-row\.is-closed > b\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.52\)/s);
 });
 
+test("positions the trainer behind the booking card and strengthens store cues", () => {
+  assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
+  assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-54px[^}]*top:\s*24px[^}]*bottom:\s*auto[^}]*height:\s*150%/s);
+  assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
+  assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
+  assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
+  assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
+  assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)/s);
+  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*rgba\(255, 255, 255, 0\.62\)[^}]*font-size:\s*32px/s);
+});
+
 test("uses the approved full trainer and vertical date capsules", () => {
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*right bottom/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*150%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
   assert.match(css, /\.booking-date\s*{[^}]*height:\s*68px[^}]*border-radius:\s*999px/s);
   assert.match(css, /\.booking-date strong\s*{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*border-radius:\s*50%/s);
   assert.match(css, /\.booking-date\[aria-pressed="true"\]\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s);
