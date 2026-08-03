@@ -45,6 +45,13 @@ test("uses the pony only for the selected AI coach state", () => {
   assert.match(css, /data-nav="coach"[^}]*\.nav-label[^}]*clip-path:\s*inset\(50%\)/s);
 });
 
+test("bounces the selected AI coach pony once and respects reduced motion", () => {
+  assert.match(css, /\.nav-item\[data-nav="coach"\]\.is-active \.nav-coach-pony\s*{[^}]*animation:\s*nav-coach-bounce 420ms/s);
+  assert.match(css, /@keyframes nav-coach-bounce[\s\S]*scale\(0\.82\)[\s\S]*scale\(1\.08\)[\s\S]*scale\(1\)/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.nav-state-icon\s*{[^}]*transition:\s*none/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.nav-coach-pony\s*{[^}]*animation:\s*none/s);
+});
+
 test("uses video as the only large IP carrier", () => {
   assert.doesNotMatch(html, /class="character-stage"|id="character"/);
   assert.doesNotMatch(app, /assets\/ip-(lift|meditate|stretch|walk)\.png/);

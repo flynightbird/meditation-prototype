@@ -972,6 +972,11 @@ button:focus-visible {
   height: 44px;
 }
 
+.nav-item[data-nav="coach"].is-active .nav-coach-pony {
+  animation: nav-coach-bounce 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center;
+}
+
 .nav-label {
   max-width: 100%;
   overflow: hidden;
@@ -1568,6 +1573,20 @@ button:focus-visible {
   }
 }
 
+@keyframes nav-coach-bounce {
+  0% {
+    transform: scale(0.82);
+  }
+
+  62% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes tent-drop {
   from {
     opacity: 0;
@@ -1761,6 +1780,14 @@ button:focus-visible {
 
   .bottom-nav::before {
     transition: none !important;
+  }
+
+  .nav-state-icon {
+    transition: none;
+  }
+
+  .nav-coach-pony {
+    animation: none !important;
   }
 
   .is-reward-entered .claim-reward {
