@@ -937,6 +937,18 @@ button:focus-visible {
   transition: width 160ms ease, height 160ms ease, color 160ms ease, background 160ms ease;
 }
 
+.nav-item:not([data-nav="coach"]) .nav-icon {
+  flex-basis: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.nav-item:not([data-nav="coach"]) .nav-state-icon {
+  inset: 1px;
+  width: 20px;
+  height: 20px;
+}
+
 .nav-item.is-active .nav-icon {
   color: #fff;
   background: transparent;

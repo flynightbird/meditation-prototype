@@ -38,6 +38,17 @@ test("renders paired SVG states for the five standard navigation items", () => {
   assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-on\s*{[^}]*opacity:\s*1/s);
 });
 
+test("balances standard navigation icons against the unselected AI coach", () => {
+  assert.match(
+    css,
+    /\.nav-item:not\(\[data-nav="coach"\]\) \.nav-icon\s*{[^}]*flex-basis:\s*22px[^}]*width:\s*22px[^}]*height:\s*22px/s,
+  );
+  assert.match(
+    css,
+    /\.nav-item:not\(\[data-nav="coach"\]\) \.nav-state-icon\s*{[^}]*inset:\s*1px[^}]*width:\s*20px[^}]*height:\s*20px/s,
+  );
+});
+
 test("uses the pony only for the selected AI coach state", () => {
   assert.match(html, /data-nav="coach"[\s\S]*nav-ai-coach-on\.svg/);
   assert.match(css, /\.nav-coach-robot\s*{[^}]*width:\s*22px[^}]*height:\s*22px/s);
