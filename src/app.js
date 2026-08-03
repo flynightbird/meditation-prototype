@@ -172,14 +172,16 @@ function taskCard({ id, time, label, icon, reward, status }) {
   const done = status === "done";
   return `
     <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}，${reward.label}加${reward.value}${done ? "，已完成" : current ? "，当前任务" : ""}">
-      <time>${time}</time>
-      ${!done ? `<span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${reward.label}</small><b>+${reward.value}</b></span>` : ""}
-      <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
-      <span class="task-footer">
-        <strong>${label}</strong>
-        ${done ? '<svg class="check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>' : ""}
-      </span>
       ${current ? '<span class="current-label">当前</span>' : ""}
+      ${done ? '<svg class="check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>' : ""}
+      <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
+      <span class="task-copy">
+        <time>${time}</time>
+        <span class="task-details">
+          <strong>${label}</strong>
+          <span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${reward.label}</small><b>+${reward.value}</b></span>
+        </span>
+      </span>
     </article>`;
 }
 

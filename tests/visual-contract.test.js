@@ -130,7 +130,7 @@ test("spreads one-shot reward confetti across the full viewport", () => {
 
 test("uses regular weight across the interface", () => {
   assert.match(css, /\.app-shell,\s*\.app-shell \*\s*{[^}]*font-weight:\s*400/s);
-  assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
+  assert.match(css, /\.task-details strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
 });
 
 test("shows a compact single-line growth base identity on subtle glass", () => {
@@ -190,8 +190,8 @@ test("uses compact content-sized primary controls", () => {
   assert.match(css, /\.session-controls button\s*{[^}]*min-height:\s*46px/s);
 });
 
-test("gives the current meal icon a larger lifted frame", () => {
-  assert.match(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{[^}]*width:\s*88px[^}]*transform:\s*translateY\(-12px\)/s);
+test("keeps the current meal icon inside the shared current-card frame", () => {
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{/);
 });
 
 test("keeps motion fallbacks and a visible focus state for the claim bubble", () => {
@@ -200,17 +200,18 @@ test("keeps motion fallbacks and a visible focus state for the claim bubble", ()
   assert.match(css, /\.is-time-shifting \.demo-clock-track\s*{/);
 });
 
-test("task cards reserve a footer row for label and completion state", () => {
-  assert.match(app, /class="task-footer"/);
-  assert.match(css, /\.task-footer\s*{/);
-  assert.match(css, /gap:\s*2px/);
+test("task cards share the approved left-image right-copy structure", () => {
+  assert.match(app, /class="task-visual"[\s\S]*class="task-copy"/);
+  assert.match(app, /class="task-details"[\s\S]*<strong>\$\{label\}<\/strong>[\s\S]*class="task-reward/);
+  assert.match(css, /\.task-card\s*{[^}]*grid-template-columns:\s*40px minmax\(0,\s*1fr\)[^}]*column-gap:\s*7px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*grid-template-columns:\s*56px minmax\(0,\s*1fr\)[^}]*column-gap:\s*10px/s);
 });
 
 test("completed task cards use the Remix checkbox-circle SVG", () => {
   assert.doesNotMatch(app, />✓</);
   assert.match(app, /<svg class="check"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
   assert.match(app, /M12 22C6\.47715 22 2 17\.5228 2 12/);
-  assert.match(css, /\.task-card \.check\s*{[^}]*width:\s*16px[^}]*fill:\s*currentColor/s);
+  assert.match(css, /\.task-card \.check\s*{[^}]*position:\s*absolute[^}]*top:\s*6px[^}]*left:\s*6px[^}]*width:\s*18px[^}]*fill:\s*currentColor/s);
 });
 
 test("current card uses the approved diagonal glass gradient without an outline", () => {
@@ -232,20 +233,18 @@ test("renders the approved greeting and lightweight daily goal copy", () => {
   assert.doesNotMatch(css, /\.growth-cue\s*{[^}]*background:/s);
 });
 
-test("places task rewards top-right and the current label bottom-right", () => {
+test("keeps rewards in every card and places status at top-left", () => {
   assert.match(app, /class="task-reward reward-\$\{reward\.attribute\}"/);
   assert.match(app, /<small>\$\{reward\.label\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
-  assert.match(css, /\.task-reward\s*{[^}]*grid-row:\s*1[^}]*grid-column:\s*1[^}]*justify-self:\s*end/s);
-  assert.match(css, /\.current-label\s*{[^}]*right:\s*7px[^}]*bottom:\s*6px/s);
+  assert.doesNotMatch(app, /\$\{!done \? `<span class="task-reward/);
+  assert.match(css, /\.current-label\s*{[^}]*top:\s*7px[^}]*left:\s*7px/s);
 });
 
-test("renders task rewards as plain text aligned with card times", () => {
-  assert.match(css, /\.task-card time\s*{[^}]*grid-row:\s*1[^}]*grid-column:\s*1/s);
-  assert.match(css, /\.task-reward\s*{[^}]*position:\s*static[^}]*align-self:\s*center/s);
-  assert.match(css, /\.task-reward\s*{[^}]*padding:\s*0[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
+test("uses the approved copy spacing and right padding", () => {
+  assert.match(css, /\.task-card\s*{[^}]*padding:\s*8px 10px 8px 8px/s);
+  assert.match(css, /\.task-details\s*{[^}]*gap:\s*3px/s);
+  assert.match(css, /\.is-current \.task-details\s*{[^}]*gap:\s*4px/s);
   assert.match(css, /\.task-reward\s*{[^}]*font-size:\s*10px[^}]*white-space:\s*nowrap/s);
-  assert.match(css, /\.task-reward small,[\s\S]*\.task-reward b\s*{[^}]*font-size:\s*10px/s);
-  assert.doesNotMatch(css, /\.is-current \.task-reward\s*{/);
 });
 
 test("provides a persistent collectible growth bubble layer", () => {
@@ -284,25 +283,23 @@ test("uses a true regular title face and leaves room above the task rail", () =>
   assert.match(css, /@media \(max-height:\s*790px\)[\s\S]*\.action-zone\s*{[^}]*bottom:\s*202px/s);
 });
 
-test("current task icon is lifted clear of its label", () => {
-  assert.match(
-    css,
-    /\.is-current \.task-visual\s*{[^}]*width:\s*72px[^}]*height:\s*56px[^}]*transform:\s*translateY\(-12px\)/s,
-  );
+test("current and small cards preserve the same horizontal information order", () => {
+  assert.match(css, /\.task-visual\s*{[^}]*width:\s*40px[^}]*height:\s*40px/s);
+  assert.match(css, /\.is-current \.task-visual\s*{[^}]*width:\s*56px[^}]*height:\s*56px/s);
+  assert.doesNotMatch(css, /\.is-current \.task-visual\s*{[^}]*transform:/s);
 });
 
-test("small task cards use one centered icon frame without row gaps", () => {
+test("task icon variants stay inside the shared horizontal frame", () => {
   assert.match(app, /data-task-icon="\$\{icon\}"/);
-  assert.match(css, /\.task-card\s*{[^}]*row-gap:\s*0/s);
   assert.doesNotMatch(css, /\n\[data-task-icon="fitness"\] \.task-visual\s*{/);
-  assert.match(css, /\.task-visual\s*{[^}]*width:\s*39px[^}]*height:\s*31px[^}]*place-items:\s*center/s);
-  assert.match(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{/);
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{/);
 });
 
-test("uses the approved compact schedule dimensions", () => {
-  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 73px\) 5px/s);
-  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 88px[^}]*width:\s*88px[^}]*height:\s*70px[^}]*border-radius:\s*14px/s);
-  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*146px[^}]*width:\s*146px[^}]*height:\s*88px/s);
+test("uses the approved C2 schedule dimensions", () => {
+  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 75px\) 5px/s);
+  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 118px[^}]*width:\s*118px[^}]*height:\s*72px[^}]*border-radius:\s*14px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*150px[^}]*width:\s*150px[^}]*height:\s*88px/s);
 });
 
 test("styles reward settling without standalone character CSS", () => {
