@@ -76,6 +76,22 @@ test("places three coach credentials in the lower-left Hero gap", () => {
   assert.match(css, /\.trainer-credential strong,[\s\S]*white-space:\s*nowrap/s);
 });
 
+test("adds restrained depth and breathing room to the trainer Hero", () => {
+  assert.match(
+    css,
+    /\.trainer-credential-icon\s*{[^}]*position:\s*relative[^}]*border:\s*0[^}]*background:\s*rgba\(23, 20, 17, 0\.7\)/s,
+  );
+  assert.match(
+    css,
+    /\.trainer-credential-icon::before\s*{[^}]*inset:\s*0[^}]*padding:\s*1px[^}]*conic-gradient\([^}]*rgba\(255, 232, 133, 0\.96\)[^}]*rgba\(181, 127, 25, 0\.34\)[^}]*mask-composite:\s*exclude/s,
+  );
+  assert.match(css, /\.trainer-content\s*{[^}]*margin-top:\s*0/s);
+  assert.match(
+    css,
+    /\.trainer-hero::before\s*{[^}]*right:\s*-54px[^}]*width:\s*270px[^}]*height:\s*390px[^}]*linear-gradient\(\s*112deg[^}]*rgba\(125, 173, 194, 0\.12\)[^}]*filter:\s*blur\(22px\)[^}]*pointer-events:\s*none/s,
+  );
+});
+
 test("links the complete store row to map navigation", () => {
   assert.match(html, /<p>减脂塑形教练 · 8年经验<\/p>/);
   assert.match(
@@ -187,7 +203,7 @@ test("positions the trainer behind the booking card and strengthens store cues",
   assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*40px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
   assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*400px[^}]*rgba\(23, 20, 17, 0\.94\) 38%[^}]*rgba\(23, 20, 17, 0\.94\) 100%[^}]*pointer-events:\s*none/s);
   assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
-  assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*-20px/s);
+  assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*0/s);
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
   assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
