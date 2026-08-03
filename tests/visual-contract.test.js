@@ -28,6 +28,23 @@ test("ships the approved bottom navigation SVG assets without recoloring", () =>
   }
 });
 
+test("renders paired SVG states for the five standard navigation items", () => {
+  for (const name of ["trainer", "skill", "plan", "points", "mine"]) {
+    assert.match(html, new RegExp(`nav-${name}-off\\.svg`));
+    assert.match(html, new RegExp(`nav-${name}-on\\.svg`));
+  }
+  assert.match(css, /\.nav-state-icon\.is-on\s*{[^}]*opacity:\s*0/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-off\s*{[^}]*opacity:\s*0/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-on\s*{[^}]*opacity:\s*1/s);
+});
+
+test("uses the pony only for the selected AI coach state", () => {
+  assert.match(html, /data-nav="coach"[\s\S]*nav-ai-coach-on\.svg/);
+  assert.match(css, /\.nav-coach-robot\s*{[^}]*width:\s*22px[^}]*height:\s*22px/s);
+  assert.match(css, /data-nav="coach"[^}]*\.nav-icon[^}]*width:\s*44px[^}]*height:\s*44px/s);
+  assert.match(css, /data-nav="coach"[^}]*\.nav-label[^}]*clip-path:\s*inset\(50%\)/s);
+});
+
 test("uses video as the only large IP carrier", () => {
   assert.doesNotMatch(html, /class="character-stage"|id="character"/);
   assert.doesNotMatch(app, /assets\/ip-(lift|meditate|stretch|walk)\.png/);
