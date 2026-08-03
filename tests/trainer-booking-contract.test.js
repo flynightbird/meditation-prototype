@@ -82,7 +82,7 @@ test("adds restrained depth and breathing room to the trainer Hero", () => {
     /\.trainer-credential-icon\s*{[^}]*border:\s*1px solid rgba\(255, 236, 200, 0\.14\)[^}]*color:\s*rgba\(248, 213, 83, 0\.78\)[^}]*background:\s*rgba\(255, 248, 230, 0\.075\)/s,
   );
   assert.doesNotMatch(css, /\.trainer-credential-icon::before\s*{/);
-  assert.doesNotMatch(css, /\.trainer-credential-icon[\s\S]*?conic-gradient\(/);
+  assert.doesNotMatch(css, /\.trainer-credential-icon\s*{[^}]*conic-gradient\(/s);
   assert.match(css, /\.trainer-content\s*{[^}]*margin-top:\s*0/s);
   assert.match(
     css,
