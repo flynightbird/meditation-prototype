@@ -212,10 +212,11 @@
   left: 22px;
   bottom: 28px;
   display: grid;
-  width: 184px;
+  width: 204px;
   margin: 0;
   padding: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 4px;
   list-style: none;
 }
 
@@ -227,11 +228,17 @@
 
 .trainer-credential + .trainer-credential::before {
   position: absolute;
-  top: 12px;
-  left: 0;
+  top: 9px;
+  left: -2px;
   width: 1px;
-  height: 28px;
-  background: rgba(255, 250, 243, 0.18);
+  height: 34px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 250, 243, 0.16) 28%,
+    rgba(255, 250, 243, 0.16) 72%,
+    transparent 100%
+  );
   content: "";
 }
 
@@ -272,7 +279,7 @@
 }
 
 .trainer-credential small {
-  margin-top: 3px;
+  margin-top: 5px;
   color: rgba(255, 250, 243, 0.5);
   font-size: 8px;
 }

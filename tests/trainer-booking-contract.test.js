@@ -70,10 +70,14 @@ test("places three coach credentials in the lower-left Hero gap", () => {
   assert.match(html, /class="trainer-credential-icon" aria-hidden="true"/);
   assert.match(
     css,
-    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*184px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*list-style:\s*none/s,
+    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*204px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*column-gap:\s*4px[^}]*list-style:\s*none/s,
   );
-  assert.match(css, /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*height:\s*28px/s);
+  assert.match(
+    css,
+    /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*top:\s*9px[^}]*left:\s*-2px[^}]*height:\s*34px[^}]*background:\s*linear-gradient\(\s*to bottom,\s*transparent 0%,\s*rgba\(255, 250, 243, 0\.16\) 28%,\s*rgba\(255, 250, 243, 0\.16\) 72%,\s*transparent 100%\s*\)/s,
+  );
   assert.match(css, /\.trainer-credential strong,[\s\S]*white-space:\s*nowrap/s);
+  assert.match(css, /\.trainer-credential small\s*{[^}]*margin-top:\s*5px/s);
 });
 
 test("adds restrained depth and breathing room to the trainer Hero", () => {
