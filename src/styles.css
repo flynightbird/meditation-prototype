@@ -1975,6 +1975,10 @@ button:focus-visible {
     inset: 166px 0 176px;
   }
 
+  .growth-bubble.anchor-2 {
+    top: 40%;
+  }
+
   .growth-bubble.anchor-3 {
     top: 44%;
   }

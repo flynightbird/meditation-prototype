@@ -552,6 +552,13 @@ test("floats growth bubbles visibly with staggered vertical motion", () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble[\s\S]*animation:\s*none !important/s);
 });
 
+test("keeps the focus bubble clear of stats on short mobile screens", () => {
+  assert.match(
+    css,
+    /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)\s*{[\s\S]*?\.growth-bubble\.anchor-2\s*{[^}]*top:\s*40%[^}]*}/,
+  );
+});
+
 test("flies bubbles to their live stat target before committing", () => {
   assert.match(app, /previewBubbleCollection\(growthState, rewardIds\)/);
   assert.match(app, /getBoundingClientRect\(\)/);
