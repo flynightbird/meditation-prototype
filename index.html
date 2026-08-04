@@ -103,7 +103,7 @@
       <nav class="bottom-nav" aria-label="主要导航">
         <button class="nav-item is-active" type="button" data-action="nav-tap" data-nav="coach" aria-current="page">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="nav-state-icon is-off nav-coach-robot" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="5" y="8" width="14" height="11" rx="4"></rect>
               <path d="M12 8V5"></path>
               <circle cx="12" cy="4" r="1.2" fill="currentColor" stroke="none"></circle>
@@ -113,54 +113,42 @@
               <path d="M3 12h2"></path>
               <path d="M19 12h2"></path>
             </svg>
+            <img class="nav-state-icon is-on nav-coach-pony" src="./assets/nav-ai-coach-on.svg" alt="" />
           </span>
           <span class="nav-label">AI教练</span>
         </button>
         <button class="nav-item" type="button" data-action="nav-tap" data-nav="trainer">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="5" width="16" height="15" rx="3"></rect>
-              <path d="M4 9.5h16"></path>
-              <path d="M8 3v3"></path>
-              <path d="M16 3v3"></path>
-              <path d="M9 14.2l2 1.8 4-4.4"></path>
-            </svg>
+            <img class="nav-state-icon is-off" src="./assets/nav-trainer-off.svg" alt="" />
+            <img class="nav-state-icon is-on" src="./assets/nav-trainer-on.svg" alt="" />
           </span>
           <span class="nav-label">预约私教</span>
         </button>
         <button class="nav-item" type="button" data-action="nav-tap" data-nav="skill">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12.5 3l-6 10h4.3l-1 8 6-10h-4.3z" stroke-linejoin="round"></path>
-            </svg>
+            <img class="nav-state-icon is-off" src="./assets/nav-skill-off.svg" alt="" />
+            <img class="nav-state-icon is-on" src="./assets/nav-skill-on.svg" alt="" />
           </span>
           <span class="nav-label">Skill</span>
         </button>
         <button class="nav-item" type="button" data-action="nav-tap" data-nav="plan">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6" y="4" width="12" height="16" rx="3.5"></rect>
-              <path d="M9.5 3.3h5a1 1 0 0 1 1 1v1.2a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V4.3a1 1 0 0 1 1-1Z"></path>
-              <path d="M9 12.3l1.8 1.8 3.2-3.6"></path>
-              <path d="M9 16.5h6"></path>
-            </svg>
+            <img class="nav-state-icon is-off" src="./assets/nav-plan-off.svg" alt="" />
+            <img class="nav-state-icon is-on" src="./assets/nav-plan-on.svg" alt="" />
           </span>
           <span class="nav-label">训练计划</span>
         </button>
         <button class="nav-item" type="button" data-action="nav-tap" data-nav="points">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3.5l2.55 5.17 5.7.83-4.13 4.02.98 5.68L12 16.4l-5.1 2.8.98-5.68-4.13-4.02 5.7-.83z" stroke-linejoin="round"></path>
-            </svg>
+            <img class="nav-state-icon is-off" src="./assets/nav-points-off.svg" alt="" />
+            <img class="nav-state-icon is-on" src="./assets/nav-points-on.svg" alt="" />
           </span>
           <span class="nav-label">积分</span>
         </button>
         <button class="nav-item" type="button" data-action="nav-tap" data-nav="mine">
           <span class="nav-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="8.2" r="3.4"></circle>
-              <path d="M5 19.2c0-3.4 3.13-5.6 7-5.6s7 2.2 7 5.6"></path>
-            </svg>
+            <img class="nav-state-icon is-off" src="./assets/nav-mine-off.svg" alt="" />
+            <img class="nav-state-icon is-on" src="./assets/nav-mine-on.svg" alt="" />
           </span>
           <span class="nav-label">我的</span>
         </button>
