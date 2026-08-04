@@ -97,7 +97,17 @@ test("links the complete store row to map navigation", () => {
     /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"/,
   );
   assert.match(html, /class="trainer-store-navigation"[^>]*aria-hidden="true"/);
-  assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none/s);
+  assert.match(
+    html,
+    /<a\s+class="trainer-store"[^>]*>[\s\S]*?<span>中田健身 · 南山旗舰店<\/span>\s*<span class="trainer-store-distance">1\.2km<\/span>\s*<span class="trainer-store-navigation" aria-hidden="true">\s*<svg[^>]*viewBox="0 0 24 24"[^>]*>[\s\S]*?<\/svg>\s*<\/span>\s*<\/a>/,
+  );
+  assert.doesNotMatch(html, /class="trainer-store-navigation"[^>]*>↗<\/span>/);
+  assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none[^}]*white-space:\s*nowrap/s);
+  assert.match(
+    css,
+    /\.trainer-store-distance\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.5\)[^}]*font-size:\s*10px[^}]*font-variant-numeric:\s*tabular-nums/s,
+  );
+  assert.match(css, /\.trainer-store-navigation svg\s*{[^}]*width:\s*14px[^}]*height:\s*14px[^}]*stroke:\s*currentColor/s);
   assert.match(css, /\.trainer-store:focus-visible\s*{[^}]*outline:/s);
   assert.match(css, /\.trainer-store:active\s*{[^}]*transform:\s*translateY\(1px\)/s);
 });
