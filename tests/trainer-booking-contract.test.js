@@ -70,10 +70,14 @@ test("places three coach credentials in the lower-left Hero gap", () => {
   assert.match(html, /class="trainer-credential-icon" aria-hidden="true"/);
   assert.match(
     css,
-    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*184px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*list-style:\s*none/s,
+    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*204px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*column-gap:\s*4px[^}]*list-style:\s*none/s,
   );
-  assert.match(css, /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*height:\s*28px/s);
+  assert.match(
+    css,
+    /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*top:\s*9px[^}]*left:\s*-2px[^}]*height:\s*34px[^}]*background:\s*linear-gradient\(\s*to bottom,\s*transparent 0%,\s*rgba\(255, 250, 243, 0\.16\) 28%,\s*rgba\(255, 250, 243, 0\.16\) 72%,\s*transparent 100%\s*\)/s,
+  );
   assert.match(css, /\.trainer-credential strong,[\s\S]*white-space:\s*nowrap/s);
+  assert.match(css, /\.trainer-credential small\s*{[^}]*margin-top:\s*5px/s);
 });
 
 test("adds restrained depth and breathing room to the trainer Hero", () => {
@@ -97,9 +101,57 @@ test("links the complete store row to map navigation", () => {
     /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"/,
   );
   assert.match(html, /class="trainer-store-navigation"[^>]*aria-hidden="true"/);
-  assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none/s);
+  assert.match(
+    html,
+    /<a\s+class="trainer-store"[^>]*>[\s\S]*?<span>中田健身 · 南山旗舰店<\/span>\s*<span class="trainer-store-distance">1\.2km<\/span>\s*<span class="trainer-store-navigation" aria-hidden="true">\s*<svg[^>]*viewBox="0 0 24 24"[^>]*>[\s\S]*?<\/svg>\s*<\/span>\s*<\/a>/,
+  );
+  assert.doesNotMatch(html, /class="trainer-store-navigation"[^>]*>↗<\/span>/);
+  assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none[^}]*white-space:\s*nowrap/s);
+  assert.match(
+    css,
+    /\.trainer-store-distance\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.5\)[^}]*font-size:\s*10px[^}]*font-variant-numeric:\s*tabular-nums/s,
+  );
+  assert.match(css, /\.trainer-store-navigation svg\s*{[^}]*width:\s*14px[^}]*height:\s*14px[^}]*stroke:\s*currentColor/s);
   assert.match(css, /\.trainer-store:focus-visible\s*{[^}]*outline:/s);
   assert.match(css, /\.trainer-store:active\s*{[^}]*transform:\s*translateY\(1px\)/s);
+});
+
+test("polishes store hierarchy and supporting trainer details", () => {
+  for (const sequence of ["01", "02", "03"]) {
+    assert.match(html, new RegExp(`<b aria-hidden="true">${sequence}<\\/b>`));
+  }
+  assert.equal((html.match(/class="store-nearest"/g) ?? []).length, 1);
+  assert.match(html, /<span class="store-nearest">最近<\/span><span>南浦大桥店<\/span>/);
+  for (const [name, status, address, hours, features, distance] of [
+    ["南浦大桥店", "营业中", "南浦一路111号一层", "10:00–24:00", "私教体验 · 体态检测", "756m"],
+    ["前海湾旗舰店", "营业中", "前海路99号B1层", "09:00–22:00", "私教体验 · 停车方便", "2.8km"],
+    ["海上世界店", "已打烊", "望海路1187号商业中心", "10:00–21:30", "体态检测 · 停车方便", "4.1km"],
+  ]) {
+    assert.match(
+      html,
+      new RegExp(`<span>${name}<\\/span><em>${status}<\\/em><\\/h3>\\s*<p>${address}<\\/p>\\s*<small><span class="store-hours">${hours}<\\/span><span class="store-detail-separator" aria-hidden="true">·<\\/span><span class="store-features">${features}<\\/span><\\/small>[\\s\\S]*?class="store-distance"><span>${distance}<\\/span>`),
+    );
+  }
+  for (const distance of ["756m", "2.8km", "4.1km"]) {
+    assert.match(html, new RegExp(`class="store-distance"><span>${distance}<\\/span><i aria-hidden="true">›<\\/i><\\/span>`));
+  }
+  for (const oldAddress of ["756m · 南浦一路111号一层", "2.8km · 前海路99号B1层", "4.1km · 望海路1187号商业中心"]) {
+    assert.doesNotMatch(html, new RegExp(oldAddress));
+  }
+  assert.match(css, /\.store-row\s*{[^}]*grid-template-columns:\s*20px minmax\(0, 1fr\) auto[^}]*min-height:\s*82px[^}]*border-top:\s*1px solid rgba\(255, 255, 255, 0\.06\)/s);
+  const storeSequenceRule = css.match(/\.store-row > b\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(storeSequenceRule, /color:\s*rgba\(255, 250, 243, 0\.3\)[^}]*font-size:\s*10px[^}]*font-weight:\s*400[^}]*font-variant-numeric:\s*tabular-nums/s);
+  assert.doesNotMatch(storeSequenceRule, /\b(?:border|border-radius|background)\s*:/);
+  assert.match(css, /\.store-nearest\s*{[^}]*border:\s*1px solid rgba\(248, 213, 83, 0\.22\)[^}]*border-radius:\s*5px[^}]*color:\s*#f8d553[^}]*background:\s*rgba\(248, 213, 83, 0\.1\)[^}]*font-size:\s*8px/s);
+  assert.match(css, /\.store-distance\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*3px[^}]*align-items:\s*center[^}]*align-self:\s*center[^}]*font-size:\s*10px/s);
+  assert.match(css, /\.store-distance i\s*{[^}]*font-size:\s*16px/s);
+  assert.match(css, /\.store-hours\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.34\)[^}]*font-size:\s*9px[^}]*font-weight:\s*400/s);
+  const storeFeaturesRule = css.match(/\.store-features\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(storeFeaturesRule, /overflow:\s*hidden[^}]*color:\s*rgba\(255, 250, 243, 0\.58\)[^}]*font-size:\s*9\.5px[^}]*font-weight:\s*500[^}]*text-overflow:\s*ellipsis/s);
+  assert.doesNotMatch(storeFeaturesRule, /\b(?:border|background)\s*:/);
+  assert.match(css, /\.store-row\.is-closed\s*{[^}]*opacity:\s*0\.56/s);
+  assert.match(css, /\.booking-heading span\s*{[^}]*color:\s*var\(--trainer-text-muted\)/s);
+  assert.match(css, /\.trainer-credential-icon\s*{[^}]*margin:\s*0 auto 7px/s);
 });
 
 test("omits redundant schedule labels", () => {
@@ -205,7 +257,7 @@ test("positions the trainer behind the booking card and strengthens store cues",
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
   assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
-  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*32px/s);
+  assert.match(css, /\.store-distance\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*10px/s);
   assert.match(css, /\.store-list \.store-row:first-child\s*{[^}]*border-top:\s*0/s);
 });
 

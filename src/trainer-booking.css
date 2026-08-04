@@ -129,6 +129,7 @@
   color: rgba(248, 213, 83, 0.78);
   font-size: 11px;
   text-decoration: none;
+  white-space: nowrap;
   transition: color 160ms ease, transform 160ms ease;
 }
 
@@ -141,11 +142,33 @@
   box-shadow: 0 0 8px rgba(248, 213, 83, 0.7);
 }
 
-.trainer-store-navigation {
+.trainer-store-distance {
   margin-left: 2px;
-  font-size: 14px;
+  color: rgba(255, 250, 243, 0.5);
+  font-size: 10px;
   line-height: 1;
-  opacity: 0.78;
+  font-variant-numeric: tabular-nums;
+}
+
+.trainer-store-navigation {
+  display: inline-flex;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: #f8d553;
+  line-height: 1;
+  opacity: 0.82;
+}
+
+.trainer-store-navigation svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .trainer-store:focus-visible {
@@ -189,10 +212,11 @@
   left: 22px;
   bottom: 28px;
   display: grid;
-  width: 184px;
+  width: 204px;
   margin: 0;
   padding: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 4px;
   list-style: none;
 }
 
@@ -204,11 +228,17 @@
 
 .trainer-credential + .trainer-credential::before {
   position: absolute;
-  top: 12px;
-  left: 0;
+  top: 9px;
+  left: -2px;
   width: 1px;
-  height: 28px;
-  background: rgba(255, 250, 243, 0.18);
+  height: 34px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 250, 243, 0.16) 28%,
+    rgba(255, 250, 243, 0.16) 72%,
+    transparent 100%
+  );
   content: "";
 }
 
@@ -216,7 +246,7 @@
   display: grid;
   width: 26px;
   height: 26px;
-  margin: 0 auto 5px;
+  margin: 0 auto 7px;
   place-items: center;
   border: 1px solid rgba(255, 236, 200, 0.14);
   border-radius: 50%;
@@ -249,7 +279,7 @@
 }
 
 .trainer-credential small {
-  margin-top: 3px;
+  margin-top: 5px;
   color: rgba(255, 250, 243, 0.5);
   font-size: 8px;
 }
@@ -316,7 +346,7 @@
 }
 
 .booking-heading span {
-  color: rgba(255, 250, 243, 0.34);
+  color: var(--trainer-text-muted);
   font-size: 10px;
 }
 
@@ -478,8 +508,8 @@
 
 .store-row {
   display: grid;
-  grid-template-columns: 28px 1fr 14px;
-  gap: 11px;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
   min-height: 82px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -488,21 +518,35 @@
 .store-list .store-row:first-child { border-top: 0; }
 
 .store-row > b {
-  display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border: 1px solid rgba(248, 213, 83, 0.3);
-  border-radius: 50%;
-  color: #f8d553;
-  background: rgba(248, 213, 83, 0.1);
+  width: 20px;
+  color: rgba(255, 250, 243, 0.3);
   font-size: 10px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
+.store-copy { min-width: 0; }
+
 .store-row h3 {
+  display: flex;
+  min-width: 0;
   margin: 0 0 4px;
+  align-items: center;
+  gap: 5px;
   font-size: 13px;
   font-weight: 400;
+  white-space: nowrap;
+}
+
+.store-nearest {
+  padding: 2px 5px;
+  border: 1px solid rgba(248, 213, 83, 0.22);
+  border-radius: 5px;
+  color: #f8d553;
+  background: rgba(248, 213, 83, 0.1);
+  font-size: 8px;
+  line-height: 1.2;
 }
 
 .store-row h3 em {
@@ -518,26 +562,56 @@
   margin: 0;
   color: rgba(255, 250, 243, 0.46);
   font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .store-row small {
-  display: block;
+  display: flex;
+  min-width: 0;
   margin-top: 5px;
-  color: rgba(255, 250, 243, 0.3);
-  font-size: 9px;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-.store-row > span {
+.store-hours {
+  color: rgba(255, 250, 243, 0.34);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.store-detail-separator { color: rgba(255, 250, 243, 0.22); }
+
+.store-features {
+  overflow: hidden;
+  color: rgba(255, 250, 243, 0.58);
+  font-size: 9.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.store-distance {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  align-self: center;
   color: var(--trainer-text-muted);
-  font-size: 32px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.store-distance i {
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1;
 }
 
 .store-row.is-closed { opacity: 0.56; }
 
 .store-row.is-closed > b {
-  border-color: rgba(255, 255, 255, 0.18);
   color: rgba(232, 224, 214, 0.48);
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .booking-action-bar {
