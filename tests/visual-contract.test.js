@@ -247,6 +247,17 @@ test("synchronizes the meditation timer with actual video playback", () => {
   assert.match(app, /countdownCompleteTimer\s*=\s*window\.setTimeout[\s\S]*300/s);
 });
 
+test("silences automatic countdown announcements", () => {
+  const timerPanelTag = getOpeningTags(html, "section").find(
+    (tag) => getAttribute(tag, "id") === "timerPanel",
+  );
+
+  assert.ok(timerPanelTag, "document should provide the timer panel");
+  const ariaLive = getAttribute(timerPanelTag, "aria-live");
+  assert.notEqual(ariaLive, "polite");
+  assert.equal(ariaLive, "off");
+});
+
 test("renders a rounded clockwise SVG meditation timer", () => {
   assert.match(app, /class="timer-track"[^>]*stroke-dasharray="2 3"/);
   assert.match(app, /class="timer-progress"[^>]*pathLength="100"/);
