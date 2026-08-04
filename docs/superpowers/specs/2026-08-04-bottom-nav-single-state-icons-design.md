@@ -10,7 +10,8 @@ Refine bottom navigation items two through six so they use one compact SVG asset
 - Render navigation items two through six at `22px` by `22px`.
 - Use a neutral light color for unselected icons.
 - Use exactly `#FFD32C` for the selected icon.
-- Keep the first AI coach item unchanged, including its robot off state, pony selected state, scale, and bounce animation.
+- Replace the first AI coach off state with the supplied `/Users/admin/Desktop/ai教练-on.png`, rendered at `22px` by `22px` despite the source filename.
+- Keep the AI coach pony selected state, scale, and bounce animation unchanged.
 - Do not change dock height, padding, capsule geometry, label typography, or navigation behavior.
 
 ## Asset Model
@@ -31,7 +32,7 @@ Delete the five filled selected-state files:
 - `nav-points-on.svg`
 - `nav-mine-on.svg`
 
-Retain `nav-ai-coach-on.svg` because the AI coach has a deliberately distinct selected-state illustration.
+Add `nav-ai-coach-off.png` for the AI coach unselected state. Retain `nav-ai-coach-on.svg` because the AI coach has a deliberately distinct selected-state illustration.
 
 ## Rendering Approach
 
@@ -57,6 +58,7 @@ Update the visual contract tests first so they require:
 - one mask-backed icon element for each of items two through six;
 - exact active color `#FFD32C`;
 - exact `22px` standard icon dimensions;
+- exact supplied AI coach off asset at `22px`;
 - unchanged AI coach selected asset and animation behavior.
 
 Run the focused visual contract test, then the full test suite and `git diff --check`.

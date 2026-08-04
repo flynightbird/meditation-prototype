@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the booking icon, remove duplicate selected-state assets for tabs two through six, tint selected icons `#FFD32C`, and reduce those icons to `22px` without changing the AI coach treatment or dock layout.
+**Goal:** Replace the booking and AI coach off-state icons, remove duplicate selected-state assets for tabs two through six, tint selected standard icons `#FFD32C`, and render compact icons at `22px` without changing the AI coach selected treatment or dock layout.
 
-**Architecture:** Standard navigation items use one SVG silhouette each through a CSS mask element whose background color changes with active state. The AI coach keeps the existing paired robot/pony rendering and animation. Visual contract tests own the exact asset hash, removed-file contract, markup shape, dimensions, and selected color.
+**Architecture:** Standard navigation items use one SVG silhouette each through a CSS mask element whose background color changes with active state. The AI coach uses the supplied PNG for its off state and keeps the existing pony selected state and animation. Visual contract tests own the exact asset hashes, removed-file contract, markup shape, dimensions, and selected color.
 
 **Tech Stack:** Static HTML, CSS masks, SVG assets, Node.js built-in test runner.
 
@@ -22,6 +22,7 @@ Replace the current bottom navigation asset and paired-state tests with:
 ```js
 test("ships the approved single-state bottom navigation SVG assets", () => {
   const approved = new Map([
+    ["nav-ai-coach-off.png", "627b5c8e8269452bb37e37c37d4d5aeda08df768520ede619606244c744fecf6"],
     ["nav-ai-coach-on.svg", "1ae101f78fb046d1280a9b551f00b2309be547f66d34fd40a6af8f0f4bd28f26"],
     ["nav-trainer-off.svg", "8fb1dde612b12b8e69f062570eef687288f244be0197d6e2e0772f753de3f8dd"],
     ["nav-skill-off.svg", "d42631ff42948148e24ad25c3ec77b25727ab05ab474a3dcf304f8f1ddc60ae4"],

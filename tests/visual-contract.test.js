@@ -7,8 +7,9 @@ const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
-test("ships the approved single-state bottom navigation SVG assets", () => {
+test("ships the approved single-state bottom navigation assets", () => {
   const approved = new Map([
+    ["nav-ai-coach-off.png", "627b5c8e8269452bb37e37c37d4d5aeda08df768520ede619606244c744fecf6"],
     ["nav-ai-coach-on.svg", "1ae101f78fb046d1280a9b551f00b2309be547f66d34fd40a6af8f0f4bd28f26"],
     ["nav-trainer-off.svg", "8fb1dde612b12b8e69f062570eef687288f244be0197d6e2e0772f753de3f8dd"],
     ["nav-skill-off.svg", "d42631ff42948148e24ad25c3ec77b25727ab05ab474a3dcf304f8f1ddc60ae4"],
@@ -40,8 +41,8 @@ test("renders compact mask-backed standard navigation icons", () => {
 });
 
 test("uses the pony only for the selected AI coach state", () => {
-  assert.match(html, /data-nav="coach"[\s\S]*nav-ai-coach-on\.svg/);
-  assert.match(css, /\.nav-coach-robot\s*{[^}]*width:\s*22px[^}]*height:\s*22px/s);
+  assert.match(html, /data-nav="coach"[\s\S]*class="nav-state-icon is-off nav-coach-off"[^>]*nav-ai-coach-off\.png[\s\S]*nav-ai-coach-on\.svg/);
+  assert.match(css, /\.nav-coach-off\s*{[^}]*width:\s*22px[^}]*height:\s*22px/s);
   assert.match(css, /data-nav="coach"[^}]*\.nav-icon[^}]*width:\s*44px[^}]*height:\s*44px/s);
   assert.match(css, /data-nav="coach"[^}]*\.nav-label[^}]*clip-path:\s*inset\(50%\)/s);
 });
