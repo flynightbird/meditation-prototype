@@ -7,35 +7,36 @@ const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
-test("ships the approved bottom navigation SVG assets without recoloring", () => {
+test("ships the approved single-state bottom navigation SVG assets", () => {
   const approved = new Map([
     ["nav-ai-coach-on.svg", "1ae101f78fb046d1280a9b551f00b2309be547f66d34fd40a6af8f0f4bd28f26"],
-    ["nav-trainer-off.svg", "52858b7355d5cee63d4d77cc464c02821632955f08741daea40dc3ed875988af"],
-    ["nav-trainer-on.svg", "b4c0008ae968d164cd7fba3fcf8542e7365033f1af0431e94933bbfa710718a2"],
+    ["nav-trainer-off.svg", "8fb1dde612b12b8e69f062570eef687288f244be0197d6e2e0772f753de3f8dd"],
     ["nav-skill-off.svg", "d42631ff42948148e24ad25c3ec77b25727ab05ab474a3dcf304f8f1ddc60ae4"],
-    ["nav-skill-on.svg", "53e61ffef87d348ba19de13cbc59fe95662ce984399d1d8d3ed116c5192ffe26"],
     ["nav-plan-off.svg", "ea44f6223498aa381418229b8004c68e3f0b1cf95752e65c8057645b0c9908f6"],
-    ["nav-plan-on.svg", "cfadaafac3de9f050c3b71074c0af4bd836e9b7b0d0035381d294ba9d2225ff0"],
     ["nav-points-off.svg", "bd4e71da0691269a3557bc02db0c45b41068f787aaaf931bf9925aac7719317a"],
-    ["nav-points-on.svg", "6cc81758d8717c6c177f5a6d7e865c3e79a33de8b070607c869b8825f8ffffca"],
     ["nav-mine-off.svg", "294cf28ba25588c0a329f57cfa869b06a2dedaee2fa3b56aaf4d85f16a796edb"],
-    ["nav-mine-on.svg", "09bb7298bf5afd9568e172134a965d668a2d20f69724dbd9470fd048a6eb5216"],
   ]);
 
   for (const [destination, expectedHash] of approved) {
     const contents = readFileSync(new URL(`../assets/${destination}`, import.meta.url));
     assert.equal(createHash("sha256").update(contents).digest("hex"), expectedHash);
   }
+
+  for (const name of ["trainer", "skill", "plan", "points", "mine"]) {
+    assert.equal(existsSync(new URL(`../assets/nav-${name}-on.svg`, import.meta.url)), false);
+    assert.doesNotMatch(html, new RegExp(`nav-${name}-on\\.svg`));
+  }
 });
 
-test("renders paired SVG states for the five standard navigation items", () => {
+test("renders compact mask-backed standard navigation icons", () => {
   for (const name of ["trainer", "skill", "plan", "points", "mine"]) {
-    assert.match(html, new RegExp(`nav-${name}-off\\.svg`));
-    assert.match(html, new RegExp(`nav-${name}-on\\.svg`));
+    assert.match(
+      html,
+      new RegExp(`data-nav="${name}"[\\s\\S]*class="nav-standard-icon"[\\s\\S]*--nav-icon: url\\(\\.\\/assets\\/nav-${name}-off\\.svg\\)`),
+    );
   }
-  assert.match(css, /\.nav-state-icon\.is-on\s*{[^}]*opacity:\s*0/s);
-  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-off\s*{[^}]*opacity:\s*0/s);
-  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-on\s*{[^}]*opacity:\s*1/s);
+  assert.match(css, /\.nav-standard-icon\s*{[^}]*width:\s*22px[^}]*height:\s*22px[^}]*mask-image:\s*var\(--nav-icon\)/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-standard-icon\s*{[^}]*background:\s*#FFD32C/s);
 });
 
 test("uses the pony only for the selected AI coach state", () => {
