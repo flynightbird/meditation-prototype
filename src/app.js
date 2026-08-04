@@ -145,7 +145,10 @@ function renderGrowthBubbles() {
         aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
         style="--bubble-index:${index}"
       >
-        <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
+        <span class="growth-bubble-label">
+          <img src="${getGrowthStatItem(bubble.attribute).icon}" alt="" />
+          <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
+        </span>
         <strong>+${bubble.value}</strong>
       </button>`)
     .join("");
@@ -582,6 +585,7 @@ function scheduleScreenEntry(fromScreen) {
 function render(animate = true) {
   const screenChanged = previousScreen !== state.screen;
   app.dataset.screen = state.screen;
+  growthStats.setAttribute("aria-hidden", String(state.screen === "active"));
   app.classList.toggle("is-paused", state.isPaused);
   app.classList.toggle("is-changing", animate && screenChanged);
 

@@ -371,6 +371,10 @@ button:focus-visible {
   text-wrap: pretty;
 }
 
+.message h1 + .supporting {
+  margin-top: 8px;
+}
+
 .growth-cue {
   margin: 8px 0 0;
   color: rgba(255, 255, 255, 0.82);
@@ -387,7 +391,13 @@ button:focus-visible {
   right: 20px;
   display: grid;
   gap: 12px;
+  transition: opacity 180ms ease, visibility 180ms;
   pointer-events: none;
+}
+
+.app-shell[data-screen="active"] .growth-stats {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .growth-stat {
@@ -576,6 +586,21 @@ button:focus-visible {
   line-height: 1;
   text-align: center;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.46);
+}
+
+.growth-bubble-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.growth-bubble-label img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
 }
 
 .growth-bubble small {
