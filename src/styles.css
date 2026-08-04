@@ -639,7 +639,7 @@ button:focus-visible {
 }
 
 .growth-bubble.anchor-2 {
-  top: 24%;
+  top: 32%;
   right: 7%;
   --float-y: -8px;
   --float-duration: 6.1s;
