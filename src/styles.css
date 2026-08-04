@@ -22,6 +22,11 @@
   --surface-done: rgba(238, 240, 240, 0.56);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --watermark-mask-blur: 8px;
+  --watermark-mask-width: 17%;
+  --watermark-mask-height: 5.5%;
+  --watermark-mask-inset: 1.2%;
+  --watermark-mask-tint: rgba(20, 16, 13, 0.08);
 }
 
 * {
@@ -98,6 +103,48 @@ button:focus-visible {
 .media-failed .scene-video {
   visibility: hidden;
   opacity: 0;
+}
+
+.has-media.app-shell::before,
+.has-media.app-shell::after,
+.portfolio-clip::before,
+.portfolio-clip::after {
+  position: absolute;
+  width: var(--watermark-mask-width);
+  height: var(--watermark-mask-height);
+  background: var(--watermark-mask-tint);
+  backdrop-filter: blur(var(--watermark-mask-blur));
+  -webkit-backdrop-filter: blur(var(--watermark-mask-blur));
+  content: "";
+  pointer-events: none;
+}
+
+.has-media.app-shell::before,
+.has-media.app-shell::after {
+  z-index: 3;
+}
+
+.portfolio-clip::before,
+.portfolio-clip::after {
+  z-index: 1;
+}
+
+.has-media.app-shell::before,
+.portfolio-clip::before {
+  top: var(--watermark-mask-inset);
+  left: var(--watermark-mask-inset);
+  border-radius: 0 0 10px;
+  mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
+}
+
+.has-media.app-shell::after,
+.portfolio-clip::after {
+  right: var(--watermark-mask-inset);
+  bottom: var(--watermark-mask-inset);
+  border-radius: 10px 0 0;
+  mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
 }
 
 .media-transition {
@@ -2020,21 +2067,6 @@ button:focus-visible {
     width: 100%;
     aspect-ratio: 9 / 16;
     object-fit: cover;
-  }
-
-  .portfolio-clip::after {
-    position: absolute;
-    z-index: 1;
-    right: 0;
-    bottom: 0;
-    width: 78px;
-    height: 34px;
-    border-radius: 6px 0 0;
-    background: rgba(5, 6, 10, 0.18);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    content: "";
-    pointer-events: none;
   }
 
   .portfolio-clip figcaption {
