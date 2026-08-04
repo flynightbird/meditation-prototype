@@ -114,14 +114,14 @@ Do not delete `assets/nav-ai-coach-on.svg`.
 For each standard navigation item, replace both `<img>` elements with one span. Use these exact declarations:
 
 ```html
-<span class="nav-standard-icon" style="--nav-icon: url(./assets/nav-trainer-off.svg)"></span>
-<span class="nav-standard-icon" style="--nav-icon: url(./assets/nav-skill-off.svg)"></span>
-<span class="nav-standard-icon" style="--nav-icon: url(./assets/nav-plan-off.svg)"></span>
-<span class="nav-standard-icon" style="--nav-icon: url(./assets/nav-points-off.svg)"></span>
-<span class="nav-standard-icon" style="--nav-icon: url(./assets/nav-mine-off.svg)"></span>
+<span class="nav-standard-icon" style="--nav-icon: url(../assets/nav-trainer-off.svg)"></span>
+<span class="nav-standard-icon" style="--nav-icon: url(../assets/nav-skill-off.svg)"></span>
+<span class="nav-standard-icon" style="--nav-icon: url(../assets/nav-plan-off.svg)"></span>
+<span class="nav-standard-icon" style="--nav-icon: url(../assets/nav-points-off.svg)"></span>
+<span class="nav-standard-icon" style="--nav-icon: url(../assets/nav-mine-off.svg)"></span>
 ```
 
-Keep each declaration inside its existing `.nav-icon` wrapper and do not modify the coach markup.
+Keep each declaration inside its existing `.nav-icon` wrapper and do not modify the coach markup. The `../assets` prefix is required because the custom-property URL resolves relative to `src/styles.css`, where `mask-image` consumes it.
 
 - [ ] **Step 4: Add compact mask styling and scope paired-state rules to the coach**
 

@@ -32,7 +32,7 @@ test("renders compact mask-backed standard navigation icons", () => {
   for (const name of ["trainer", "skill", "plan", "points", "mine"]) {
     assert.match(
       html,
-      new RegExp(`data-nav="${name}"[\\s\\S]*class="nav-standard-icon"[\\s\\S]*--nav-icon: url\\(\\.\\/assets\\/nav-${name}-off\\.svg\\)`),
+      new RegExp(`data-nav="${name}"[\\s\\S]*class="nav-standard-icon"[\\s\\S]*--nav-icon: url\\(\\.\\.\\/assets\\/nav-${name}-off\\.svg\\)`),
     );
   }
   assert.match(css, /\.nav-standard-icon\s*{[^}]*width:\s*22px[^}]*height:\s*22px[^}]*mask-image:\s*var\(--nav-icon\)/s);
