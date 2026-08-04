@@ -218,7 +218,7 @@ function playGrowthStatRoll({ attribute, increment, previousTotal, nextTotal }) 
     const handleAnimationEnd = (event) => {
       if (event.animationName === "growth-stat-roll") finish();
     };
-    const fallbackTimer = window.setTimeout(finish, 900);
+    const fallbackTimer = window.setTimeout(finish, 1380);
     main.addEventListener("animationend", handleAnimationEnd);
   });
 }
@@ -268,7 +268,6 @@ function collectGrowthReward(button) {
     && growthStats.querySelector(`[data-growth-stat="${preview.attribute}"] .growth-stat-main`);
   if (!preview || !target) return;
 
-  button.classList.add("is-collecting");
   button.disabled = true;
   if (reducedMotion.matches) {
     commitGrowthCollection(button, rewardIds, preview, { animate: false });
@@ -277,14 +276,24 @@ function collectGrowthReward(button) {
 
   const sourceRect = button.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
+  const layerRect = growthBubbleLayer.getBoundingClientRect();
   button.style.setProperty(
-    "--collect-x",
-    `${targetRect.left + targetRect.width / 2 - sourceRect.left - sourceRect.width / 2}px`,
+    "--collect-start-x",
+    `${sourceRect.left - layerRect.left}px`,
   );
   button.style.setProperty(
-    "--collect-y",
-    `${targetRect.top + targetRect.height / 2 - sourceRect.top - sourceRect.height / 2}px`,
+    "--collect-start-y",
+    `${sourceRect.top - layerRect.top}px`,
   );
+  button.style.setProperty(
+    "--collect-end-x",
+    `${targetRect.left + targetRect.width / 2 - sourceRect.width / 2 - layerRect.left}px`,
+  );
+  button.style.setProperty(
+    "--collect-end-y",
+    `${targetRect.top + targetRect.height / 2 - sourceRect.height / 2 - layerRect.top}px`,
+  );
+  button.classList.add("is-collecting");
 
   let completed = false;
   const finish = () => {
@@ -297,7 +306,7 @@ function collectGrowthReward(button) {
   const handleAnimationEnd = (event) => {
     if (event.animationName === "collect-growth-bubble") finish();
   };
-  const fallbackTimer = window.setTimeout(finish, 820);
+  const fallbackTimer = window.setTimeout(finish, 1200);
   button.addEventListener("animationend", handleAnimationEnd);
 }
 

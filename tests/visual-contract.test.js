@@ -498,15 +498,18 @@ test("floats growth bubbles visibly with staggered vertical motion", () => {
   assert.match(css, /\.growth-bubble\.anchor-4\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*5s/s);
   assert.match(css, /@keyframes growth-bubble-float[\s\S]*translate3d\(0,\s*var\(--float-y\),\s*0\)/);
   assert.doesNotMatch(css, /@keyframes growth-bubble-float\s*{[^@]*scale\(/s);
-  assert.match(css, /@keyframes collect-growth-bubble[\s\S]*translate3d\(var\(--collect-x\),\s*var\(--collect-y\),\s*0\)/);
+  assert.match(css, /@keyframes collect-growth-bubble[\s\S]*left:\s*var\(--collect-end-x\)[\s\S]*top:\s*var\(--collect-end-y\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble[\s\S]*animation:\s*none !important/s);
 });
 
 test("flies bubbles to their live stat target before committing", () => {
   assert.match(app, /previewBubbleCollection\(growthState, rewardIds\)/);
   assert.match(app, /getBoundingClientRect\(\)/);
-  assert.match(app, /--collect-x/);
-  assert.match(app, /--collect-y/);
+  assert.match(app, /growthBubbleLayer\.getBoundingClientRect\(\)/);
+  assert.match(app, /--collect-start-x/);
+  assert.match(app, /--collect-start-y/);
+  assert.match(app, /--collect-end-x/);
+  assert.match(app, /--collect-end-y/);
   assert.match(app, /queueGrowthStatRoll\(preview\)/);
 });
 
@@ -516,6 +519,16 @@ test("rolls old value through icon plus increment to the new total", () => {
   assert.match(css, /\.growth-stat-roll-track\s*{[^}]*height:\s*120px/s);
   assert.match(css, /@keyframes growth-stat-roll[\s\S]*translateY\(-80px\)/);
   assert.match(css, /\.growth-stat-main\.is-rolling \.growth-stat-roll-track/);
+});
+
+test("keeps collection flight and increment feedback visible long enough to follow", () => {
+  assert.match(css, /\.growth-bubble-layer\s*{[^}]*z-index:\s*15/s);
+  assert.match(css, /\.growth-bubble\.is-collecting\s*{[^}]*1080ms cubic-bezier\(0\.4, 0, 0\.2, 1\)/s);
+  assert.match(css, /@keyframes collect-growth-bubble[\s\S]*82%\s*{[^}]*left:\s*var\(--collect-end-x\)[^}]*top:\s*var\(--collect-end-y\)[^}]*opacity:\s*1[^}]*scale\(0\.32\)/s);
+  assert.match(css, /\.growth-stat-main\.is-rolling \.growth-stat-roll-track\s*{[^}]*1200ms/s);
+  assert.match(css, /@keyframes growth-stat-roll[\s\S]*36%,\s*72%\s*{[^}]*translateY\(-40px\)/s);
+  assert.match(app, /window\.setTimeout\(finish, 1200\)/);
+  assert.match(app, /window\.setTimeout\(finish, 1380\)/);
 });
 
 test("reduces collection motion without waiting for animationend", () => {
