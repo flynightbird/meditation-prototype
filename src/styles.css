@@ -608,8 +608,12 @@ button:focus-visible {
 }
 
 .growth-bubble strong {
+  max-width: 48px;
+  overflow: hidden;
   font-size: 17px;
   font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bubble-focus {
