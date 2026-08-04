@@ -132,7 +132,7 @@ button:focus-visible {
 .has-media.app-shell::before,
 .portfolio-clip::before {
   top: var(--watermark-mask-inset);
-  left: var(--watermark-mask-inset);
+  left: 0;
   border-radius: 0 0 10px;
   mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
@@ -140,7 +140,7 @@ button:focus-visible {
 
 .has-media.app-shell::after,
 .portfolio-clip::after {
-  right: var(--watermark-mask-inset);
+  right: 0;
   bottom: var(--watermark-mask-inset);
   border-radius: 10px 0 0;
   mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
