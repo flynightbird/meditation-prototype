@@ -173,7 +173,7 @@ test("declares an existing favicon so browser startup has no missing resource", 
   assert.equal(existsSync(new URL(`../${href.slice(2)}`, import.meta.url)), true);
 });
 
-test("versions the stylesheet so static previews do not retain stale portfolio CSS", () => {
+test("versions the stylesheet so static previews do not retain stale CSS", () => {
   const stylesheetTag = getOpeningTags(html, "link").find(
     (tag) => (getAttribute(tag, "rel") ?? "").split(/\s+/).includes("stylesheet"),
   );
@@ -571,113 +571,26 @@ test("styles reward settling without standalone character CSS", () => {
   assert.match(css, /\.reward-object\s*{[^}]*bottom:\s*188px/s);
 });
 
-test("provides one interactive app inside a desktop portfolio shell", () => {
+test("provides one direct interactive app without the desktop portfolio showcase", () => {
   const allTags = getOpeningTags(html);
-  const portfolioPage = allTags.find((tag) => hasClass(tag, "portfolio-page"));
-  const portfolioHero = allTags.find((tag) => hasClass(tag, "portfolio-hero"));
-  const beforeImage = allTags.find((tag) => getAttribute(tag, "id") === "portfolioBeforeImage");
-  const deviceFrame = allTags.find((tag) => hasClass(tag, "device-frame"));
   const apps = allTags.filter((tag) => getAttribute(tag, "id") === "app");
 
-  assert.ok(portfolioPage);
-  assert.ok(portfolioHero);
-  assert.ok(beforeImage);
-  assert.ok(deviceFrame);
   assert.equal(apps.length, 1);
   assert.match(apps[0], /^<main\b/i);
   assert.equal(hasClass(apps[0], "app-shell"), true);
-
-  const deviceFrameBlock = getElementBlock(html, deviceFrame);
-  assert.ok(deviceFrameBlock?.includes(apps[0]));
+  assert.doesNotMatch(html, /portfolio-(?:page|hero|video)/);
+  assert.doesNotMatch(html, /portfolio-showcase\.js/);
+  assert.doesNotMatch(css, /\.portfolio-(?:page|hero|video)/);
 });
 
-test("keeps the mobile app free of a named portfolio region", () => {
-  const portfolioHero = getOpeningTags(html, "section").find((tag) => hasClass(tag, "portfolio-hero"));
-
-  assert.ok(portfolioHero);
-  assert.equal(getAttribute(portfolioHero, "aria-labelledby"), null);
-  assert.notEqual(getAttribute(portfolioHero, "role"), "region");
-});
-
-test("uses both before assets and all five experience videos", () => {
-  for (const name of ["before-ai-coach.jpg", "before-private-trainer.jpg"]) {
-    assert.equal(existsSync(new URL(`../assets/${name}`, import.meta.url)), true);
-  }
-  const expectedVideos = [
-    "video-greeting.mp4",
-    "video-meditation.mp4",
-    "video-meditation-complete.mp4",
-    "video-meal-prep.mp4",
-    "video-meal-cook.mp4",
-  ];
-  const clips = getOpeningTags(html, "video").filter((tag) => hasClass(tag, "portfolio-video"));
-  const videoSources = clips.map((tag) => getAttribute(tag, "src"));
-
-  assert.deepEqual([...videoSources].sort(), [...expectedVideos.map((name) => `./assets/${name}`)].sort());
-});
-
-test("defers the hidden before image on mobile", () => {
-  const beforeImage = getOpeningTags(html, "img").find((tag) => getAttribute(tag, "id") === "portfolioBeforeImage");
-
-  assert.ok(beforeImage);
-  assert.equal(getAttribute(beforeImage, "loading"), "lazy");
-  assert.equal(getAttribute(beforeImage, "width"), "1179");
-  assert.equal(getAttribute(beforeImage, "height"), "2556");
-});
-
-test("keeps portfolio presentation desktop-only", () => {
-  const mobileShell = getCssRule(css, ".portfolio-page");
-  const mobileMedia = getCssRule(css, ".portfolio-before");
-  const desktop = getBraceBlock(css, "@media (min-width: 900px)");
-
-  assert.equal(mobileShell?.selectors.includes(".portfolio-page"), true);
-  assert.equal(mobileShell?.selectors.includes(".portfolio-hero"), true);
-  assert.match(mobileShell?.block ?? "", /{[^}]*display:\s*contents/s);
-  assert.equal(mobileMedia?.selectors.includes(".portfolio-before"), true);
-  assert.equal(mobileMedia?.selectors.includes(".portfolio-videos"), true);
-  assert.match(mobileMedia?.block ?? "", /{[^}]*display:\s*none/s);
-  assert.ok(desktop);
-  const desktopPage = getCssRule(desktop, ".portfolio-page");
-  const desktopHero = getCssRule(desktop, ".portfolio-hero");
-  assert.equal(desktopPage?.selectors.includes(".portfolio-page"), true);
-  assert.match(desktopPage?.block ?? "", /{[^}]*display:\s*block/s);
-  assert.equal(desktopHero?.selectors.includes(".portfolio-hero"), true);
-  assert.match(desktopHero?.block ?? "", /{[^}]*min-height:\s*100dvh/s);
-});
-
-test("makes portfolio videos controllable and defers full loading", () => {
-  const expectedLabels = new Map([
-    ["./assets/video-greeting.mp4", "欢迎与进入体验视频"],
-    ["./assets/video-meditation.mp4", "冥想过程体验视频"],
-    ["./assets/video-meditation-complete.mp4", "完成反馈体验视频"],
-    ["./assets/video-meal-prep.mp4", "饮食准备体验视频"],
-    ["./assets/video-meal-cook.mp4", "烹饪行动体验视频"],
-  ]);
-  const clips = getOpeningTags(html, "video").filter((tag) => hasClass(tag, "portfolio-video"));
-
-  assert.equal(clips.length, 5);
-  for (const clip of clips) {
-    assert.equal(hasBooleanAttribute(clip, "controls"), true);
-    assert.equal(hasBooleanAttribute(clip, "muted"), true);
-    assert.equal(hasBooleanAttribute(clip, "loop"), true);
-    assert.equal(hasBooleanAttribute(clip, "playsinline"), true);
-    assert.equal(getAttribute(clip, "preload"), "none");
-    assert.equal(getAttribute(clip, "aria-label"), expectedLabels.get(getAttribute(clip, "src")));
-    assert.equal(hasBooleanAttribute(clip, "autoplay"), false);
-  }
-});
-
-test("softly blurs both watermark corners on app and portfolio videos", () => {
+test("softly blurs both watermark corners on the app video", () => {
   const sharedMask = getCssRule(css, ".has-media.app-shell::before");
   const root = getCssRule(css, ":root");
 
   assert.equal(
-    [
-      ".has-media.app-shell::before",
-      ".has-media.app-shell::after",
-      ".portfolio-clip::before",
-      ".portfolio-clip::after",
-    ].every((selector) => sharedMask?.selectors.includes(selector)),
+    [".has-media.app-shell::before", ".has-media.app-shell::after"].every((selector) =>
+      sharedMask?.selectors.includes(selector),
+    ),
     true,
   );
   assert.match(sharedMask?.block ?? "", /position:\s*absolute/);
@@ -696,25 +609,14 @@ test("softly blurs both watermark corners on app and portfolio videos", () => {
   assert.match(root?.block ?? "", /--watermark-mask-tint:\s*rgba\(20,\s*16,\s*13,\s*0\.08\)/);
 
   assert.match(css, /\.has-media\.app-shell::before,\s*\.has-media\.app-shell::after\s*{[^}]*z-index:\s*3/s);
-  assert.match(css, /\.portfolio-clip::before,\s*\.portfolio-clip::after\s*{[^}]*z-index:\s*1/s);
   assert.match(
     css,
-    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
   assert.match(
     css,
-    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
-});
-
-test("keeps portfolio captions above the watermark masks", () => {
-  const desktop = getBraceBlock(css, "@media (min-width: 900px)");
-  const caption = getCssRule(desktop ?? "", ".portfolio-clip figcaption");
-
-  assert.ok(desktop);
-  assert.match(caption?.block ?? "", /z-index:\s*2/);
-  assert.match(caption?.block ?? "", /bottom:\s*0(?:px)?\s*;/);
-  assert.match(caption?.block ?? "", /pointer-events:\s*none\s*;/);
 });
 
 test("keeps compact mobile layout adjustments out of desktop samples", () => {

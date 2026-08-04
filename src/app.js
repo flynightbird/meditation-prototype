@@ -5,7 +5,6 @@ import {
   getLocalDateKey,
   shouldPlayDailyWelcome,
 } from "./experience.js";
-import { setupPortfolioShowcase } from "./portfolio-showcase.js";
 import {
   getMediaScene,
   getNextMediaSource,
@@ -861,4 +860,3 @@ render(false);
 renderGrowthStats();
 renderGrowthBubbles();
 setupDailyWelcome();
-setupPortfolioShowcase({ app, reducedMotion });

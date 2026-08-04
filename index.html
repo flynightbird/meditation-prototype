@@ -10,22 +10,7 @@
     <link rel="stylesheet" href="./src/trainer-booking.css" />
   </head>
   <body>
-    <div class="portfolio-page">
-      <section class="portfolio-hero">
-        <p class="portfolio-outline" aria-hidden="true">BEFORE / AFTER</p>
-        <h1 class="portfolio-heading" id="portfolioTitle">成长基地 · AI 健康体验</h1>
-        <div class="portfolio-compare">
-          <figure class="portfolio-before">
-            <span class="portfolio-label">BEFORE / ORIGINAL UI</span>
-            <span class="portfolio-paper" aria-hidden="true"></span>
-            <img id="portfolioBeforeImage" src="./assets/before-ai-coach.jpg" alt="旧版 AI 教练页面" loading="lazy" width="1179" height="2556" />
-            <figcaption id="portfolioBeforeCaption" aria-live="polite">AI 教练 · 原始界面</figcaption>
-          </figure>
-          <div class="device-stage">
-            <span class="portfolio-label portfolio-label-after">AFTER / INTERACTIVE</span>
-            <div class="device-frame">
-              <div class="device-sensor" aria-hidden="true"></div>
-              <main class="app-shell" id="app" data-screen="recommendation">
+    <main class="app-shell" id="app" data-screen="recommendation">
       <div class="room" aria-hidden="true"></div>
       <video class="scene-video" id="sceneVideo" playsinline preload="auto" aria-hidden="true"></video>
       <video
@@ -318,45 +303,7 @@
           <div><dt>行为记录</dt><dd>冥想4次 · 共20分钟</dd></div>
         </dl>
       </dialog>
-              </main>
-            </div>
-          </div>
-        </div>
-        <a class="portfolio-peek" href="#experienceClips">
-          <span><strong>05 个体验片段</strong> · 查看完整交互过程</span>
-          <span class="portfolio-peek-arrow" aria-hidden="true"></span>
-        </a>
-      </section>
-
-      <section class="portfolio-videos" id="experienceClips" aria-labelledby="experienceClipsTitle">
-        <header class="portfolio-videos-header">
-          <h2 id="experienceClipsTitle">体验片段</h2>
-          <p>关键状态与完整交互过程</p>
-        </header>
-        <div class="portfolio-video-grid">
-          <figure class="portfolio-clip">
-            <video class="portfolio-video" src="./assets/video-greeting.mp4" muted loop playsinline controls preload="none" aria-label="欢迎与进入体验视频"></video>
-            <figcaption>01 / 欢迎与进入</figcaption>
-          </figure>
-          <figure class="portfolio-clip">
-            <video class="portfolio-video" src="./assets/video-meditation.mp4" muted loop playsinline controls preload="none" aria-label="冥想过程体验视频"></video>
-            <figcaption>02 / 冥想过程</figcaption>
-          </figure>
-          <figure class="portfolio-clip">
-            <video class="portfolio-video" src="./assets/video-meditation-complete.mp4" muted loop playsinline controls preload="none" aria-label="完成反馈体验视频"></video>
-            <figcaption>03 / 完成反馈</figcaption>
-          </figure>
-          <figure class="portfolio-clip">
-            <video class="portfolio-video" src="./assets/video-meal-prep.mp4" muted loop playsinline controls preload="none" aria-label="饮食准备体验视频"></video>
-            <figcaption>04 / 饮食准备</figcaption>
-          </figure>
-          <figure class="portfolio-clip">
-            <video class="portfolio-video" src="./assets/video-meal-cook.mp4" muted loop playsinline controls preload="none" aria-label="烹饪行动体验视频"></video>
-            <figcaption>05 / 烹饪行动</figcaption>
-          </figure>
-        </div>
-      </section>
-    </div>
-    <script type="module" src="./src/app.js?v=20260803-portfolio"></script>
+    </main>
+    <script type="module" src="./src/app.js?v=20260804-growth-stats"></script>
   </body>
 </html>
