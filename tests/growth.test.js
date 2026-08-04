@@ -9,6 +9,7 @@ import {
   getDailyProgress,
   getVisibleBubbles,
   normalizeGrowthState,
+  previewBubbleCollection,
 } from "../src/growth.js";
 
 const reward = (id, taskId, attribute, value, createdAt) => ({
@@ -124,6 +125,32 @@ test("collecting a merged bubble adds its total once and removes all its pending
   assert.deepEqual(collected.pendingRewards.map(({ id }) => id), ["r3", "r4", "r5"]);
   assert.deepEqual(collected.claimedRewardIds, ["r1", "r2"]);
   assert.equal(collectBubble(collected, ["r1", "r2"]), collected);
+});
+
+test("previews a merged collection without mutating totals", () => {
+  let state = createGrowthState("2026-08-04");
+  state = addTaskReward(state, reward("r1", "t1", "focus", 4, 10));
+  state = addTaskReward(state, reward("r2", "t2", "focus", 6, 20));
+
+  assert.deepEqual(previewBubbleCollection(state, ["r1", "r2"]), {
+    attribute: "focus",
+    increment: 10,
+    previousTotal: 0,
+    nextTotal: 10,
+  });
+  assert.equal(state.totals.focus, 0);
+});
+
+test("does not preview missing, claimed, or mixed-attribute rewards", () => {
+  let state = createGrowthState("2026-08-04");
+  state = addTaskReward(state, reward("r1", "t1", "focus", 4, 10));
+  state = addTaskReward(state, reward("r2", "t2", "stamina", 6, 20));
+
+  assert.equal(previewBubbleCollection(state, ["missing"]), null);
+  assert.equal(previewBubbleCollection(state, ["r1", "r2"]), null);
+
+  const claimed = collectBubble(state, ["r1"]);
+  assert.equal(previewBubbleCollection(claimed, ["r1"]), null);
 });
 
 test("operations do not mutate their input state", () => {
