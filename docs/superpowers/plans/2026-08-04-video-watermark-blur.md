@@ -71,11 +71,11 @@ test("softly blurs both watermark corners on app and portfolio videos", () => {
   assert.match(css, /\.portfolio-clip::before,\s*\.portfolio-clip::after\s*{[^}]*z-index:\s*1/s);
   assert.match(
     css,
-    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
+    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*0(?:px)?\s*;[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
   );
   assert.match(
     css,
-    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
+    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*0(?:px)?\s*;[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
   );
 });
 
@@ -162,7 +162,7 @@ Use an elliptical radial fade so it reaches every edge of the shallow `17%` by `
 .has-media.app-shell::before,
 .portfolio-clip::before {
   top: var(--watermark-mask-inset);
-  left: var(--watermark-mask-inset);
+  left: 0;
   border-radius: 0 0 10px;
   mask-image: radial-gradient(ellipse at top left, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
   -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
@@ -170,7 +170,7 @@ Use an elliptical radial fade so it reaches every edge of the shallow `17%` by `
 
 .has-media.app-shell::after,
 .portfolio-clip::after {
-  right: var(--watermark-mask-inset);
+  right: 0;
   bottom: var(--watermark-mask-inset);
   border-radius: 10px 0 0;
   mask-image: radial-gradient(ellipse at bottom right, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
