@@ -466,7 +466,7 @@ test("provides a persistent collectible growth bubble layer", () => {
   assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
   assert.match(
     app,
-    /class="growth-bubble-label"[^>]*>\s*<img(?=[^>]*src="\$\{getGrowthStatItem\(bubble\.attribute\)\.icon\}")[^>]*>\s*<small>\$\{ATTRIBUTE_LABELS\[bubble\.attribute\]\}<\/small>/s,
+    /<span(?=[^>]*\bclass\s*=\s*"growth-bubble-label")[^>]*>\s*<img(?=[^>]*\bsrc\s*=\s*"\$\{getGrowthStatItem\(bubble\.attribute\)\.icon\}")(?=[^>]*\balt\s*=\s*"")[^>]*>\s*<small>\$\{ATTRIBUTE_LABELS\[bubble\.attribute\]\}<\/small>\s*<\/span>\s*<strong>\+\$\{bubble\.value\}<\/strong>/s,
   );
 
   const bubbleLabel = getCssRule(css, ".growth-bubble-label");
@@ -487,12 +487,14 @@ test("renders three non-interactive growth stats in the Figma order", () => {
   assert.doesNotMatch(app, /<button[^>]*data-growth-stat/);
 });
 
-test("uses fixed Figma-sized glass stat entries and hides them on the trainer page", () => {
+test("uses fixed Figma-sized glass stats hidden on trainer and active-countdown views", () => {
   assert.match(css, /\.growth-stat-main\s*{[^}]*width:\s*40px[^}]*height:\s*40px[^}]*border-radius:\s*14px/s);
   assert.match(css, /\.growth-stats\s*{[^}]*right:\s*20px[^}]*display:\s*grid/s);
   assert.match(css, /\.is-trainer-view \.growth-stats\s*{[^}]*display:\s*none/s);
 
-  const activeGrowthStats = getCssRule(css, '.app-shell[data-screen="active"] .growth-stats');
+  const activeSelector = '.app-shell[data-screen="active"] .growth-stats';
+  const activeGrowthStats = getCssRule(css, activeSelector);
+  assert.deepEqual(activeGrowthStats?.selectors, [activeSelector]);
   assert.match(activeGrowthStats?.block ?? "", /opacity:\s*0/);
   assert.match(activeGrowthStats?.block ?? "", /visibility:\s*hidden/);
   assert.match(
