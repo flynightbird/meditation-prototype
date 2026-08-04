@@ -611,11 +611,11 @@ test("softly blurs both watermark corners on the app video", () => {
   assert.match(css, /\.has-media\.app-shell::before,\s*\.has-media\.app-shell::after\s*{[^}]*z-index:\s*3/s);
   assert.match(
     css,
-    /\.has-media\.app-shell::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*0(?:px)?\s*;[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*24%,\s*rgba\(0,\s*0,\s*0,\s*0\.72\)\s*48%,\s*transparent\s*88%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*24%,\s*rgba\(0,\s*0,\s*0,\s*0\.72\)\s*48%,\s*transparent\s*88%\)/s,
   );
   assert.match(
     css,
-    /\.has-media\.app-shell::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::after\s*{[^}]*right:\s*0(?:px)?\s*;[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*24%,\s*rgba\(0,\s*0,\s*0,\s*0\.72\)\s*48%,\s*transparent\s*88%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*24%,\s*rgba\(0,\s*0,\s*0,\s*0\.72\)\s*48%,\s*transparent\s*88%\)/s,
   );
 });
 

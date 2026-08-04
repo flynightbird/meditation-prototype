@@ -18,8 +18,8 @@ The hidden preload video is excluded because it is never visible.
 - Add one blur region at the top-left and one at the bottom-right of each visible video container.
 - Use the approved light treatment: `backdrop-filter: blur(8px)` with the matching `-webkit-backdrop-filter` declaration.
 - Size each region at `17%` of the video width and `5.5%` of the video height so it scales with both the mobile app and desktop portfolio clips.
-- Inset each region `1.2%` from its horizontal and vertical corner edges to cover the complete mark.
-- Fade the inner-facing edges with an elliptical CSS mask so the treatment blends into the live video instead of reading as a hard rectangular patch. The ellipse lets the fade reach every edge of the shallow `17%` by `5.5%` region without leaving a visible clipped tab.
+- Align each region to its horizontal media edge with `left: 0` or `right: 0`, while retaining a `1.2%` vertical inset from the top or bottom edge to cover the complete mark.
+- Fade the inner-facing edges with an elliptical CSS mask so the treatment blends into the live video instead of reading as a hard rectangular patch. The fade remains opaque through `24%`, uses `rgba(0, 0, 0, 0.72)` at `48%`, and reaches transparent at `88%` to avoid a visible clipped tab.
 - Use `rgba(20, 16, 13, 0.08)` as the translucent fallback tint. The blur must preserve the existing warm video color rather than create a dark block.
 
 ## Structure And Layering
