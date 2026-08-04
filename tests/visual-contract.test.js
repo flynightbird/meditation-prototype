@@ -618,6 +618,7 @@ test("makes portfolio videos controllable and defers full loading", () => {
 
 test("softly blurs both watermark corners on app and portfolio videos", () => {
   const sharedMask = getCssRule(css, ".has-media.app-shell::before");
+  const root = getCssRule(css, ":root");
 
   assert.equal(
     [
@@ -628,6 +629,8 @@ test("softly blurs both watermark corners on app and portfolio videos", () => {
     ].every((selector) => sharedMask?.selectors.includes(selector)),
     true,
   );
+  assert.match(sharedMask?.block ?? "", /position:\s*absolute/);
+  assert.match(sharedMask?.block ?? "", /content:\s*""/);
   assert.match(sharedMask?.block ?? "", /width:\s*var\(--watermark-mask-width\)/);
   assert.match(sharedMask?.block ?? "", /height:\s*var\(--watermark-mask-height\)/);
   assert.match(sharedMask?.block ?? "", /background:\s*var\(--watermark-mask-tint\)/);
@@ -635,21 +638,21 @@ test("softly blurs both watermark corners on app and portfolio videos", () => {
   assert.match(sharedMask?.block ?? "", /-webkit-backdrop-filter:\s*blur\(var\(--watermark-mask-blur\)\)/);
   assert.match(sharedMask?.block ?? "", /pointer-events:\s*none/);
 
-  assert.match(css, /--watermark-mask-blur:\s*8px/);
-  assert.match(css, /--watermark-mask-width:\s*17%/);
-  assert.match(css, /--watermark-mask-height:\s*5\.5%/);
-  assert.match(css, /--watermark-mask-inset:\s*1\.2%/);
-  assert.match(css, /--watermark-mask-tint:\s*rgba\(20,\s*16,\s*13,\s*0\.08\)/);
+  assert.match(root?.block ?? "", /--watermark-mask-blur:\s*8px/);
+  assert.match(root?.block ?? "", /--watermark-mask-width:\s*17%/);
+  assert.match(root?.block ?? "", /--watermark-mask-height:\s*5\.5%/);
+  assert.match(root?.block ?? "", /--watermark-mask-inset:\s*1\.2%/);
+  assert.match(root?.block ?? "", /--watermark-mask-tint:\s*rgba\(20,\s*16,\s*13,\s*0\.08\)/);
 
   assert.match(css, /\.has-media\.app-shell::before,\s*\.has-media\.app-shell::after\s*{[^}]*z-index:\s*3/s);
   assert.match(css, /\.portfolio-clip::before,\s*\.portfolio-clip::after\s*{[^}]*z-index:\s*1/s);
   assert.match(
     css,
-    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
+    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(circle at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(circle at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
   assert.match(
     css,
-    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient[^}]*-webkit-mask-image:\s*radial-gradient/s,
+    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(circle at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(circle at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
 });
 
