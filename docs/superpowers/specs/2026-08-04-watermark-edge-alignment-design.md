@@ -2,7 +2,7 @@
 
 ## Goal
 
-Move the two existing video watermark blur masks horizontally against their respective media edges without changing the approved blur treatment.
+Move the two existing video watermark blur masks horizontally against their respective media edges while preserving their geometry, vertical inset, blur, and tint.
 
 ## Layout
 
@@ -15,12 +15,13 @@ Move the two existing video watermark blur masks horizontally against their resp
 - Blur remains `8px`.
 - Mask size remains `17%` by `5.5%`.
 - The translucent fallback tint remains unchanged.
-- Elliptical soft-edge gradients, stacking, and `pointer-events: none` remain unchanged.
+- The elliptical shape, stacking, and `pointer-events: none` remain unchanged. As a visual-QA correction, the gradient stops are refined to opaque through `24%`, `rgba(0, 0, 0, 0.72)` at `48%`, and transparent at `88%` so edge alignment does not create a pale tab.
 - The hidden video preloader remains excluded.
 
 ## Verification
 
 - Update the visual contract first and confirm it fails against the current inset positioning.
-- Apply the minimal CSS positioning change and confirm the focused and full test suites pass.
+- Apply the approved positioning and gradient changes and confirm the focused and full test suites pass.
 - Recheck the app at `402x874` and the five portfolio videos at `1440x1000`.
 - Confirm each mask touches its horizontal edge while retaining its vertical inset, and that no watermark, UI, caption, or video control is exposed or obstructed.
+- Hover each portfolio video and confirm its native controls remain visible and usable without revealing a pale tab around either mask.

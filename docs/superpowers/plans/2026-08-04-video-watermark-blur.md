@@ -164,8 +164,8 @@ Use an elliptical radial fade so it reaches every edge of the shallow `17%` by `
   top: var(--watermark-mask-inset);
   left: var(--watermark-mask-inset);
   border-radius: 0 0 10px;
-  mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at top left, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
 }
 
 .has-media.app-shell::after,
@@ -173,8 +173,8 @@ Use an elliptical radial fade so it reaches every edge of the shallow `17%` by `
   right: var(--watermark-mask-inset);
   bottom: var(--watermark-mask-inset);
   border-radius: 10px 0 0;
-  mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at bottom right, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse at bottom right, #000 0 24%, rgba(0, 0, 0, 0.72) 48%, transparent 88%);
 }
 ```
 
