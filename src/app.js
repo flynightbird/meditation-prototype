@@ -24,6 +24,7 @@ import {
   getVisibleBubbles,
   normalizeGrowthState,
 } from "./growth.js";
+import { getGrowthStatItems } from "./growth-stats.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
@@ -52,6 +53,7 @@ const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
 const growthBubbleLayer = document.querySelector("#growthBubbleLayer");
+const growthStats = document.querySelector("#growthStats");
 const trainerBooking = mountTrainerBooking({
   app,
   bottomNav,
@@ -143,6 +145,22 @@ function renderGrowthBubbles() {
         <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
         <strong>+${bubble.value}</strong>
       </button>`)
+    .join("");
+}
+
+function statMainContent({ mode, icon, total }) {
+  return mode === "icon"
+    ? `<img class="growth-stat-icon" src="${icon}" alt="" />`
+    : `<strong class="growth-stat-value">${total}</strong>`;
+}
+
+function renderGrowthStats() {
+  growthStats.innerHTML = getGrowthStatItems(growthState.totals)
+    .map(({ attribute, label, total, mode, icon }) => `
+      <div class="growth-stat growth-stat-${attribute}" data-growth-stat="${attribute}" aria-label="${label} ${total}">
+        <span class="growth-stat-main">${statMainContent({ mode, icon, total })}</span>
+        <span class="growth-stat-label">${label}</span>
+      </div>`)
     .join("");
 }
 
@@ -735,6 +753,7 @@ app.addEventListener("click", (event) => {
 });
 
 render(false);
+renderGrowthStats();
 renderGrowthBubbles();
 setupDailyWelcome();
 setupPortfolioShowcase({ app, reducedMotion });

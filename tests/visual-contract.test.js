@@ -6,6 +6,7 @@ import test from "node:test";
 const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const growthStatsModel = readFileSync(new URL("../src/growth-stats.js", import.meta.url), "utf8");
 
 function getBraceBlock(source, startToken) {
   const start = source.indexOf(startToken);
@@ -457,6 +458,22 @@ test("provides a persistent collectible growth bubble layer", () => {
   assert.match(app, /getVisibleBubbles\(growthState\)/);
   assert.match(app, /data-action="collect-growth"/);
   assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
+});
+
+test("renders three non-interactive growth stats in the Figma order", () => {
+  assert.match(html, /id="growthStats"[^>]*aria-label="成长数值"/);
+  assert.match(app, /getGrowthStatItems\(growthState\.totals\)/);
+  assert.match(app, /data-growth-stat="\$\{attribute\}"/);
+  assert.match(growthStatsModel, /growth-vitality\.png/);
+  assert.match(growthStatsModel, /growth-focus\.png/);
+  assert.match(growthStatsModel, /growth-stamina\.png/);
+  assert.doesNotMatch(app, /<button[^>]*data-growth-stat/);
+});
+
+test("uses fixed Figma-sized glass stat entries and hides them on the trainer page", () => {
+  assert.match(css, /\.growth-stat-main\s*{[^}]*width:\s*40px[^}]*height:\s*40px[^}]*border-radius:\s*14px/s);
+  assert.match(css, /\.growth-stats\s*{[^}]*right:\s*20px[^}]*display:\s*grid/s);
+  assert.match(css, /\.is-trainer-view \.growth-stats\s*{[^}]*display:\s*none/s);
 });
 
 test("persists one growth envelope and adds the meditation reward once", () => {
