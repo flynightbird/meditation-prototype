@@ -430,6 +430,12 @@ test("supporting recommendation copy uses regular weight", () => {
   assert.match(css, /\.supporting\s*{[^}]*font-weight:\s*400/s);
 });
 
+test("adds breathing room below direct message titles", () => {
+  const supportingAfterTitle = getCssRule(css, ".message h1 + .supporting");
+
+  assert.match(supportingAfterTitle?.block ?? "", /margin-top:\s*8px/);
+});
+
 test("renders the approved greeting and lightweight daily goal copy", () => {
   assert.match(app, /\$\{getGreeting\(new Date\(\)\.getHours\(\)\)\}，Maggie/);
   assert.match(app, /今日任务 \$\{progress\}\/4，\$\{status\}/);
@@ -458,6 +464,17 @@ test("provides a persistent collectible growth bubble layer", () => {
   assert.match(app, /getVisibleBubbles\(growthState\)/);
   assert.match(app, /data-action="collect-growth"/);
   assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
+  assert.match(
+    app,
+    /class="growth-bubble-label"[^>]*>\s*<img(?=[^>]*src="\$\{getGrowthStatItem\(bubble\.attribute\)\.icon\}")[^>]*>\s*<small>\$\{ATTRIBUTE_LABELS\[bubble\.attribute\]\}<\/small>/s,
+  );
+
+  const bubbleLabel = getCssRule(css, ".growth-bubble-label");
+  const bubbleLabelIcon = getCssRule(css, ".growth-bubble-label img");
+  assert.match(bubbleLabel?.block ?? "", /display:\s*inline-flex/);
+  assert.match(bubbleLabel?.block ?? "", /gap:\s*3px/);
+  assert.match(bubbleLabelIcon?.block ?? "", /width:\s*12px/);
+  assert.match(bubbleLabelIcon?.block ?? "", /height:\s*12px/);
 });
 
 test("renders three non-interactive growth stats in the Figma order", () => {
@@ -474,6 +491,14 @@ test("uses fixed Figma-sized glass stat entries and hides them on the trainer pa
   assert.match(css, /\.growth-stat-main\s*{[^}]*width:\s*40px[^}]*height:\s*40px[^}]*border-radius:\s*14px/s);
   assert.match(css, /\.growth-stats\s*{[^}]*right:\s*20px[^}]*display:\s*grid/s);
   assert.match(css, /\.is-trainer-view \.growth-stats\s*{[^}]*display:\s*none/s);
+
+  const activeGrowthStats = getCssRule(css, '.app-shell[data-screen="active"] .growth-stats');
+  assert.match(activeGrowthStats?.block ?? "", /opacity:\s*0/);
+  assert.match(activeGrowthStats?.block ?? "", /visibility:\s*hidden/);
+  assert.match(
+    app,
+    /growthStats\.setAttribute\(\s*"aria-hidden"\s*,\s*String\(state\.screen\s*===\s*"active"\)\s*\)/,
+  );
 });
 
 test("persists one growth envelope and adds the meditation reward once", () => {
