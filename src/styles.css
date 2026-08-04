@@ -389,6 +389,123 @@ button:focus-visible {
   text-shadow: 0 2px 10px rgba(22, 11, 5, 0.5);
 }
 
+.growth-stats {
+  position: absolute;
+  z-index: 14;
+  top: 111px;
+  right: 20px;
+  display: grid;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.growth-stat {
+  position: relative;
+  display: grid;
+  width: 40px;
+  padding-bottom: 11px;
+  justify-items: center;
+}
+
+.growth-stat-main {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(255, 254, 244, 0.5);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(5.6px);
+}
+
+.growth-stat-roll-track {
+  display: grid;
+  width: 100%;
+  height: 120px;
+  grid-template-rows: repeat(3, 40px);
+  transform: translateY(0);
+  will-change: transform;
+}
+
+.growth-stat-roll-face {
+  display: grid;
+  width: 100%;
+  height: 40px;
+  place-items: center;
+}
+
+.growth-stat-roll-increment {
+  grid-template-columns: 20px auto;
+  gap: 1px;
+  font-size: 10px;
+}
+
+.growth-stat-roll-increment img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.growth-stat-roll-increment b {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.growth-stat-main.is-rolling .growth-stat-roll-track {
+  animation: growth-stat-roll 1200ms cubic-bezier(0.22, 0.8, 0.2, 1) both;
+}
+
+.growth-stat-main.is-updated {
+  animation: growth-stat-update 180ms ease-out both;
+}
+
+.growth-stat-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.growth-stat-value {
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.growth-stat-label {
+  position: absolute;
+  bottom: 0;
+  min-width: 33px;
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #17130f;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.growth-stat-vitality .growth-stat-label {
+  background: #e8ffe5;
+}
+
+.growth-stat-focus .growth-stat-label {
+  background: #dfdfdf;
+}
+
+.growth-stat-stamina .growth-stat-label {
+  background: #fff3b1;
+}
+
+.is-trainer-view .growth-stats {
+  display: none;
+}
+
 .reward-layer {
   position: absolute;
   z-index: 4;
@@ -402,7 +519,7 @@ button:focus-visible {
 
 .growth-bubble-layer {
   position: absolute;
-  z-index: 13;
+  z-index: 15;
   inset: 176px 0 180px;
   pointer-events: none;
 }
@@ -499,8 +616,6 @@ button:focus-visible {
   left: 7%;
   --float-y: -6px;
   --float-duration: 4.8s;
-  --collect-x: 76vw;
-  --collect-y: -43vh;
 }
 
 .growth-bubble.anchor-2 {
@@ -508,8 +623,6 @@ button:focus-visible {
   right: 7%;
   --float-y: -8px;
   --float-duration: 6.1s;
-  --collect-x: 3vw;
-  --collect-y: -37vh;
 }
 
 .growth-bubble.anchor-3 {
@@ -517,8 +630,6 @@ button:focus-visible {
   left: 10%;
   --float-y: -7px;
   --float-duration: 5.4s;
-  --collect-x: 73vw;
-  --collect-y: -49vh;
 }
 
 .growth-bubble.anchor-4 {
@@ -526,8 +637,6 @@ button:focus-visible {
   right: 11%;
   --float-y: -6px;
   --float-duration: 5s;
-  --collect-x: 5vw;
-  --collect-y: -57vh;
 }
 
 .growth-bubble:focus-visible {
@@ -536,8 +645,10 @@ button:focus-visible {
 }
 
 .growth-bubble.is-collecting {
-  animation: collect-growth-bubble 720ms var(--ease-standard) forwards;
+  right: auto;
+  animation: collect-growth-bubble 1080ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   pointer-events: none;
+  will-change: left, top, transform, opacity;
 }
 
 .growth-bubble.is-collecting::before {
@@ -1752,20 +1863,55 @@ button:focus-visible {
   }
 }
 
-@keyframes collect-growth-bubble {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+@keyframes growth-stat-roll {
+  0%,
+  14% {
+    transform: translateY(0);
   }
 
-  18% {
-    opacity: 1;
-    transform: translate3d(0, 2px, 0) scale(0.94);
+  36%,
+  72% {
+    transform: translateY(-40px);
   }
 
   100% {
+    transform: translateY(-80px);
+  }
+}
+
+@keyframes growth-stat-update {
+  50% {
+    opacity: 0.68;
+  }
+}
+
+@keyframes collect-growth-bubble {
+  0% {
+    left: var(--collect-start-x);
+    top: var(--collect-start-y);
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  14% {
+    left: var(--collect-start-x);
+    top: var(--collect-start-y);
+    opacity: 1;
+    transform: scale(0.94);
+  }
+
+  82% {
+    left: var(--collect-end-x);
+    top: var(--collect-end-y);
+    opacity: 1;
+    transform: scale(0.32);
+  }
+
+  100% {
+    left: var(--collect-end-x);
+    top: var(--collect-end-y);
     opacity: 0;
-    transform: translate3d(var(--collect-x), var(--collect-y), 0) scale(0.16);
+    transform: scale(0.16);
   }
 }
 
@@ -2171,6 +2317,7 @@ button:focus-visible {
 
   .claim-reward,
   .growth-bubble,
+  .growth-stat-main,
   .reward-object,
   .reward-particles i,
   .media-transition,

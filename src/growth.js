@@ -70,16 +70,29 @@ export function getVisibleBubbles(state) {
   return bubbles;
 }
 
-export function collectBubble(state, rewardIds) {
+export function previewBubbleCollection(state, rewardIds) {
   const claimed = new Set(state.claimedRewardIds);
   const wanted = new Set(rewardIds);
   const rewards = state.pendingRewards.filter(({ id }) => wanted.has(id) && !claimed.has(id));
-  if (rewards.length === 0) return state;
+  if (rewards.length === 0) return null;
 
-  const totals = { ...state.totals };
-  for (const { attribute, value } of rewards) {
-    totals[attribute] += value;
-  }
+  const attributes = new Set(rewards.map(({ attribute }) => attribute));
+  if (attributes.size !== 1) return null;
+
+  const [attribute] = attributes;
+  const increment = rewards.reduce((sum, reward) => sum + reward.value, 0);
+  const previousTotal = state.totals[attribute];
+  return { attribute, increment, previousTotal, nextTotal: previousTotal + increment };
+}
+
+export function collectBubble(state, rewardIds) {
+  const preview = previewBubbleCollection(state, rewardIds);
+  if (!preview) return state;
+
+  const claimed = new Set(state.claimedRewardIds);
+  const wanted = new Set(rewardIds);
+  const rewards = state.pendingRewards.filter(({ id }) => wanted.has(id) && !claimed.has(id));
+  const totals = { ...state.totals, [preview.attribute]: preview.nextTotal };
 
   const collectedIds = new Set(rewards.map(({ id }) => id));
   return {

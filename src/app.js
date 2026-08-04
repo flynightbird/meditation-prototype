@@ -23,7 +23,9 @@ import {
   getDailyProgress,
   getVisibleBubbles,
   normalizeGrowthState,
+  previewBubbleCollection,
 } from "./growth.js";
+import { getGrowthStatItems } from "./growth-stats.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
@@ -52,6 +54,7 @@ const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
 const growthBubbleLayer = document.querySelector("#growthBubbleLayer");
+const growthStats = document.querySelector("#growthStats");
 const trainerBooking = mountTrainerBooking({
   app,
   bottomNav,
@@ -77,6 +80,7 @@ let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
 let rewardImagesRequested = false;
+const statRollQueues = new Map();
 
 const assets = {
   meal: "./assets/task-meal.png?v=20260802",
@@ -137,6 +141,8 @@ function renderGrowthBubbles() {
         type="button"
         data-action="collect-growth"
         data-reward-ids="${bubble.rewardIds.join(",")}"
+        data-growth-attribute="${bubble.attribute}"
+        data-growth-value="${bubble.value}"
         aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
         style="--bubble-index:${index}"
       >
@@ -144,6 +150,87 @@ function renderGrowthBubbles() {
         <strong>+${bubble.value}</strong>
       </button>`)
     .join("");
+}
+
+function statMainContent({ mode, icon, total }) {
+  return mode === "icon"
+    ? `<img class="growth-stat-icon" src="${icon}" alt="" />`
+    : `<strong class="growth-stat-value">${total}</strong>`;
+}
+
+function renderGrowthStats() {
+  growthStats.innerHTML = getGrowthStatItems(growthState.totals)
+    .map(({ attribute, label, total, mode, icon }) => `
+      <div class="growth-stat growth-stat-${attribute}" data-growth-stat="${attribute}" aria-label="${label} ${total}">
+        <span class="growth-stat-main">${statMainContent({ mode, icon, total })}</span>
+        <span class="growth-stat-label">${label}</span>
+      </div>`)
+    .join("");
+}
+
+function getGrowthStatItem(attribute, total = growthState.totals[attribute]) {
+  return getGrowthStatItems({ ...growthState.totals, [attribute]: total })
+    .find((item) => item.attribute === attribute);
+}
+
+function updateGrowthStat(attribute, total, { pulse = false } = {}) {
+  const stat = growthStats.querySelector(`[data-growth-stat="${attribute}"]`);
+  if (!stat) return;
+  const item = getGrowthStatItem(attribute, total);
+  const main = stat.querySelector(".growth-stat-main");
+  main.classList.remove("is-rolling", "is-updated");
+  main.innerHTML = statMainContent({ ...item, total, mode: total === 0 ? "icon" : "value" });
+  stat.setAttribute("aria-label", `${item.label} ${total}`);
+  if (pulse) {
+    void main.offsetWidth;
+    main.classList.add("is-updated");
+    window.setTimeout(() => main.classList.remove("is-updated"), 220);
+  }
+}
+
+function playGrowthStatRoll({ attribute, increment, previousTotal, nextTotal }) {
+  const stat = growthStats.querySelector(`[data-growth-stat="${attribute}"]`);
+  if (!stat) return Promise.resolve();
+  const item = getGrowthStatItem(attribute, previousTotal);
+  const main = stat.querySelector(".growth-stat-main");
+  const firstFace = statMainContent({
+    ...item,
+    total: previousTotal,
+    mode: previousTotal === 0 ? "icon" : "value",
+  });
+  main.innerHTML = `<span class="growth-stat-roll-track">
+    <span class="growth-stat-roll-face">${firstFace}</span>
+    <span class="growth-stat-roll-face growth-stat-roll-increment"><img src="${item.icon}" alt="" /><b>+${increment}</b></span>
+    <span class="growth-stat-roll-face"><strong class="growth-stat-value">${nextTotal}</strong></span>
+  </span>`;
+  main.classList.add("is-rolling");
+
+  return new Promise((resolve) => {
+    let completed = false;
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      window.clearTimeout(fallbackTimer);
+      main.removeEventListener("animationend", handleAnimationEnd);
+      updateGrowthStat(attribute, nextTotal);
+      resolve();
+    };
+    const handleAnimationEnd = (event) => {
+      if (event.animationName === "growth-stat-roll") finish();
+    };
+    const fallbackTimer = window.setTimeout(finish, 1380);
+    main.addEventListener("animationend", handleAnimationEnd);
+  });
+}
+
+function queueGrowthStatRoll(preview) {
+  const previous = statRollQueues.get(preview.attribute) || Promise.resolve();
+  const next = previous.catch(() => {}).then(() => playGrowthStatRoll(preview));
+  statRollQueues.set(preview.attribute, next);
+  next.finally(() => {
+    if (statRollQueues.get(preview.attribute) === next) statRollQueues.delete(preview.attribute);
+  });
+  return next;
 }
 
 function addMeditationGrowthReward() {
@@ -160,11 +247,13 @@ function addMeditationGrowthReward() {
   renderGrowthBubbles();
 }
 
-function commitGrowthCollection(button, rewardIds) {
+function commitGrowthCollection(button, rewardIds, preview, { animate = true } = {}) {
   const nextState = collectBubble(growthState, rewardIds);
   if (nextState !== growthState && writeGrowthState(nextState)) {
     growthState = nextState;
     renderGrowthBubbles();
+    if (animate) queueGrowthStatRoll(preview);
+    else updateGrowthStat(preview.attribute, preview.nextTotal, { pulse: true });
     return;
   }
   button.classList.remove("is-collecting");
@@ -174,17 +263,51 @@ function commitGrowthCollection(button, rewardIds) {
 function collectGrowthReward(button) {
   if (button.classList.contains("is-collecting")) return;
   const rewardIds = button.dataset.rewardIds.split(",").filter(Boolean);
-  button.classList.add("is-collecting");
+  const preview = previewBubbleCollection(growthState, rewardIds);
+  const target = preview
+    && growthStats.querySelector(`[data-growth-stat="${preview.attribute}"] .growth-stat-main`);
+  if (!preview || !target) return;
+
   button.disabled = true;
   if (reducedMotion.matches) {
-    commitGrowthCollection(button, rewardIds);
+    commitGrowthCollection(button, rewardIds, preview, { animate: false });
     return;
   }
-  button.addEventListener("animationend", (event) => {
-    if (event.animationName === "collect-growth-bubble") {
-      commitGrowthCollection(button, rewardIds);
-    }
-  }, { once: true });
+
+  const sourceRect = button.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const layerRect = growthBubbleLayer.getBoundingClientRect();
+  button.style.setProperty(
+    "--collect-start-x",
+    `${sourceRect.left - layerRect.left}px`,
+  );
+  button.style.setProperty(
+    "--collect-start-y",
+    `${sourceRect.top - layerRect.top}px`,
+  );
+  button.style.setProperty(
+    "--collect-end-x",
+    `${targetRect.left + targetRect.width / 2 - sourceRect.width / 2 - layerRect.left}px`,
+  );
+  button.style.setProperty(
+    "--collect-end-y",
+    `${targetRect.top + targetRect.height / 2 - sourceRect.height / 2 - layerRect.top}px`,
+  );
+  button.classList.add("is-collecting");
+
+  let completed = false;
+  const finish = () => {
+    if (completed) return;
+    completed = true;
+    window.clearTimeout(fallbackTimer);
+    button.removeEventListener("animationend", handleAnimationEnd);
+    commitGrowthCollection(button, rewardIds, preview);
+  };
+  const handleAnimationEnd = (event) => {
+    if (event.animationName === "collect-growth-bubble") finish();
+  };
+  const fallbackTimer = window.setTimeout(finish, 1200);
+  button.addEventListener("animationend", handleAnimationEnd);
 }
 
 function taskCard({ id, time, label, icon, reward, status }) {
@@ -735,6 +858,7 @@ app.addEventListener("click", (event) => {
 });
 
 render(false);
+renderGrowthStats();
 renderGrowthBubbles();
 setupDailyWelcome();
 setupPortfolioShowcase({ app, reducedMotion });
