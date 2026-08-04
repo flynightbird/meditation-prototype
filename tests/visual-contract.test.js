@@ -648,11 +648,11 @@ test("softly blurs both watermark corners on app and portfolio videos", () => {
   assert.match(css, /\.portfolio-clip::before,\s*\.portfolio-clip::after\s*{[^}]*z-index:\s*1/s);
   assert.match(
     css,
-    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(circle at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(circle at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
   assert.match(
     css,
-    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(circle at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(circle at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
   );
 });
 
