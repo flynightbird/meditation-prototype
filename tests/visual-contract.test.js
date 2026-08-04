@@ -502,6 +502,26 @@ test("floats growth bubbles visibly with staggered vertical motion", () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble[\s\S]*animation:\s*none !important/s);
 });
 
+test("flies bubbles to their live stat target before committing", () => {
+  assert.match(app, /previewBubbleCollection\(growthState, rewardIds\)/);
+  assert.match(app, /getBoundingClientRect\(\)/);
+  assert.match(app, /--collect-x/);
+  assert.match(app, /--collect-y/);
+  assert.match(app, /queueGrowthStatRoll\(preview\)/);
+});
+
+test("rolls old value through icon plus increment to the new total", () => {
+  assert.match(app, /growth-stat-roll-track/);
+  assert.match(app, /growth-stat-roll-increment[^>]*>[\s\S]*\+\$\{increment\}/);
+  assert.match(css, /@keyframes growth-stat-roll[\s\S]*translateY\(-66\.666%\)/);
+  assert.match(css, /\.growth-stat-main\.is-rolling \.growth-stat-roll-track/);
+});
+
+test("reduces collection motion without waiting for animationend", () => {
+  assert.match(app, /reducedMotion\.matches[\s\S]*commitGrowthCollection/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-stat-main/s);
+});
+
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);

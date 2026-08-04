@@ -23,6 +23,7 @@ import {
   getDailyProgress,
   getVisibleBubbles,
   normalizeGrowthState,
+  previewBubbleCollection,
 } from "./growth.js";
 import { getGrowthStatItems } from "./growth-stats.js";
 
@@ -79,6 +80,7 @@ let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
 let rewardImagesRequested = false;
+const statRollQueues = new Map();
 
 const assets = {
   meal: "./assets/task-meal.png?v=20260802",
@@ -139,6 +141,8 @@ function renderGrowthBubbles() {
         type="button"
         data-action="collect-growth"
         data-reward-ids="${bubble.rewardIds.join(",")}"
+        data-growth-attribute="${bubble.attribute}"
+        data-growth-value="${bubble.value}"
         aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
         style="--bubble-index:${index}"
       >
@@ -164,6 +168,71 @@ function renderGrowthStats() {
     .join("");
 }
 
+function getGrowthStatItem(attribute, total = growthState.totals[attribute]) {
+  return getGrowthStatItems({ ...growthState.totals, [attribute]: total })
+    .find((item) => item.attribute === attribute);
+}
+
+function updateGrowthStat(attribute, total, { pulse = false } = {}) {
+  const stat = growthStats.querySelector(`[data-growth-stat="${attribute}"]`);
+  if (!stat) return;
+  const item = getGrowthStatItem(attribute, total);
+  const main = stat.querySelector(".growth-stat-main");
+  main.classList.remove("is-rolling", "is-updated");
+  main.innerHTML = statMainContent({ ...item, total, mode: total === 0 ? "icon" : "value" });
+  stat.setAttribute("aria-label", `${item.label} ${total}`);
+  if (pulse) {
+    void main.offsetWidth;
+    main.classList.add("is-updated");
+    window.setTimeout(() => main.classList.remove("is-updated"), 220);
+  }
+}
+
+function playGrowthStatRoll({ attribute, increment, previousTotal, nextTotal }) {
+  const stat = growthStats.querySelector(`[data-growth-stat="${attribute}"]`);
+  if (!stat) return Promise.resolve();
+  const item = getGrowthStatItem(attribute, previousTotal);
+  const main = stat.querySelector(".growth-stat-main");
+  const firstFace = statMainContent({
+    ...item,
+    total: previousTotal,
+    mode: previousTotal === 0 ? "icon" : "value",
+  });
+  main.innerHTML = `<span class="growth-stat-roll-track">
+    <span class="growth-stat-roll-face">${firstFace}</span>
+    <span class="growth-stat-roll-face growth-stat-roll-increment"><img src="${item.icon}" alt="" /><b>+${increment}</b></span>
+    <span class="growth-stat-roll-face"><strong class="growth-stat-value">${nextTotal}</strong></span>
+  </span>`;
+  main.classList.add("is-rolling");
+
+  return new Promise((resolve) => {
+    let completed = false;
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      window.clearTimeout(fallbackTimer);
+      main.removeEventListener("animationend", handleAnimationEnd);
+      updateGrowthStat(attribute, nextTotal);
+      resolve();
+    };
+    const handleAnimationEnd = (event) => {
+      if (event.animationName === "growth-stat-roll") finish();
+    };
+    const fallbackTimer = window.setTimeout(finish, 900);
+    main.addEventListener("animationend", handleAnimationEnd);
+  });
+}
+
+function queueGrowthStatRoll(preview) {
+  const previous = statRollQueues.get(preview.attribute) || Promise.resolve();
+  const next = previous.catch(() => {}).then(() => playGrowthStatRoll(preview));
+  statRollQueues.set(preview.attribute, next);
+  next.finally(() => {
+    if (statRollQueues.get(preview.attribute) === next) statRollQueues.delete(preview.attribute);
+  });
+  return next;
+}
+
 function addMeditationGrowthReward() {
   const dateKey = getLocalDateKey();
   const nextState = addTaskReward(growthState, {
@@ -178,11 +247,13 @@ function addMeditationGrowthReward() {
   renderGrowthBubbles();
 }
 
-function commitGrowthCollection(button, rewardIds) {
+function commitGrowthCollection(button, rewardIds, preview, { animate = true } = {}) {
   const nextState = collectBubble(growthState, rewardIds);
   if (nextState !== growthState && writeGrowthState(nextState)) {
     growthState = nextState;
     renderGrowthBubbles();
+    if (animate) queueGrowthStatRoll(preview);
+    else updateGrowthStat(preview.attribute, preview.nextTotal, { pulse: true });
     return;
   }
   button.classList.remove("is-collecting");
@@ -192,17 +263,42 @@ function commitGrowthCollection(button, rewardIds) {
 function collectGrowthReward(button) {
   if (button.classList.contains("is-collecting")) return;
   const rewardIds = button.dataset.rewardIds.split(",").filter(Boolean);
+  const preview = previewBubbleCollection(growthState, rewardIds);
+  const target = preview
+    && growthStats.querySelector(`[data-growth-stat="${preview.attribute}"] .growth-stat-main`);
+  if (!preview || !target) return;
+
   button.classList.add("is-collecting");
   button.disabled = true;
   if (reducedMotion.matches) {
-    commitGrowthCollection(button, rewardIds);
+    commitGrowthCollection(button, rewardIds, preview, { animate: false });
     return;
   }
-  button.addEventListener("animationend", (event) => {
-    if (event.animationName === "collect-growth-bubble") {
-      commitGrowthCollection(button, rewardIds);
-    }
-  }, { once: true });
+
+  const sourceRect = button.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  button.style.setProperty(
+    "--collect-x",
+    `${targetRect.left + targetRect.width / 2 - sourceRect.left - sourceRect.width / 2}px`,
+  );
+  button.style.setProperty(
+    "--collect-y",
+    `${targetRect.top + targetRect.height / 2 - sourceRect.top - sourceRect.height / 2}px`,
+  );
+
+  let completed = false;
+  const finish = () => {
+    if (completed) return;
+    completed = true;
+    window.clearTimeout(fallbackTimer);
+    button.removeEventListener("animationend", handleAnimationEnd);
+    commitGrowthCollection(button, rewardIds, preview);
+  };
+  const handleAnimationEnd = (event) => {
+    if (event.animationName === "collect-growth-bubble") finish();
+  };
+  const fallbackTimer = window.setTimeout(finish, 820);
+  button.addEventListener("animationend", handleAnimationEnd);
 }
 
 function taskCard({ id, time, label, icon, reward, status }) {
