@@ -108,18 +108,33 @@ test("polishes store hierarchy and supporting trainer details", () => {
   }
   assert.equal((html.match(/class="store-nearest"/g) ?? []).length, 1);
   assert.match(html, /<span class="store-nearest">最近<\/span><span>南浦大桥店<\/span>/);
-  assert.match(html, /<p>南浦一路111号一层<\/p>/);
-  assert.match(html, /class="store-hours">10:00–24:00<\/span>/);
-  assert.match(html, /class="store-features">私教体验 · 体态检测<\/span>/);
-  assert.match(html, /class="store-distance"><span>756m<\/span><i aria-hidden="true">›<\/i><\/span>/);
-  assert.doesNotMatch(html, /756m · 南浦一路111号一层/);
-  assert.match(css, /\.store-row\s*{[^}]*grid-template-columns:\s*20px minmax\(0, 1fr\) auto[^}]*min-height:\s*82px/s);
-  assert.match(css, /\.store-row > b\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.3\)[^}]*font-size:\s*10px[^}]*font-variant-numeric:\s*tabular-nums/s);
-  assert.match(css, /\.store-nearest\s*{[^}]*border:\s*1px solid rgba\(248, 213, 83, 0\.22\)[^}]*color:\s*#f8d553[^}]*background:\s*rgba\(248, 213, 83, 0\.1\)[^}]*font-size:\s*8px/s);
-  assert.match(css, /\.store-distance\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*3px[^}]*align-self:\s*center[^}]*font-size:\s*10px/s);
+  for (const address of ["南浦一路111号一层", "前海路99号B1层", "望海路1187号商业中心"]) {
+    assert.match(html, new RegExp(`<p>${address}<\\/p>`));
+  }
+  for (const hours of ["10:00–24:00", "09:00–22:00", "10:00–21:30"]) {
+    assert.match(html, new RegExp(`class="store-hours">${hours}<\\/span>`));
+  }
+  for (const features of ["私教体验 · 体态检测", "私教体验 · 停车方便", "体态检测 · 停车方便"]) {
+    assert.match(html, new RegExp(`class="store-features">${features}<\\/span>`));
+  }
+  for (const distance of ["756m", "2.8km", "4.1km"]) {
+    assert.match(html, new RegExp(`class="store-distance"><span>${distance}<\\/span><i aria-hidden="true">›<\\/i><\\/span>`));
+  }
+  for (const oldAddress of ["756m · 南浦一路111号一层", "2.8km · 前海路99号B1层", "4.1km · 望海路1187号商业中心"]) {
+    assert.doesNotMatch(html, new RegExp(oldAddress));
+  }
+  assert.match(css, /\.store-row\s*{[^}]*grid-template-columns:\s*20px minmax\(0, 1fr\) auto[^}]*min-height:\s*82px[^}]*border-top:\s*1px solid rgba\(255, 255, 255, 0\.06\)/s);
+  const storeSequenceRule = css.match(/\.store-row > b\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(storeSequenceRule, /color:\s*rgba\(255, 250, 243, 0\.3\)[^}]*font-size:\s*10px[^}]*font-weight:\s*400[^}]*font-variant-numeric:\s*tabular-nums/s);
+  assert.doesNotMatch(storeSequenceRule, /\b(?:border|border-radius|background)\s*:/);
+  assert.match(css, /\.store-nearest\s*{[^}]*border:\s*1px solid rgba\(248, 213, 83, 0\.22\)[^}]*border-radius:\s*5px[^}]*color:\s*#f8d553[^}]*background:\s*rgba\(248, 213, 83, 0\.1\)[^}]*font-size:\s*8px/s);
+  assert.match(css, /\.store-distance\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*3px[^}]*align-items:\s*center[^}]*align-self:\s*center[^}]*font-size:\s*10px/s);
   assert.match(css, /\.store-distance i\s*{[^}]*font-size:\s*16px/s);
   assert.match(css, /\.store-hours\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.34\)[^}]*font-size:\s*9px[^}]*font-weight:\s*400/s);
-  assert.match(css, /\.store-features\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.58\)[^}]*font-size:\s*9\.5px[^}]*font-weight:\s*500/s);
+  const storeFeaturesRule = css.match(/\.store-features\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(storeFeaturesRule, /overflow:\s*hidden[^}]*color:\s*rgba\(255, 250, 243, 0\.58\)[^}]*font-size:\s*9\.5px[^}]*font-weight:\s*500[^}]*text-overflow:\s*ellipsis/s);
+  assert.doesNotMatch(storeFeaturesRule, /\b(?:border|background)\s*:/);
+  assert.match(css, /\.store-row\.is-closed\s*{[^}]*opacity:\s*0\.56/s);
   assert.match(css, /\.booking-heading span\s*{[^}]*color:\s*var\(--trainer-text-muted\)/s);
   assert.match(css, /\.trainer-credential-icon\s*{[^}]*margin:\s*0 auto 7px/s);
 });
