@@ -8,15 +8,33 @@ import {
 import { setupPortfolioShowcase } from "./portfolio-showcase.js";
 import {
   getMediaScene,
+  getNextMediaSource,
   getReplayTime,
   shouldReplaySegment,
   shouldRunMediaTimer,
 } from "./media-scene.js";
+import { syncPreloadSource } from "./media-preload.js";
 import { createInitialState, formatTime, transition } from "./state-machine.js";
+import { mountTrainerBooking } from "./trainer-booking-view.js";
+import {
+  addTaskReward,
+  collectBubble,
+  createGrowthState,
+  getDailyProgress,
+  getVisibleBubbles,
+  normalizeGrowthState,
+} from "./growth.js";
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
 const TENT_SEEN_KEY = "growth-base.tent-seen";
+const GROWTH_KEY = "growth-base.growth-state";
+
+const ATTRIBUTE_LABELS = {
+  stamina: "体力",
+  focus: "专注",
+  vitality: "活力",
+};
 
 const app = document.querySelector("#app");
 const message = document.querySelector("#message");
@@ -30,11 +48,22 @@ const objectDialog = document.querySelector("#objectDialog");
 const welcomeOverlay = document.querySelector("#welcomeOverlay");
 const welcomeGreeting = document.querySelector("#welcomeGreeting");
 const sceneVideo = document.querySelector("#sceneVideo");
+const scenePreloader = document.querySelector("#scenePreloader");
 const claimReward = document.querySelector("#claimReward");
 const rewardLayer = document.querySelector("#rewardLayer");
+const growthBubbleLayer = document.querySelector("#growthBubbleLayer");
+const trainerBooking = mountTrainerBooking({
+  app,
+  bottomNav,
+  sceneVideo,
+  onShow: pauseHomeExperience,
+  onHide: resumeHomeExperience,
+});
+const deferredRewardImages = [...document.querySelectorAll("img[data-deferred-src]")];
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let state = createInitialState();
+let growthState = loadGrowthState();
 let previousScreen = null;
 let timerId = null;
 let countdownCompleteTimer = null;
@@ -47,6 +76,7 @@ let claimDispatchTimer = null;
 let welcomeTimer = null;
 let welcomeHapticTimer = null;
 let toastTimer = null;
+let rewardImagesRequested = false;
 
 const assets = {
   meal: "./assets/task-meal.png?v=20260802",
@@ -79,18 +109,99 @@ function removeStorage(key) {
   }
 }
 
-function taskCard({ id, time, label, icon, status }) {
+function loadGrowthState() {
+  const dateKey = getLocalDateKey();
+  const raw = readStorage(GROWTH_KEY);
+  if (!raw) return createGrowthState(dateKey, { initialProgress: 3 });
+  try {
+    return normalizeGrowthState(JSON.parse(raw), dateKey);
+  } catch {
+    return createGrowthState(dateKey, { initialProgress: 3 });
+  }
+}
+
+function writeGrowthState(nextState) {
+  try {
+    window.localStorage.setItem(GROWTH_KEY, JSON.stringify(nextState));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function renderGrowthBubbles() {
+  growthBubbleLayer.innerHTML = getVisibleBubbles(growthState)
+    .map((bubble, index) => `
+      <button
+        class="growth-bubble bubble-${bubble.attribute} anchor-${index + 1}"
+        type="button"
+        data-action="collect-growth"
+        data-reward-ids="${bubble.rewardIds.join(",")}"
+        aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
+        style="--bubble-index:${index}"
+      >
+        <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
+        <strong>+${bubble.value}</strong>
+      </button>`)
+    .join("");
+}
+
+function addMeditationGrowthReward() {
+  const dateKey = getLocalDateKey();
+  const nextState = addTaskReward(growthState, {
+    id: `${dateKey}:meditation`,
+    taskId: "meditation",
+    attribute: "focus",
+    value: 10,
+    createdAt: Date.now(),
+  });
+  if (nextState === growthState || !writeGrowthState(nextState)) return;
+  growthState = nextState;
+  renderGrowthBubbles();
+}
+
+function commitGrowthCollection(button, rewardIds) {
+  const nextState = collectBubble(growthState, rewardIds);
+  if (nextState !== growthState && writeGrowthState(nextState)) {
+    growthState = nextState;
+    renderGrowthBubbles();
+    return;
+  }
+  button.classList.remove("is-collecting");
+  button.disabled = false;
+}
+
+function collectGrowthReward(button) {
+  if (button.classList.contains("is-collecting")) return;
+  const rewardIds = button.dataset.rewardIds.split(",").filter(Boolean);
+  button.classList.add("is-collecting");
+  button.disabled = true;
+  if (reducedMotion.matches) {
+    commitGrowthCollection(button, rewardIds);
+    return;
+  }
+  button.addEventListener("animationend", (event) => {
+    if (event.animationName === "collect-growth-bubble") {
+      commitGrowthCollection(button, rewardIds);
+    }
+  }, { once: true });
+}
+
+function taskCard({ id, time, label, icon, reward, status }) {
   const current = status === "current";
   const done = status === "done";
   return `
-    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}${done ? "，已完成" : current ? "，当前任务" : ""}">
-      <time>${time}</time>
-      <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
-      <span class="task-footer">
-        <strong>${label}</strong>
-        ${done ? '<svg class="check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>' : ""}
-      </span>
+    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}，${reward.label}加${reward.value}${done ? "，已完成" : current ? "，当前任务" : ""}">
       ${current ? '<span class="current-label">当前</span>' : ""}
+      ${done ? '<svg class="check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>' : ""}
+      <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
+      <span class="task-copy">
+        <time>${time}</time>
+        <span class="task-details">
+          <strong>${label}</strong>
+          <span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${reward.label}</small><b>+${reward.value}</b></span>
+        </span>
+      </span>
     </article>`;
 }
 
@@ -111,18 +222,9 @@ function centerCurrentTask(behavior = "smooth") {
 }
 
 function growthCue() {
-  const claimed = readStorage(CLAIM_KEY) === "claimed";
-  const filled = claimed ? 4 : 3;
-  const dots = Array.from(
-    { length: 4 },
-    (_, index) => `<i class="${index < filled ? "is-filled" : ""}"></i>`,
-  ).join("");
-  return `
-    <div class="growth-cue" aria-label="静心营地进度${filled}分之4">
-      <strong>静心营地</strong>
-      <span class="growth-dots" aria-hidden="true">${dots}</span>
-      <span>${claimed ? "静心帐篷已加入营地" : "再完成1次解锁帐篷"}</span>
-    </div>`;
+  const progress = getDailyProgress(growthState);
+  const status = progress === 4 ? "帐篷营地已获得" : "完成可获得帐篷营地";
+  return `<p class="growth-cue">今日任务 ${progress}/4，${status}</p>`;
 }
 
 function setTimerRunning() {
@@ -162,6 +264,19 @@ function clearScreenTimers() {
   claimDispatchTimer = null;
 }
 
+function pauseHomeExperience() {
+  clearScreenTimers();
+  window.clearInterval(timerId);
+  timerId = null;
+  app.classList.remove("is-timer-running");
+  sceneVideo.pause();
+}
+
+function resumeHomeExperience() {
+  scheduleScreenEntry(state.screen);
+  playCurrentScene({ fromScreen: state.screen });
+}
+
 function stopMedia() {
   sceneVideo.pause();
   sceneVideo.removeAttribute("src");
@@ -170,6 +285,10 @@ function stopMedia() {
 }
 
 function playCurrentScene({ fromScreen = null } = {}) {
+  if (trainerBooking.isVisible()) {
+    sceneVideo.pause();
+    return;
+  }
   const scene = getMediaScene(state.screen);
   if (!scene) {
     stopMedia();
@@ -188,6 +307,10 @@ function playCurrentScene({ fromScreen = null } = {}) {
   app.classList.add("has-media");
 
   const startPlayback = () => {
+    if (trainerBooking.isVisible()) {
+      sceneVideo.pause();
+      return;
+    }
     if (["reward", "reward-settled"].includes(state.screen)) {
       sceneVideo.currentTime = getReplayTime(state.screen, sceneVideo.duration);
     }
@@ -265,8 +388,21 @@ sceneVideo.addEventListener("error", () => {
   app.classList.add("media-failed");
 });
 
+function ensureRewardImages() {
+  if (rewardImagesRequested) return;
+  rewardImagesRequested = true;
+  for (const image of deferredRewardImages) {
+    const source = image.dataset.deferredSrc;
+    if (source) image.src = source;
+  }
+}
+
 function scheduleScreenEntry(fromScreen) {
   clearScreenTimers();
+
+  if (state.screen === "completion") {
+    ensureRewardImages();
+  }
 
   if (state.screen !== "reward-settled") {
     app.classList.remove("is-settled-components-visible", "is-tent-dropping");
@@ -277,6 +413,7 @@ function scheduleScreenEntry(fromScreen) {
   }
 
   if (state.screen === "reward") {
+    if (fromScreen === "completion") addMeditationGrowthReward();
     app.classList.remove("is-reward-entered", "is-claiming");
     claimReward.classList.remove("is-claiming");
     void rewardLayer.offsetWidth;
@@ -349,7 +486,7 @@ function render(animate = true) {
 
   if (state.screen === "recommendation") {
     message.innerHTML = `
-      <h1>今天恢复得不错</h1>
+      <h1>${getGreeting(new Date().getHours())}，Maggie</h1>
       <p class="time-label">15:30 · AI健康建议</p>
       <p class="supporting">你通常在下午3点后注意力下降，今天安排5分钟放松吧。</p>
       ${growthCue()}`;
@@ -464,6 +601,9 @@ function render(animate = true) {
     scheduleScreenEntry(fromScreen);
   }
   playCurrentScene({ fromScreen });
+  if (screenChanged) {
+    syncPreloadSource(scenePreloader, getNextMediaSource(state.screen));
+  }
 
   window.setTimeout(() => app.classList.remove("is-changing"), 620);
 }
@@ -531,6 +671,21 @@ function resetExperience(eventType = "RESET") {
   render();
 }
 
+function setActiveNavigation(nav) {
+  const items = [...bottomNav.querySelectorAll(".nav-item")];
+  const activeIndex = items.findIndex((item) => item.dataset.nav === nav);
+  if (activeIndex >= 0) {
+    bottomNav.style.setProperty("--nav-indicator-x", `${activeIndex * 100}%`);
+  }
+
+  items.forEach((item) => {
+    const active = item.dataset.nav === nav;
+    item.classList.toggle("is-active", active);
+    if (active) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  });
+}
+
 welcomeOverlay.addEventListener("click", finishWelcome);
 document.addEventListener("keydown", (event) => {
   if (!welcomeOverlay.hidden && event.key === "Escape") finishWelcome();
@@ -554,7 +709,20 @@ app.addEventListener("click", (event) => {
       dispatch({ type: "CLAIM_REWARD" });
     }, reducedMotion.matches ? 1 : 360);
   }
-  if (action === "nav-tap" && button.dataset.nav !== "coach") showToast("敬请期待");
+  if (action === "collect-growth") collectGrowthReward(button);
+  if (action === "nav-tap") {
+    const nav = button.dataset.nav;
+    if (nav === "trainer") {
+      finishWelcome();
+      trainerBooking.show();
+      setActiveNavigation("trainer");
+    } else if (nav === "coach") {
+      trainerBooking.hide();
+      setActiveNavigation("coach");
+    } else {
+      showToast("敬请期待");
+    }
+  }
   if (action === "meal-reminder") dispatch({ type: "SET_MEAL_REMINDER" });
   if (action === "start-meal") resetExperience("START_MEAL");
   if (action === "reset") resetExperience();
@@ -567,5 +735,6 @@ app.addEventListener("click", (event) => {
 });
 
 render(false);
+renderGrowthBubbles();
 setupDailyWelcome();
 setupPortfolioShowcase({ app, reducedMotion });

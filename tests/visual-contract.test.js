@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -90,6 +91,62 @@ function hasClass(tag, className) {
   return (getAttribute(tag, "class") ?? "").split(/\s+/).includes(className);
 }
 
+test("ships the approved bottom navigation SVG assets without recoloring", () => {
+  const approved = new Map([
+    ["nav-ai-coach-on.svg", "1ae101f78fb046d1280a9b551f00b2309be547f66d34fd40a6af8f0f4bd28f26"],
+    ["nav-trainer-off.svg", "52858b7355d5cee63d4d77cc464c02821632955f08741daea40dc3ed875988af"],
+    ["nav-trainer-on.svg", "b4c0008ae968d164cd7fba3fcf8542e7365033f1af0431e94933bbfa710718a2"],
+    ["nav-skill-off.svg", "d42631ff42948148e24ad25c3ec77b25727ab05ab474a3dcf304f8f1ddc60ae4"],
+    ["nav-skill-on.svg", "53e61ffef87d348ba19de13cbc59fe95662ce984399d1d8d3ed116c5192ffe26"],
+    ["nav-plan-off.svg", "ea44f6223498aa381418229b8004c68e3f0b1cf95752e65c8057645b0c9908f6"],
+    ["nav-plan-on.svg", "cfadaafac3de9f050c3b71074c0af4bd836e9b7b0d0035381d294ba9d2225ff0"],
+    ["nav-points-off.svg", "bd4e71da0691269a3557bc02db0c45b41068f787aaaf931bf9925aac7719317a"],
+    ["nav-points-on.svg", "6cc81758d8717c6c177f5a6d7e865c3e79a33de8b070607c869b8825f8ffffca"],
+    ["nav-mine-off.svg", "294cf28ba25588c0a329f57cfa869b06a2dedaee2fa3b56aaf4d85f16a796edb"],
+    ["nav-mine-on.svg", "09bb7298bf5afd9568e172134a965d668a2d20f69724dbd9470fd048a6eb5216"],
+  ]);
+
+  for (const [destination, expectedHash] of approved) {
+    const contents = readFileSync(new URL(`../assets/${destination}`, import.meta.url));
+    assert.equal(createHash("sha256").update(contents).digest("hex"), expectedHash);
+  }
+});
+
+test("renders paired SVG states for the five standard navigation items", () => {
+  for (const name of ["trainer", "skill", "plan", "points", "mine"]) {
+    assert.match(html, new RegExp(`nav-${name}-off\\.svg`));
+    assert.match(html, new RegExp(`nav-${name}-on\\.svg`));
+  }
+  assert.match(css, /\.nav-state-icon\.is-on\s*{[^}]*opacity:\s*0/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-off\s*{[^}]*opacity:\s*0/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-state-icon\.is-on\s*{[^}]*opacity:\s*1/s);
+});
+
+test("balances standard navigation icons against the unselected AI coach", () => {
+  assert.match(
+    css,
+    /\.nav-item:not\(\[data-nav="coach"\]\) \.nav-icon\s*{[^}]*flex-basis:\s*22px[^}]*width:\s*22px[^}]*height:\s*22px/s,
+  );
+  assert.match(
+    css,
+    /\.nav-item:not\(\[data-nav="coach"\]\) \.nav-state-icon\s*{[^}]*inset:\s*1px[^}]*width:\s*20px[^}]*height:\s*20px/s,
+  );
+});
+
+test("uses the pony only for the selected AI coach state", () => {
+  assert.match(html, /data-nav="coach"[\s\S]*nav-ai-coach-on\.svg/);
+  assert.match(css, /\.nav-coach-robot\s*{[^}]*width:\s*22px[^}]*height:\s*22px/s);
+  assert.match(css, /data-nav="coach"[^}]*\.nav-icon[^}]*width:\s*44px[^}]*height:\s*44px/s);
+  assert.match(css, /data-nav="coach"[^}]*\.nav-label[^}]*clip-path:\s*inset\(50%\)/s);
+});
+
+test("bounces the selected AI coach pony once and respects reduced motion", () => {
+  assert.match(css, /\.nav-item\[data-nav="coach"\]\.is-active \.nav-coach-pony\s*{[^}]*animation:\s*nav-coach-bounce 420ms/s);
+  assert.match(css, /@keyframes nav-coach-bounce[\s\S]*scale\(0\.82\)[\s\S]*scale\(1\.08\)[\s\S]*scale\(1\)/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.nav-state-icon\s*{[^}]*transition:\s*none/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.nav-coach-pony\s*{[^}]*animation:\s*none/s);
+});
+
 test("uses video as the only large IP carrier", () => {
   assert.doesNotMatch(html, /class="character-stage"|id="character"/);
   assert.doesNotMatch(app, /assets\/ip-(lift|meditate|stretch|walk)\.png/);
@@ -128,10 +185,35 @@ test("provides one reusable full-screen media layer", () => {
   assert.match(html, /id="mediaTransition"/);
 });
 
+test("provides an inert hidden next-scene preloader", () => {
+  assert.match(
+    html,
+    /<video[^>]*id="scenePreloader"[^>]*muted[^>]*playsinline[^>]*preload="auto"[^>]*hidden[^>]*aria-hidden="true"[^>]*tabindex="-1"/,
+  );
+  assert.match(app, /const scenePreloader = document\.querySelector\("#scenePreloader"\)/);
+  assert.match(
+    app,
+    /syncPreloadSource\(scenePreloader, getNextMediaSource\(state\.screen\)\)/,
+  );
+});
+
 test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="claimReward"[^>]*data-action="claim-reward"/);
   assert.match(html, /class="claim-label">点击领取/);
   assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
+});
+
+test("defers reward artwork until the completion scene", () => {
+  const deferred = html.match(/data-deferred-src="\.\/assets\/reward-bed\.png"/g) ?? [];
+  assert.equal(deferred.length, 3);
+  assert.doesNotMatch(
+    html,
+    /<img(?=[^>]*reward-bed\.png)[^>]*\ssrc="\.\/assets\/reward-bed\.png"/,
+  );
+  assert.match(
+    app,
+    /state\.screen === "completion"[\s\S]*ensureRewardImages\(\)/,
+  );
 });
 
 test("renders the approved meal preparation and meal-time actions", () => {
@@ -209,13 +291,16 @@ test("uses full-screen media and a warm transition veil", () => {
 });
 
 test("uses independent icon controls on a navigation-style meditation dock", () => {
-  assert.match(css, /\.primary-action\s*{[^}]*border:\s*1px[^}]*rgba\(255,\s*212,\s*42,\s*0\.82\)/s);
+  assert.match(
+    css,
+    /\.primary-action\s*{[^}]*border:\s*1px solid rgba\(255, 245, 181, 0\.88\)[^}]*background:\s*linear-gradient\(135deg, #f8d553, #e8ff66\)/s,
+  );
   assert.match(app, /aria-label="\$\{state\.isPaused \? "继续冥想" : "暂停冥想"\}"/);
   assert.match(app, /src="\.\/assets\/\$\{state\.isPaused \? "play" : "pause"\}\.svg"/);
   assert.match(app, /data-action="end" aria-label="结束冥想"/);
   assert.match(app, /src="\.\/assets\/stop\.svg"/);
   assert.match(css, /\.session-controls\s*{[^}]*width:\s*100%[^}]*height:\s*110px[^}]*gap:\s*12px/s);
-  assert.match(css, /\.session-controls\s*{[^}]*border-top:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*border-radius:\s*22px 22px 0 0/s);
+  assert.match(css, /\.session-controls\s*{[^}]*border-top:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*border-radius:\s*32px 32px 0 0/s);
   assert.match(css, /\.session-controls\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)[^}]*backdrop-filter:\s*blur\(18px\) saturate\(1\.2\)/s);
   assert.match(css, /\.session-control\s*{[^}]*width:\s*64px[^}]*height:\s*64px[^}]*border-radius:\s*50%/s);
   assert.match(css, /\.session-control img\s*{[^}]*width:\s*24px[^}]*height:\s*24px/s);
@@ -241,7 +326,7 @@ test("spreads one-shot reward confetti across the full viewport", () => {
 
 test("uses regular weight across the interface", () => {
   assert.match(css, /\.app-shell,\s*\.app-shell \*\s*{[^}]*font-weight:\s*400/s);
-  assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
+  assert.match(css, /\.task-details strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
 });
 
 test("shows a compact single-line growth base identity on subtle glass", () => {
@@ -275,7 +360,9 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
     assert.match(html, new RegExp(`class="nav-label">${label}<`));
   }
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
-  assert.match(app, /action === "nav-tap"[^\n]*button\.dataset\.nav !== "coach"[^\n]*敬请期待/);
+  assert.match(app, /nav === "trainer"[\s\S]*trainerBooking\.show\(\)/);
+  assert.match(app, /nav === "coach"[\s\S]*trainerBooking\.hide\(\)/);
+  assert.match(app, /else \{\s*showToast\("敬请期待"\)/);
   assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
   assert.doesNotMatch(
     css,
@@ -283,9 +370,15 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   );
   assert.match(css, /\.bottom-nav\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)/s);
   assert.match(css, /\.bottom-nav\s*{[^}]*padding:\s*8px/s);
-  assert.match(css, /\.nav-item\.is-active\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*border-radius:\s*32px 32px 0 0/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*--nav-indicator-x:\s*0%[^}]*isolation:\s*isolate/s);
+  assert.match(css, /\.bottom-nav::before\s*{[^}]*top:\s*8px[^}]*bottom:\s*8px[^}]*left:\s*8px[^}]*width:\s*calc\(\(100% - 16px\) \/ 6\)[^}]*border-radius:\s*999px[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)[^}]*transform:\s*translateX\(var\(--nav-indicator-x\)\)[^}]*transition:\s*transform 300ms cubic-bezier\(0\.22, 1\.18, 0\.36, 1\)/s);
+  assert.match(css, /\.nav-item\s*{[^}]*position:\s*relative[^}]*z-index:\s*1/s);
+  assert.match(css, /\.nav-item\.is-active\s*{[^}]*border-radius:\s*999px[^}]*background:\s*transparent/s);
   assert.match(css, /\.nav-item\.is-active \.nav-icon\s*{[^}]*color:\s*#fff[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
   assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#fff/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.bottom-nav::before\s*{[^}]*transition:\s*none !important/s);
+  assert.match(app, /function setActiveNavigation\(nav\)[\s\S]*activeIndex[\s\S]*--nav-indicator-x[\s\S]*`\$\{activeIndex \* 100\}%`/s);
   assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*76px[^}]*height:\s*98px[^}]*gap:\s*4px/s);
 });
 
@@ -300,8 +393,8 @@ test("uses compact content-sized primary controls", () => {
   );
 });
 
-test("gives the current meal icon a larger lifted frame", () => {
-  assert.match(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{[^}]*width:\s*88px[^}]*transform:\s*translateY\(-12px\)/s);
+test("keeps the current meal icon inside the shared current-card frame", () => {
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{/);
 });
 
 test("keeps motion fallbacks and a visible focus state for the claim bubble", () => {
@@ -310,17 +403,18 @@ test("keeps motion fallbacks and a visible focus state for the claim bubble", ()
   assert.match(css, /\.is-time-shifting \.demo-clock-track\s*{/);
 });
 
-test("task cards reserve a footer row for label and completion state", () => {
-  assert.match(app, /class="task-footer"/);
-  assert.match(css, /\.task-footer\s*{/);
-  assert.match(css, /gap:\s*2px/);
+test("task cards share the approved left-image right-copy structure", () => {
+  assert.match(app, /class="task-visual"[\s\S]*class="task-copy"/);
+  assert.match(app, /class="task-details"[\s\S]*<strong>\$\{label\}<\/strong>[\s\S]*class="task-reward/);
+  assert.match(css, /\.task-card\s*{[^}]*grid-template-columns:\s*40px minmax\(0,\s*1fr\)[^}]*column-gap:\s*7px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*grid-template-columns:\s*56px minmax\(0,\s*1fr\)[^}]*column-gap:\s*10px/s);
 });
 
 test("completed task cards use the Remix checkbox-circle SVG", () => {
   assert.doesNotMatch(app, />✓</);
   assert.match(app, /<svg class="check"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
   assert.match(app, /M12 22C6\.47715 22 2 17\.5228 2 12/);
-  assert.match(css, /\.task-card \.check\s*{[^}]*width:\s*16px[^}]*fill:\s*currentColor/s);
+  assert.match(css, /\.task-card \.check\s*{[^}]*position:\s*absolute[^}]*top:\s*6px[^}]*right:\s*6px[^}]*width:\s*18px[^}]*fill:\s*currentColor/s);
 });
 
 test("current card uses the approved diagonal glass gradient without an outline", () => {
@@ -333,6 +427,62 @@ test("supporting recommendation copy uses regular weight", () => {
   assert.match(css, /\.supporting\s*{[^}]*font-weight:\s*400/s);
 });
 
+test("renders the approved greeting and lightweight daily goal copy", () => {
+  assert.match(app, /\$\{getGreeting\(new Date\(\)\.getHours\(\)\)\}，Maggie/);
+  assert.match(app, /今日任务 \$\{progress\}\/4，\$\{status\}/);
+  assert.match(app, /progress === 4 \? "帐篷营地已获得" : "完成可获得帐篷营地"/);
+  assert.doesNotMatch(app, /growth-dots/);
+  assert.match(css, /\.growth-cue\s*{[^}]*font-size:\s*12px[^}]*font-weight:\s*400/s);
+  assert.doesNotMatch(css, /\.growth-cue\s*{[^}]*background:/s);
+});
+
+test("keeps rewards in every card and places status at top-left", () => {
+  assert.match(app, /class="task-reward reward-\$\{reward\.attribute\}"/);
+  assert.match(app, /<small>\$\{reward\.label\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
+  assert.doesNotMatch(app, /\$\{!done \? `<span class="task-reward/);
+  assert.match(css, /\.current-label\s*{[^}]*top:\s*7px[^}]*left:\s*7px/s);
+});
+
+test("uses the approved copy spacing and right padding", () => {
+  assert.match(css, /\.task-card\s*{[^}]*padding:\s*8px 10px 8px 8px/s);
+  assert.match(css, /\.task-details\s*{[^}]*gap:\s*3px/s);
+  assert.match(css, /\.is-current \.task-details\s*{[^}]*gap:\s*4px/s);
+  assert.match(css, /\.task-reward\s*{[^}]*font-size:\s*10px[^}]*white-space:\s*nowrap/s);
+});
+
+test("provides a persistent collectible growth bubble layer", () => {
+  assert.match(html, /id="growthBubbleLayer"[^>]*aria-label="待领取成长奖励"/);
+  assert.match(app, /getVisibleBubbles\(growthState\)/);
+  assert.match(app, /data-action="collect-growth"/);
+  assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
+});
+
+test("persists one growth envelope and adds the meditation reward once", () => {
+  assert.match(app, /const GROWTH_KEY = "growth-base\.growth-state"/);
+  assert.match(app, /window\.localStorage\.setItem\(GROWTH_KEY, JSON\.stringify\(nextState\)\)/);
+  assert.match(app, /addTaskReward\(growthState,[\s\S]*id: `\$\{dateKey\}:meditation`/);
+  assert.match(app, /collectBubble\(growthState, rewardIds\)/);
+});
+
+test("uses the approved attached gradient bubble rim and palette", () => {
+  assert.match(css, /\.growth-bubble\s*{[^}]*width:\s*62px[^}]*84%/s);
+  assert.match(css, /\.growth-bubble::before\s*{[^}]*inset:\s*-2px[^}]*padding:\s*2px[^}]*conic-gradient/s);
+  assert.match(css, /\.bubble-focus\s*{[^}]*#c5cec8/i);
+  assert.match(css, /\.bubble-vitality\s*{[^}]*#e58a63/i);
+  assert.match(css, /\.bubble-stamina\s*{[^}]*#ddb64c/i);
+});
+
+test("floats growth bubbles visibly with staggered vertical motion", () => {
+  assert.match(css, /\.growth-bubble\.anchor-1\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*4\.8s/s);
+  assert.match(css, /\.growth-bubble\.anchor-2\s*{[^}]*--float-y:\s*-8px[^}]*--float-duration:\s*6\.1s/s);
+  assert.match(css, /\.growth-bubble\.anchor-3\s*{[^}]*--float-y:\s*-7px[^}]*--float-duration:\s*5\.4s/s);
+  assert.match(css, /\.growth-bubble\.anchor-4\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*5s/s);
+  assert.match(css, /@keyframes growth-bubble-float[\s\S]*translate3d\(0,\s*var\(--float-y\),\s*0\)/);
+  assert.doesNotMatch(css, /@keyframes growth-bubble-float\s*{[^@]*scale\(/s);
+  assert.match(css, /@keyframes collect-growth-bubble[\s\S]*translate3d\(var\(--collect-x\),\s*var\(--collect-y\),\s*0\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.growth-bubble[\s\S]*animation:\s*none !important/s);
+});
+
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);
@@ -341,25 +491,23 @@ test("uses a true regular title face and leaves room above the task rail", () =>
   assert.match(css, /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)[\s\S]*\.action-zone\s*{[^}]*bottom:\s*202px/s);
 });
 
-test("current task icon is lifted clear of its label", () => {
-  assert.match(
-    css,
-    /\.is-current \.task-visual\s*{[^}]*width:\s*72px[^}]*height:\s*56px[^}]*transform:\s*translateY\(-12px\)/s,
-  );
+test("current and small cards preserve the same horizontal information order", () => {
+  assert.match(css, /\.task-visual\s*{[^}]*width:\s*40px[^}]*height:\s*40px/s);
+  assert.match(css, /\.is-current \.task-visual\s*{[^}]*width:\s*56px[^}]*height:\s*56px/s);
+  assert.doesNotMatch(css, /\.is-current \.task-visual\s*{[^}]*transform:/s);
 });
 
-test("small task cards use one centered icon frame without row gaps", () => {
+test("task icon variants stay inside the shared horizontal frame", () => {
   assert.match(app, /data-task-icon="\$\{icon\}"/);
-  assert.match(css, /\.task-card\s*{[^}]*row-gap:\s*0/s);
   assert.doesNotMatch(css, /\n\[data-task-icon="fitness"\] \.task-visual\s*{/);
-  assert.match(css, /\.task-visual\s*{[^}]*width:\s*39px[^}]*height:\s*31px[^}]*place-items:\s*center/s);
-  assert.match(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{[^}]*width:\s*76px/s);
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="fitness"\] \.task-visual\s*{/);
+  assert.doesNotMatch(css, /\.is-current\[data-task-icon="meal"\] \.task-visual\s*{/);
 });
 
-test("uses the approved compact schedule dimensions", () => {
-  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 73px\) 5px/s);
-  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 88px[^}]*width:\s*88px[^}]*height:\s*70px[^}]*border-radius:\s*14px/s);
-  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*146px[^}]*width:\s*146px[^}]*height:\s*88px/s);
+test("uses the approved C2 schedule dimensions", () => {
+  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 75px\) 5px/s);
+  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 118px[^}]*width:\s*118px[^}]*height:\s*72px[^}]*border-radius:\s*14px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*150px[^}]*width:\s*150px[^}]*height:\s*88px/s);
 });
 
 test("styles reward settling without standalone character CSS", () => {

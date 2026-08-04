@@ -71,6 +71,21 @@ test("builds seven tasks with meditation as the initial current task", () => {
   );
 });
 
+test("maps every scheduled task to its approved growth reward", () => {
+  assert.deepEqual(
+    buildSchedule("recommendation").map(({ id, reward }) => ({ id, ...reward })),
+    [
+      { id: "water-am", attribute: "vitality", label: "活力", value: 10 },
+      { id: "lunch", attribute: "stamina", label: "体力", value: 10 },
+      { id: "meditation", attribute: "focus", label: "专注", value: 10 },
+      { id: "dinner", attribute: "stamina", label: "体力", value: 10 },
+      { id: "water-pm", attribute: "vitality", label: "活力", value: 10 },
+      { id: "fitness", attribute: "vitality", label: "活力", value: 10 },
+      { id: "stretch", attribute: "vitality", label: "活力", value: 10 },
+    ],
+  );
+});
+
 test("promotes dinner while the reward settles and through meal preparation", () => {
   const settledSchedule = buildSchedule("reward-settled");
   assert.equal(settledSchedule[2].status, "done");
