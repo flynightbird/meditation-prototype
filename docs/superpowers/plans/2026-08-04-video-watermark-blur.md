@@ -132,6 +132,8 @@ Add these declarations to `:root` after the easing variables:
 
 Insert the shared rules after `.media-failed .scene-video`:
 
+Use an elliptical radial fade so it reaches every edge of the shallow `17%` by `5.5%` mask without leaving a visible clipped tab.
+
 ```css
 .has-media.app-shell::before,
 .has-media.app-shell::after,
@@ -162,8 +164,8 @@ Insert the shared rules after `.media-failed .scene-video`:
   top: var(--watermark-mask-inset);
   left: var(--watermark-mask-inset);
   border-radius: 0 0 10px;
-  mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
 }
 
 .has-media.app-shell::after,
@@ -171,8 +173,8 @@ Insert the shared rules after `.media-failed .scene-video`:
   right: var(--watermark-mask-inset);
   bottom: var(--watermark-mask-inset);
   border-radius: 10px 0 0;
-  mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
 }
 ```
 
