@@ -102,6 +102,28 @@ test("links the complete store row to map navigation", () => {
   assert.match(css, /\.trainer-store:active\s*{[^}]*transform:\s*translateY\(1px\)/s);
 });
 
+test("polishes store hierarchy and supporting trainer details", () => {
+  for (const sequence of ["01", "02", "03"]) {
+    assert.match(html, new RegExp(`<b aria-hidden="true">${sequence}<\\/b>`));
+  }
+  assert.equal((html.match(/class="store-nearest"/g) ?? []).length, 1);
+  assert.match(html, /<span class="store-nearest">最近<\/span><span>南浦大桥店<\/span>/);
+  assert.match(html, /<p>南浦一路111号一层<\/p>/);
+  assert.match(html, /class="store-hours">10:00–24:00<\/span>/);
+  assert.match(html, /class="store-features">私教体验 · 体态检测<\/span>/);
+  assert.match(html, /class="store-distance"><span>756m<\/span><i aria-hidden="true">›<\/i><\/span>/);
+  assert.doesNotMatch(html, /756m · 南浦一路111号一层/);
+  assert.match(css, /\.store-row\s*{[^}]*grid-template-columns:\s*20px minmax\(0, 1fr\) auto[^}]*min-height:\s*82px/s);
+  assert.match(css, /\.store-row > b\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.3\)[^}]*font-size:\s*10px[^}]*font-variant-numeric:\s*tabular-nums/s);
+  assert.match(css, /\.store-nearest\s*{[^}]*border:\s*1px solid rgba\(248, 213, 83, 0\.22\)[^}]*color:\s*#f8d553[^}]*background:\s*rgba\(248, 213, 83, 0\.1\)[^}]*font-size:\s*8px/s);
+  assert.match(css, /\.store-distance\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*3px[^}]*align-self:\s*center[^}]*font-size:\s*10px/s);
+  assert.match(css, /\.store-distance i\s*{[^}]*font-size:\s*16px/s);
+  assert.match(css, /\.store-hours\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.34\)[^}]*font-size:\s*9px[^}]*font-weight:\s*400/s);
+  assert.match(css, /\.store-features\s*{[^}]*color:\s*rgba\(255, 250, 243, 0\.58\)[^}]*font-size:\s*9\.5px[^}]*font-weight:\s*500/s);
+  assert.match(css, /\.booking-heading span\s*{[^}]*color:\s*var\(--trainer-text-muted\)/s);
+  assert.match(css, /\.trainer-credential-icon\s*{[^}]*margin:\s*0 auto 7px/s);
+});
+
 test("omits redundant schedule labels", () => {
   assert.doesNotMatch(html, />可约时间</);
   assert.doesNotMatch(html, />已选择/);
@@ -205,7 +227,7 @@ test("positions the trainer behind the booking card and strengthens store cues",
   assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
   assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
   assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
-  assert.match(css, /\.store-row > span\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*32px/s);
+  assert.match(css, /\.store-distance\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*10px/s);
   assert.match(css, /\.store-list \.store-row:first-child\s*{[^}]*border-top:\s*0/s);
 });
 
