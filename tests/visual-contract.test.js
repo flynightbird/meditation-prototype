@@ -501,6 +501,7 @@ test("renders three non-interactive growth stats in the Figma order", () => {
 test("uses fixed Figma-sized glass stats hidden on trainer and active-countdown views", () => {
   assert.match(css, /\.growth-stat-main\s*{[^}]*width:\s*40px[^}]*height:\s*40px[^}]*border-radius:\s*14px/s);
   assert.match(css, /\.growth-stats\s*{[^}]*right:\s*20px[^}]*display:\s*grid/s);
+  assert.doesNotMatch(getCssRule(css, ".growth-stats")?.block ?? "", /transition\s*:/);
   assert.match(css, /\.is-trainer-view \.growth-stats\s*{[^}]*display:\s*none/s);
 
   const activeSelector = '.app-shell[data-screen="active"] .growth-stats';
