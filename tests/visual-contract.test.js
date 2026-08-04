@@ -513,7 +513,8 @@ test("flies bubbles to their live stat target before committing", () => {
 test("rolls old value through icon plus increment to the new total", () => {
   assert.match(app, /growth-stat-roll-track/);
   assert.match(app, /growth-stat-roll-increment[^>]*>[\s\S]*\+\$\{increment\}/);
-  assert.match(css, /@keyframes growth-stat-roll[\s\S]*translateY\(-66\.666%\)/);
+  assert.match(css, /\.growth-stat-roll-track\s*{[^}]*height:\s*120px/s);
+  assert.match(css, /@keyframes growth-stat-roll[\s\S]*translateY\(-80px\)/);
   assert.match(css, /\.growth-stat-main\.is-rolling \.growth-stat-roll-track/);
 });
 
