@@ -518,6 +518,15 @@ test("uses the approved attached gradient bubble rim and palette", () => {
   assert.match(css, /\.bubble-stamina\s*{[^}]*#ddb64c/i);
 });
 
+test("keeps large collectible values inside the fixed bubble", () => {
+  const bubbleValue = css.match(/(?:^|})\s*(\.growth-bubble strong\s*{[^}]*})/s)?.[1] ?? "";
+
+  assert.match(bubbleValue, /max-width:\s*48px/);
+  assert.match(bubbleValue, /overflow:\s*hidden/);
+  assert.match(bubbleValue, /text-overflow:\s*ellipsis/);
+  assert.match(bubbleValue, /white-space:\s*nowrap/);
+});
+
 test("floats growth bubbles visibly with staggered vertical motion", () => {
   assert.match(css, /\.growth-bubble\.anchor-1\s*{[^}]*--float-y:\s*-6px[^}]*--float-duration:\s*4\.8s/s);
   assert.match(css, /\.growth-bubble\.anchor-2\s*{[^}]*--float-y:\s*-8px[^}]*--float-duration:\s*6\.1s/s);
