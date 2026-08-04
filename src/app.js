@@ -1,4 +1,11 @@
-import { buildSchedule, getGreeting, getLocalDateKey, shouldPlayDailyWelcome } from "./experience.js";
+import {
+  buildSchedule,
+  canPlayAutomaticHaptic,
+  getGreeting,
+  getLocalDateKey,
+  shouldPlayDailyWelcome,
+} from "./experience.js";
+import { setupPortfolioShowcase } from "./portfolio-showcase.js";
 import {
   getMediaScene,
   getReplayTime,
@@ -386,8 +393,12 @@ function render(animate = true) {
     }
     actionZone.innerHTML = `
       <div class="session-controls" role="group" aria-label="冥想控制">
-        <button data-action="pause" aria-pressed="${state.isPaused}">${state.isPaused ? "继续" : "暂停"}</button>
-        <button data-action="end">结束</button>
+        <button class="session-control session-control-primary" data-action="pause" aria-label="${state.isPaused ? "继续冥想" : "暂停冥想"}" aria-pressed="${state.isPaused}">
+          <img src="./assets/${state.isPaused ? "play" : "pause"}.svg" alt="" aria-hidden="true" />
+        </button>
+        <button class="session-control session-control-secondary" data-action="end" aria-label="结束冥想">
+          <img src="./assets/stop.svg" alt="" aria-hidden="true" />
+        </button>
       </div>`;
   }
 
@@ -491,7 +502,9 @@ function setupDailyWelcome() {
   welcomeOverlay.hidden = false;
   app.classList.add("is-welcoming");
   window.requestAnimationFrame(() => welcomeOverlay.classList.add("is-playing"));
-  welcomeHapticTimer = window.setTimeout(() => navigator.vibrate?.(10), 680);
+  welcomeHapticTimer = window.setTimeout(() => {
+    if (canPlayAutomaticHaptic(navigator.userActivation)) navigator.vibrate?.(10);
+  }, 680);
   welcomeTimer = window.setTimeout(finishWelcome, 2050);
 }
 
@@ -555,3 +568,4 @@ app.addEventListener("click", (event) => {
 
 render(false);
 setupDailyWelcome();
+setupPortfolioShowcase({ app, reducedMotion });

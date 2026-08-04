@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   buildSchedule,
+  canPlayAutomaticHaptic,
   getGreeting,
   getLocalDateKey,
   shouldPlayDailyWelcome,
@@ -44,6 +45,13 @@ test("plays the welcome once per day unless motion is reduced", () => {
     }),
     false,
   );
+});
+
+test("allows automatic haptics only after prior user activation", () => {
+  assert.equal(canPlayAutomaticHaptic(), false);
+  assert.equal(canPlayAutomaticHaptic(null), false);
+  assert.equal(canPlayAutomaticHaptic({ hasBeenActive: false }), false);
+  assert.equal(canPlayAutomaticHaptic({ hasBeenActive: true }), true);
 });
 
 test("builds seven tasks with meditation as the initial current task", () => {

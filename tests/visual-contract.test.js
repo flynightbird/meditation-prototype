@@ -6,6 +6,90 @@ const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
+function getBraceBlock(source, startToken) {
+  const start = source.indexOf(startToken);
+  if (start === -1) return null;
+
+  const open = source.indexOf("{", start + startToken.length);
+  if (open === -1) return null;
+
+  return getBraceBlockAt(source, open, start);
+}
+
+function getBraceBlockAt(source, open, start = open) {
+  let depth = 0;
+  for (let index = open; index < source.length; index += 1) {
+    if (source[index] === "{") depth += 1;
+    if (source[index] === "}") depth -= 1;
+    if (depth === 0) return source.slice(start, index + 1);
+  }
+
+  return null;
+}
+
+function getCssRule(source, selector) {
+  const normalizedSelector = selector.trim().replace(/\s+/g, " ");
+  let headerStart = 0;
+
+  for (let index = 0; index < source.length; index += 1) {
+    if (source[index] === "{") {
+      const header = source.slice(headerStart, index).trim();
+      const selectors = header.split(",").map((item) => item.trim().replace(/\s+/g, " "));
+      const block = getBraceBlockAt(source, index, headerStart);
+      if (selectors.includes(normalizedSelector) && block) return { selectors, block };
+      headerStart = index + 1;
+    } else if (source[index] === "}") {
+      headerStart = index + 1;
+    }
+  }
+
+  return null;
+}
+
+function getMarkup(source) {
+  return source
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, "")
+    .replace(/<style\b[\s\S]*?<\/style\s*>/gi, "");
+}
+
+function getOpeningTags(source, tagName = "[a-z][\\w:-]*") {
+  return getMarkup(source).match(new RegExp(`<${tagName}\\b[^>]*>`, "gi")) ?? [];
+}
+
+function getElementBlock(source, openingTag) {
+  const markup = getMarkup(source);
+  const start = markup.indexOf(openingTag);
+  const name = openingTag.match(/^<([a-z][\w:-]*)\b/i)?.[1];
+  if (start === -1 || !name) return null;
+
+  const tags = new RegExp(`<\\/?${name}\\b[^>]*>`, "gi");
+  tags.lastIndex = start;
+  let depth = 0;
+  let match;
+  while ((match = tags.exec(markup))) {
+    depth += match[0].startsWith("</") ? -1 : 1;
+    if (depth === 0) return markup.slice(start, tags.lastIndex);
+  }
+
+  return null;
+}
+
+function getAttribute(tag, name) {
+  const attribute = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = tag.match(new RegExp(`(?:^|\\s)${attribute}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>\\x60]+))`, "i"));
+  return match ? match[1] ?? match[2] ?? match[3] : null;
+}
+
+function hasBooleanAttribute(tag, name) {
+  const attribute = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\s${attribute}(?=\\s|=|/?>)`, "i").test(tag);
+}
+
+function hasClass(tag, className) {
+  return (getAttribute(tag, "class") ?? "").split(/\s+/).includes(className);
+}
+
 test("uses video as the only large IP carrier", () => {
   assert.doesNotMatch(html, /class="character-stage"|id="character"/);
   assert.doesNotMatch(app, /assets\/ip-(lift|meditate|stretch|walk)\.png/);
@@ -16,6 +100,26 @@ test("uses video as the only large IP carrier", () => {
       `${name} should be removed`,
     );
   }
+});
+
+test("declares an existing favicon so browser startup has no missing resource", () => {
+  const faviconTag = getOpeningTags(html, "link").find(
+    (tag) => (getAttribute(tag, "rel") ?? "").split(/\s+/).includes("icon"),
+  );
+
+  assert.ok(faviconTag, "document should declare a favicon");
+  const href = getAttribute(faviconTag, "href");
+  assert.ok(href?.startsWith("./assets/"), "favicon should use a local asset");
+  assert.equal(existsSync(new URL(`../${href.slice(2)}`, import.meta.url)), true);
+});
+
+test("versions the stylesheet so static previews do not retain stale portfolio CSS", () => {
+  const stylesheetTag = getOpeningTags(html, "link").find(
+    (tag) => (getAttribute(tag, "rel") ?? "").split(/\s+/).includes("stylesheet"),
+  );
+
+  assert.ok(stylesheetTag);
+  assert.match(getAttribute(stylesheetTag, "href") ?? "", /^\.\/src\/styles\.css\?v=\d{8}-[a-z0-9-]+$/);
 });
 
 test("provides one reusable full-screen media layer", () => {
@@ -104,10 +208,17 @@ test("uses full-screen media and a warm transition veil", () => {
   assert.match(css, /\.is-media-veiled \.media-transition\s*{[^}]*opacity:\s*1/s);
 });
 
-test("uses outlined translucent yellow and black controls", () => {
+test("uses independent icon controls on a navigation-style meditation dock", () => {
   assert.match(css, /\.primary-action\s*{[^}]*border:\s*1px[^}]*rgba\(255,\s*212,\s*42,\s*0\.82\)/s);
-  assert.match(css, /\.session-controls\s*{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255/s);
-  assert.match(css, /\.session-controls button:last-child\s*{[^}]*rgba\(24,\s*16,\s*12,\s*0\.74\)/s);
+  assert.match(app, /aria-label="\$\{state\.isPaused \? "继续冥想" : "暂停冥想"\}"/);
+  assert.match(app, /src="\.\/assets\/\$\{state\.isPaused \? "play" : "pause"\}\.svg"/);
+  assert.match(app, /data-action="end" aria-label="结束冥想"/);
+  assert.match(app, /src="\.\/assets\/stop\.svg"/);
+  assert.match(css, /\.session-controls\s*{[^}]*width:\s*100%[^}]*height:\s*110px[^}]*gap:\s*12px/s);
+  assert.match(css, /\.session-controls\s*{[^}]*border-top:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*border-radius:\s*22px 22px 0 0/s);
+  assert.match(css, /\.session-controls\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)[^}]*backdrop-filter:\s*blur\(18px\) saturate\(1\.2\)/s);
+  assert.match(css, /\.session-control\s*{[^}]*width:\s*64px[^}]*height:\s*64px[^}]*border-radius:\s*50%/s);
+  assert.match(css, /\.session-control img\s*{[^}]*width:\s*24px[^}]*height:\s*24px/s);
 });
 
 test("places the claim label inside a face-safe reward bubble", () => {
@@ -133,6 +244,19 @@ test("uses regular weight across the interface", () => {
   assert.match(css, /\.task-footer strong,[\s\S]*\.task-card \.check\s*{[^}]*font-weight:\s*400/s);
 });
 
+test("shows a compact single-line growth base identity on subtle glass", () => {
+  assert.match(
+    html,
+    /class="streak-primary">连续18天<[\s\S]*class="streak-divider">·<[\s\S]*class="base-level">成长基地\s*<strong>Lv\.2<\/strong>/,
+  );
+  assert.match(css, /\.streak\s*{[^}]*display:\s*flex[^}]*min-height:\s*32px[^}]*padding:\s*0 10px 0 8px/s);
+  assert.match(css, /\.streak\s*{[^}]*border-radius:\s*12px[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*backdrop-filter:\s*blur\(10px\)/s);
+  assert.match(css, /\.streak-primary\s*{[^}]*font-size:\s*12px[^}]*line-height:\s*16px/s);
+  assert.match(css, /\.base-level\s*{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.74\)[^}]*font-size:\s*11px[^}]*line-height:\s*16px/s);
+  assert.match(css, /\.base-level strong\s*{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.92\)[^}]*font-weight:\s*400/s);
+  assert.doesNotMatch(css, /\.streak\s*{[^}]*border:/s);
+});
+
 test("uses regular Chill Round for display and task copy only", () => {
   assert.match(
     css,
@@ -152,13 +276,17 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   }
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
   assert.match(app, /action === "nav-tap"[^\n]*button\.dataset\.nav !== "coach"[^\n]*敬请期待/);
-  assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*74px/s);
+  assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
+  assert.doesNotMatch(
+    css,
+    /@media \(max-width:\s*374px\)[\s\S]*?\.bottom-nav\s*{[^}]*right:\s*16px[^}]*left:\s*16px/s,
+  );
   assert.match(css, /\.bottom-nav\s*{[^}]*background:\s*rgba\(20,\s*13,\s*9,\s*0\.72\)/s);
   assert.match(css, /\.bottom-nav\s*{[^}]*padding:\s*8px/s);
   assert.match(css, /\.nav-item\.is-active\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)/s);
   assert.match(css, /\.nav-item\.is-active \.nav-icon\s*{[^}]*color:\s*#fff[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
   assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#fff/s);
-  assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*80px[^}]*height:\s*102px[^}]*gap:\s*10px/s);
+  assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*76px[^}]*height:\s*98px[^}]*gap:\s*4px/s);
 });
 
 test("uses compact content-sized primary controls", () => {
@@ -170,7 +298,6 @@ test("uses compact content-sized primary controls", () => {
     css,
     /\.glass-action\s*{[^}]*min-width:\s*150px[^}]*min-height:\s*46px[^}]*padding:\s*0 24px/s,
   );
-  assert.match(css, /\.session-controls button\s*{[^}]*min-height:\s*46px/s);
 });
 
 test("gives the current meal icon a larger lifted frame", () => {
@@ -209,9 +336,9 @@ test("supporting recommendation copy uses regular weight", () => {
 test("uses a true regular title face and leaves room above the task rail", () => {
   assert.match(css, /\.message h1\s*{[^}]*font-family:\s*var\(--display\)/s);
   assert.match(css, /\.message\s*{[^}]*top:\s*80px/s);
-  assert.match(css, /@media \(max-height:\s*790px\)[\s\S]*\.message\s*{[^}]*top:\s*72px/s);
+  assert.match(css, /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)[\s\S]*\.message\s*{[^}]*top:\s*72px/s);
   assert.match(css, /\.action-zone\s*{[^}]*bottom:\s*202px/s);
-  assert.match(css, /@media \(max-height:\s*790px\)[\s\S]*\.action-zone\s*{[^}]*bottom:\s*202px/s);
+  assert.match(css, /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)[\s\S]*\.action-zone\s*{[^}]*bottom:\s*202px/s);
 });
 
 test("current task icon is lifted clear of its label", () => {
@@ -230,9 +357,9 @@ test("small task cards use one centered icon frame without row gaps", () => {
 });
 
 test("uses the approved compact schedule dimensions", () => {
-  assert.match(css, /\.task-rail\s*{[^}]*height:\s*102px/s);
-  assert.match(css, /\.task-card\s*{[^}]*height:\s*72px/s);
-  assert.match(css, /\.task-card\.is-current\s*{[^}]*height:\s*90px/s);
+  assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 73px\) 5px/s);
+  assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 88px[^}]*width:\s*88px[^}]*height:\s*70px[^}]*border-radius:\s*14px/s);
+  assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*146px[^}]*width:\s*146px[^}]*height:\s*88px/s);
 });
 
 test("styles reward settling without standalone character CSS", () => {
@@ -241,4 +368,119 @@ test("styles reward settling without standalone character CSS", () => {
   assert.match(css, /\.is-tent-dropping \.reward-object\s*{/);
   assert.match(css, /\.is-settled-components-visible\[data-screen="reward-settled"\] \.message/);
   assert.match(css, /\.reward-object\s*{[^}]*bottom:\s*188px/s);
+});
+
+test("provides one interactive app inside a desktop portfolio shell", () => {
+  const allTags = getOpeningTags(html);
+  const portfolioPage = allTags.find((tag) => hasClass(tag, "portfolio-page"));
+  const portfolioHero = allTags.find((tag) => hasClass(tag, "portfolio-hero"));
+  const beforeImage = allTags.find((tag) => getAttribute(tag, "id") === "portfolioBeforeImage");
+  const deviceFrame = allTags.find((tag) => hasClass(tag, "device-frame"));
+  const apps = allTags.filter((tag) => getAttribute(tag, "id") === "app");
+
+  assert.ok(portfolioPage);
+  assert.ok(portfolioHero);
+  assert.ok(beforeImage);
+  assert.ok(deviceFrame);
+  assert.equal(apps.length, 1);
+  assert.match(apps[0], /^<main\b/i);
+  assert.equal(hasClass(apps[0], "app-shell"), true);
+
+  const deviceFrameBlock = getElementBlock(html, deviceFrame);
+  assert.ok(deviceFrameBlock?.includes(apps[0]));
+});
+
+test("keeps the mobile app free of a named portfolio region", () => {
+  const portfolioHero = getOpeningTags(html, "section").find((tag) => hasClass(tag, "portfolio-hero"));
+
+  assert.ok(portfolioHero);
+  assert.equal(getAttribute(portfolioHero, "aria-labelledby"), null);
+  assert.notEqual(getAttribute(portfolioHero, "role"), "region");
+});
+
+test("uses both before assets and all five experience videos", () => {
+  for (const name of ["before-ai-coach.jpg", "before-private-trainer.jpg"]) {
+    assert.equal(existsSync(new URL(`../assets/${name}`, import.meta.url)), true);
+  }
+  const expectedVideos = [
+    "video-greeting.mp4",
+    "video-meditation.mp4",
+    "video-meditation-complete.mp4",
+    "video-meal-prep.mp4",
+    "video-meal-cook.mp4",
+  ];
+  const clips = getOpeningTags(html, "video").filter((tag) => hasClass(tag, "portfolio-video"));
+  const videoSources = clips.map((tag) => getAttribute(tag, "src"));
+
+  assert.deepEqual([...videoSources].sort(), [...expectedVideos.map((name) => `./assets/${name}`)].sort());
+});
+
+test("defers the hidden before image on mobile", () => {
+  const beforeImage = getOpeningTags(html, "img").find((tag) => getAttribute(tag, "id") === "portfolioBeforeImage");
+
+  assert.ok(beforeImage);
+  assert.equal(getAttribute(beforeImage, "loading"), "lazy");
+  assert.equal(getAttribute(beforeImage, "width"), "1179");
+  assert.equal(getAttribute(beforeImage, "height"), "2556");
+});
+
+test("keeps portfolio presentation desktop-only", () => {
+  const mobileShell = getCssRule(css, ".portfolio-page");
+  const mobileMedia = getCssRule(css, ".portfolio-before");
+  const desktop = getBraceBlock(css, "@media (min-width: 900px)");
+
+  assert.equal(mobileShell?.selectors.includes(".portfolio-page"), true);
+  assert.equal(mobileShell?.selectors.includes(".portfolio-hero"), true);
+  assert.match(mobileShell?.block ?? "", /{[^}]*display:\s*contents/s);
+  assert.equal(mobileMedia?.selectors.includes(".portfolio-before"), true);
+  assert.equal(mobileMedia?.selectors.includes(".portfolio-videos"), true);
+  assert.match(mobileMedia?.block ?? "", /{[^}]*display:\s*none/s);
+  assert.ok(desktop);
+  const desktopPage = getCssRule(desktop, ".portfolio-page");
+  const desktopHero = getCssRule(desktop, ".portfolio-hero");
+  assert.equal(desktopPage?.selectors.includes(".portfolio-page"), true);
+  assert.match(desktopPage?.block ?? "", /{[^}]*display:\s*block/s);
+  assert.equal(desktopHero?.selectors.includes(".portfolio-hero"), true);
+  assert.match(desktopHero?.block ?? "", /{[^}]*min-height:\s*100dvh/s);
+});
+
+test("makes portfolio videos controllable and defers full loading", () => {
+  const expectedLabels = new Map([
+    ["./assets/video-greeting.mp4", "欢迎与进入体验视频"],
+    ["./assets/video-meditation.mp4", "冥想过程体验视频"],
+    ["./assets/video-meditation-complete.mp4", "完成反馈体验视频"],
+    ["./assets/video-meal-prep.mp4", "饮食准备体验视频"],
+    ["./assets/video-meal-cook.mp4", "烹饪行动体验视频"],
+  ]);
+  const clips = getOpeningTags(html, "video").filter((tag) => hasClass(tag, "portfolio-video"));
+
+  assert.equal(clips.length, 5);
+  for (const clip of clips) {
+    assert.equal(hasBooleanAttribute(clip, "controls"), true);
+    assert.equal(hasBooleanAttribute(clip, "muted"), true);
+    assert.equal(hasBooleanAttribute(clip, "loop"), true);
+    assert.equal(hasBooleanAttribute(clip, "playsinline"), true);
+    assert.equal(getAttribute(clip, "preload"), "none");
+    assert.equal(getAttribute(clip, "aria-label"), expectedLabels.get(getAttribute(clip, "src")));
+    assert.equal(hasBooleanAttribute(clip, "autoplay"), false);
+  }
+});
+
+test("pins video captions to the bottom and masks the source watermark", () => {
+  const desktop = getBraceBlock(css, "@media (min-width: 900px)");
+  assert.ok(desktop);
+
+  const caption = getCssRule(desktop, ".portfolio-clip figcaption");
+  const watermarkMask = getCssRule(desktop, ".portfolio-clip::after");
+
+  assert.match(caption?.block ?? "", /bottom:\s*0(?:px)?\s*;/);
+  assert.match(caption?.block ?? "", /pointer-events:\s*none\s*;/);
+  assert.match(watermarkMask?.block ?? "", /right:\s*0(?:px)?\s*;/);
+  assert.match(watermarkMask?.block ?? "", /bottom:\s*0(?:px)?\s*;/);
+  assert.match(watermarkMask?.block ?? "", /backdrop-filter:\s*blur\(/);
+  assert.match(watermarkMask?.block ?? "", /pointer-events:\s*none\s*;/);
+});
+
+test("keeps compact mobile layout adjustments out of desktop samples", () => {
+  assert.match(css, /@media\s*\(max-width:\s*899px\)\s*and\s*\(max-height:\s*790px\)/);
 });

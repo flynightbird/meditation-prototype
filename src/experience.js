@@ -30,6 +30,10 @@ export function shouldPlayDailyWelcome({
   return !reducedMotion && lastSeenKey !== currentKey;
 }
 
+export function canPlayAutomaticHaptic(userActivation) {
+  return userActivation?.hasBeenActive === true;
+}
+
 export function buildSchedule(screen) {
   const dinnerCurrent = ["reward-settled", "meal-prep", "demo-time-shift", "meal-time"].includes(screen);
   return BASE_SCHEDULE.map((task, index) => {
