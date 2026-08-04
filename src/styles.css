@@ -134,8 +134,8 @@ button:focus-visible {
   top: var(--watermark-mask-inset);
   left: var(--watermark-mask-inset);
   border-radius: 0 0 10px;
-  mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at top left, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at top left, #000 0 52%, transparent 100%);
 }
 
 .has-media.app-shell::after,
@@ -143,8 +143,8 @@ button:focus-visible {
   right: var(--watermark-mask-inset);
   bottom: var(--watermark-mask-inset);
   border-radius: 10px 0 0;
-  mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at bottom right, #000 0 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at bottom right, #000 0 52%, transparent 100%);
 }
 
 .media-transition {
