@@ -108,14 +108,15 @@ test("polishes store hierarchy and supporting trainer details", () => {
   }
   assert.equal((html.match(/class="store-nearest"/g) ?? []).length, 1);
   assert.match(html, /<span class="store-nearest">最近<\/span><span>南浦大桥店<\/span>/);
-  for (const address of ["南浦一路111号一层", "前海路99号B1层", "望海路1187号商业中心"]) {
-    assert.match(html, new RegExp(`<p>${address}<\\/p>`));
-  }
-  for (const hours of ["10:00–24:00", "09:00–22:00", "10:00–21:30"]) {
-    assert.match(html, new RegExp(`class="store-hours">${hours}<\\/span>`));
-  }
-  for (const features of ["私教体验 · 体态检测", "私教体验 · 停车方便", "体态检测 · 停车方便"]) {
-    assert.match(html, new RegExp(`class="store-features">${features}<\\/span>`));
+  for (const [name, status, address, hours, features, distance] of [
+    ["南浦大桥店", "营业中", "南浦一路111号一层", "10:00–24:00", "私教体验 · 体态检测", "756m"],
+    ["前海湾旗舰店", "营业中", "前海路99号B1层", "09:00–22:00", "私教体验 · 停车方便", "2.8km"],
+    ["海上世界店", "已打烊", "望海路1187号商业中心", "10:00–21:30", "体态检测 · 停车方便", "4.1km"],
+  ]) {
+    assert.match(
+      html,
+      new RegExp(`<span>${name}<\\/span><em>${status}<\\/em><\\/h3>\\s*<p>${address}<\\/p>\\s*<small><span class="store-hours">${hours}<\\/span><span class="store-detail-separator" aria-hidden="true">·<\\/span><span class="store-features">${features}<\\/span><\\/small>[\\s\\S]*?class="store-distance"><span>${distance}<\\/span>`),
+    );
   }
   for (const distance of ["756m", "2.8km", "4.1km"]) {
     assert.match(html, new RegExp(`class="store-distance"><span>${distance}<\\/span><i aria-hidden="true">›<\\/i><\\/span>`));
