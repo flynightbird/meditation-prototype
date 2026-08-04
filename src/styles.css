@@ -1976,7 +1976,8 @@ button:focus-visible {
   }
 
   .growth-bubble.anchor-2 {
-    top: 40%;
+    top: 41%;
+    --float-y: -2px;
   }
 
   .growth-bubble.anchor-3 {
@@ -1984,7 +1985,8 @@ button:focus-visible {
   }
 
   .growth-bubble.anchor-4 {
-    top: 61%;
+    top: 66%;
+    --float-y: -2px;
   }
 
 }

@@ -555,7 +555,7 @@ test("floats growth bubbles visibly with staggered vertical motion", () => {
 test("keeps the focus bubble clear of stats on short mobile screens", () => {
   assert.match(
     css,
-    /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)\s*{[\s\S]*?\.growth-bubble\.anchor-2\s*{[^}]*top:\s*40%[^}]*}/,
+    /@media \(max-width:\s*899px\) and \(max-height:\s*790px\)\s*{[\s\S]*?\.growth-bubble\.anchor-2\s*{[^}]*top:\s*41%[^}]*--float-y:\s*-2px[^}]*}[\s\S]*?\.growth-bubble\.anchor-4\s*{[^}]*top:\s*66%[^}]*--float-y:\s*-2px[^}]*}/,
   );
 });
 
