@@ -178,7 +178,7 @@ test("versions the stylesheet so static previews do not retain stale portfolio C
   );
 
   assert.ok(stylesheetTag);
-  assert.match(getAttribute(stylesheetTag, "href") ?? "", /^\.\/src\/styles\.css\?v=\d{8}-[a-z0-9-]+$/);
+  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260804-watermark-blur");
 });
 
 test("provides one reusable full-screen media layer", () => {
@@ -616,19 +616,54 @@ test("makes portfolio videos controllable and defers full loading", () => {
   }
 });
 
-test("pins video captions to the bottom and masks the source watermark", () => {
+test("softly blurs both watermark corners on app and portfolio videos", () => {
+  const sharedMask = getCssRule(css, ".has-media.app-shell::before");
+  const root = getCssRule(css, ":root");
+
+  assert.equal(
+    [
+      ".has-media.app-shell::before",
+      ".has-media.app-shell::after",
+      ".portfolio-clip::before",
+      ".portfolio-clip::after",
+    ].every((selector) => sharedMask?.selectors.includes(selector)),
+    true,
+  );
+  assert.match(sharedMask?.block ?? "", /position:\s*absolute/);
+  assert.match(sharedMask?.block ?? "", /content:\s*""/);
+  assert.match(sharedMask?.block ?? "", /width:\s*var\(--watermark-mask-width\)/);
+  assert.match(sharedMask?.block ?? "", /height:\s*var\(--watermark-mask-height\)/);
+  assert.match(sharedMask?.block ?? "", /background:\s*var\(--watermark-mask-tint\)/);
+  assert.match(sharedMask?.block ?? "", /backdrop-filter:\s*blur\(var\(--watermark-mask-blur\)\)/);
+  assert.match(sharedMask?.block ?? "", /-webkit-backdrop-filter:\s*blur\(var\(--watermark-mask-blur\)\)/);
+  assert.match(sharedMask?.block ?? "", /pointer-events:\s*none/);
+
+  assert.match(root?.block ?? "", /--watermark-mask-blur:\s*8px/);
+  assert.match(root?.block ?? "", /--watermark-mask-width:\s*17%/);
+  assert.match(root?.block ?? "", /--watermark-mask-height:\s*5\.5%/);
+  assert.match(root?.block ?? "", /--watermark-mask-inset:\s*1\.2%/);
+  assert.match(root?.block ?? "", /--watermark-mask-tint:\s*rgba\(20,\s*16,\s*13,\s*0\.08\)/);
+
+  assert.match(css, /\.has-media\.app-shell::before,\s*\.has-media\.app-shell::after\s*{[^}]*z-index:\s*3/s);
+  assert.match(css, /\.portfolio-clip::before,\s*\.portfolio-clip::after\s*{[^}]*z-index:\s*1/s);
+  assert.match(
+    css,
+    /\.has-media\.app-shell::before,\s*\.portfolio-clip::before\s*{[^}]*top:\s*var\(--watermark-mask-inset\)[^}]*left:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at top left,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+  );
+  assert.match(
+    css,
+    /\.has-media\.app-shell::after,\s*\.portfolio-clip::after\s*{[^}]*right:\s*var\(--watermark-mask-inset\)[^}]*bottom:\s*var\(--watermark-mask-inset\)[^}]*mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)[^}]*-webkit-mask-image:\s*radial-gradient\(ellipse at bottom right,\s*#000\s*0\s*52%,\s*transparent\s*100%\)/s,
+  );
+});
+
+test("keeps portfolio captions above the watermark masks", () => {
   const desktop = getBraceBlock(css, "@media (min-width: 900px)");
+  const caption = getCssRule(desktop ?? "", ".portfolio-clip figcaption");
+
   assert.ok(desktop);
-
-  const caption = getCssRule(desktop, ".portfolio-clip figcaption");
-  const watermarkMask = getCssRule(desktop, ".portfolio-clip::after");
-
+  assert.match(caption?.block ?? "", /z-index:\s*2/);
   assert.match(caption?.block ?? "", /bottom:\s*0(?:px)?\s*;/);
   assert.match(caption?.block ?? "", /pointer-events:\s*none\s*;/);
-  assert.match(watermarkMask?.block ?? "", /right:\s*0(?:px)?\s*;/);
-  assert.match(watermarkMask?.block ?? "", /bottom:\s*0(?:px)?\s*;/);
-  assert.match(watermarkMask?.block ?? "", /backdrop-filter:\s*blur\(/);
-  assert.match(watermarkMask?.block ?? "", /pointer-events:\s*none\s*;/);
 });
 
 test("keeps compact mobile layout adjustments out of desktop samples", () => {
