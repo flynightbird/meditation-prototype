@@ -390,7 +390,8 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   assert.match(css, /\.nav-item\s*{[^}]*position:\s*relative[^}]*z-index:\s*1/s);
   assert.match(css, /\.nav-item\.is-active\s*{[^}]*border-radius:\s*999px[^}]*background:\s*transparent/s);
   assert.match(css, /\.nav-item\.is-active \.nav-icon\s*{[^}]*color:\s*#fff[^}]*background:\s*transparent[^}]*box-shadow:\s*none/s);
-  assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#fff/s);
+  assert.match(css, /\.nav-label\s*{[^}]*font-size:\s*9\.5px[^}]*font-weight:\s*400/s);
+  assert.match(css, /\.nav-item\.is-active \.nav-label\s*{[^}]*color:\s*#FFD32C/s);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.bottom-nav::before\s*{[^}]*transition:\s*none !important/s);
   assert.match(app, /function setActiveNavigation\(nav\)[\s\S]*activeIndex[\s\S]*--nav-indicator-x[\s\S]*`\$\{activeIndex \* 100\}%`/s);
   assert.match(css, /\.task-rail\s*{[^}]*bottom:\s*76px[^}]*height:\s*98px[^}]*gap:\s*4px/s);

@@ -1201,7 +1201,7 @@ button:focus-visible {
 }
 
 .nav-item.is-active .nav-label {
-  color: #fff;
+  color: #FFD32C;
 }
 
 .nav-item[data-nav="coach"].is-active .nav-label {
