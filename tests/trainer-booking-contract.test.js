@@ -208,8 +208,16 @@ test("uses a yellow date marker and checked time cell for the confirmed booking"
   );
   assert.match(
     css,
-    /\.booking-time\[data-confirmed="true"\]::after\s*{[^}]*top:\s*4px[^}]*right:\s*4px[^}]*width:\s*14px[^}]*height:\s*14px[^}]*border-radius:\s*50%[^}]*content:\s*"✓"/s,
+    /\.booking-time\[data-confirmed="true"\]:disabled\s*{[^}]*padding:\s*0[^}]*text-align:\s*center/s,
   );
+  assert.match(view, /<svg class="booking-confirmed-check"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
+  assert.match(view, /M12 22C6\.47715 22 2 17\.5228 2 12/);
+  assert.match(view, /if \(confirmed\) button\.insertAdjacentHTML\("beforeend", CONFIRMED_CHECK_ICON\)/);
+  assert.match(
+    css,
+    /\.booking-confirmed-check\s*{[^}]*position:\s*absolute[^}]*top:\s*4px[^}]*right:\s*4px[^}]*width:\s*14px[^}]*height:\s*14px[^}]*fill:\s*#16130b/s,
+  );
+  assert.doesNotMatch(css, /\.booking-time\[data-confirmed="true"\]::after/);
 });
 
 test("restores tabs and persists the success row", () => {

@@ -457,7 +457,7 @@
 
 .booking-time[data-confirmed="true"]:disabled {
   position: relative;
-  padding-right: 20px;
+  padding: 0;
   border-color: #f8d553;
   color: #16130b;
   background: #f8d553;
@@ -465,23 +465,17 @@
   -webkit-text-fill-color: #16130b;
   opacity: 1;
   cursor: default;
+  text-align: center;
 }
 
-.booking-time[data-confirmed="true"]::after {
+.booking-confirmed-check {
   position: absolute;
   top: 4px;
   right: 4px;
-  display: grid;
   width: 14px;
   height: 14px;
-  place-items: center;
-  border: 1px solid rgba(22, 19, 11, 0.26);
-  border-radius: 50%;
-  content: "✓";
-  color: #16130b;
-  background: rgba(255, 255, 255, 0.34);
-  font-size: 9px;
-  line-height: 1;
+  fill: #16130b;
+  pointer-events: none;
 }
 
 .nearby-heading { padding: 18px 18px 14px; }
