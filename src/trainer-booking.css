@@ -40,7 +40,7 @@
 
 .trainer-hero {
   position: relative;
-  height: 320px;
+  height: 344px;
   overflow: visible;
   isolation: isolate;
 }
@@ -71,9 +71,10 @@
   top: 40px;
   bottom: auto;
   width: auto;
-  height: 175%;
+  height: 560px;
   object-fit: contain;
   object-position: right top;
+  clip-path: inset(0 0 256px 0);
 }
 
 .trainer-hero-shade {
@@ -180,108 +181,123 @@
   transform: translateY(1px);
 }
 
-.trainer-identity { bottom: 110px; }
+.trainer-identity { bottom: 72px; }
 
-.trainer-identity small {
+.trainer-eyebrow {
   display: inline-flex;
-  padding: 5px 9px;
-  border: 1px solid rgba(248, 213, 83, 0.28);
-  border-radius: 999px;
-  color: #f8d553;
-  background: rgba(248, 213, 83, 0.1);
-  font-size: 9px;
+  gap: 7px;
+  align-items: center;
+  color: rgba(255, 250, 243, 0.72);
+  font-size: 10px;
+  line-height: 1;
 }
 
-.trainer-identity h1 {
-  margin: 12px 0 12px;
+.trainer-eyebrow::before {
+  width: 14px;
+  height: 1px;
+  background: #f8d553;
+  content: "";
+}
+
+.trainer-name-row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 10px 0 9px;
+  white-space: nowrap;
+}
+
+.trainer-name-row h1 {
+  margin: 0;
   font-family: var(--display);
   font-size: 34px;
   font-weight: 400;
   line-height: 1;
 }
 
-.trainer-identity p {
-  margin: 0;
+.trainer-rating {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: #f8d553;
+  font-variant-numeric: tabular-nums;
+}
+
+.trainer-rating img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) saturate(100%) invert(89%) sepia(43%) saturate(1195%) hue-rotate(341deg) brightness(104%) contrast(94%);
+}
+
+.trainer-rating strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.trainer-rating small {
   color: var(--trainer-text-muted);
-  font-size: 12px;
-}
-
-.trainer-credentials {
-  position: absolute;
-  z-index: 2;
-  left: 22px;
-  bottom: 28px;
-  display: grid;
-  width: 204px;
-  margin: 0;
-  padding: 0;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 4px;
-  list-style: none;
-}
-
-.trainer-credential {
-  position: relative;
-  min-width: 0;
-  text-align: center;
-}
-
-.trainer-credential + .trainer-credential::before {
-  position: absolute;
-  top: 9px;
-  left: -2px;
-  width: 1px;
-  height: 34px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(255, 250, 243, 0.16) 28%,
-    rgba(255, 250, 243, 0.16) 72%,
-    transparent 100%
-  );
-  content: "";
-}
-
-.trainer-credential-icon {
-  display: grid;
-  width: 26px;
-  height: 26px;
-  margin: 0 auto 7px;
-  place-items: center;
-  border: 1px solid rgba(255, 236, 200, 0.14);
-  border-radius: 50%;
-  color: rgba(248, 213, 83, 0.78);
-  background: rgba(255, 248, 230, 0.075);
-}
-
-.trainer-credential-icon svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.trainer-credential strong,
-.trainer-credential small {
-  display: block;
-  overflow: hidden;
-  font-weight: 400;
-  line-height: 1.2;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-.trainer-credential strong {
-  color: rgba(255, 250, 243, 0.9);
   font-size: 10px;
 }
 
-.trainer-credential small {
-  margin-top: 5px;
-  color: rgba(255, 250, 243, 0.5);
-  font-size: 8px;
+.trainer-identity > p {
+  margin: 0;
+  color: var(--trainer-text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.trainer-commerce {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: -60px;
+  left: 0;
+  display: flex;
+  height: 118px;
+  padding: 16px 22px 0;
+  align-items: baseline;
+  justify-content: space-between;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 11, 10, 0.9) 0%,
+    rgba(12, 11, 10, 0.82) 40%,
+    rgba(12, 11, 10, 0.48) 68%,
+    rgba(12, 11, 10, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.trainer-commerce p { margin: 0; }
+
+.trainer-price {
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.trainer-price strong {
+  color: #f8d553;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.trainer-price span,
+.trainer-commerce > p:last-child,
+.booking-heading span,
+.nearby-heading .nearby-summary {
+  color: var(--trainer-text-muted);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.trainer-commerce b {
+  color: rgba(255, 250, 243, 0.82);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .trainer-hero-cut {

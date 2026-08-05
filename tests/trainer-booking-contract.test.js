@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
@@ -7,6 +7,7 @@ const css = readFileSync(new URL("../src/trainer-booking.css", import.meta.url),
 const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const view = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.url), "utf8");
 const mapPin = readFileSync(new URL("../assets/trainer-map-pin.svg", import.meta.url), "utf8");
+const ratingStarUrl = new URL("../assets/star-smile-fill.svg", import.meta.url);
 
 test("provides the complete trainer booking surface", () => {
   for (const id of ["trainerPage", "bookingDates", "bookingTimes", "bookingActionBar", "bookingDialog"]) {
@@ -46,47 +47,41 @@ test("places persistent status before the date cards", () => {
   assert.match(html, /id="bookingStatus"[\s\S]*id="bookingDates"/);
 });
 
-test("uses cancel then confirm and omits payment copy", () => {
+test("uses cancel then confirm and omits payment settlement copy", () => {
   assert.match(
     html,
     /data-action="cancel-booking-selection"[\s\S]*data-action="open-booking-dialog"/,
   );
   assert.doesNotMatch(html, /扣除 1 课时|剩余\s*\d+\s*节/);
-  assert.doesNotMatch(html, /费用|价格|实付/);
+  assert.doesNotMatch(html, /费用|实付/);
 });
 
-test("keeps the fixed coach identity concise", () => {
-  assert.match(html, /中田健身 · 南山旗舰店/);
-  assert.match(html, /id="bookingDialog" aria-labelledby="bookingDialogTitle"/);
-  assert.doesNotMatch(html, /评分|好评率|完课数|认证教练/);
-});
-
-test("places three coach credentials in the lower-left Hero gap", () => {
+test("presents the approved trainer identity and rating", () => {
+  assert.match(html, /<span class="trainer-eyebrow">我的教练<\/span>/);
   assert.match(
     html,
-    /<ul class="trainer-credentials" aria-label="教练资质">[\s\S]*专业认证[\s\S]*NASM-CPT[\s\S]*减脂塑形[\s\S]*专项训练[\s\S]*科学指导[\s\S]*定制计划[\s\S]*<\/ul>/,
+    /<div class="trainer-name-row">\s*<h1>李教练<\/h1>\s*<span class="trainer-rating" aria-label="评分 4.9，326条评价">\s*<img src="\.\/assets\/star-smile-fill\.svg" alt="" \/>\s*<strong>4\.9<\/strong>\s*<small>（326评价）<\/small>\s*<\/span>\s*<\/div>/,
   );
-  assert.equal((html.match(/class="trainer-credential"/g) ?? []).length, 3);
-  assert.match(html, /class="trainer-credential-icon" aria-hidden="true"/);
+  assert.match(html, /<p>减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
+  assert.doesNotMatch(html, /trainer-credentials|trainer-credential(?:-icon)?/);
+});
+
+test("shows price and service count in an embedded information band", () => {
   assert.match(
-    css,
-    /\.trainer-credentials\s*{[^}]*position:\s*absolute[^}]*left:\s*22px[^}]*bottom:\s*28px[^}]*width:\s*204px[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)[^}]*column-gap:\s*4px[^}]*list-style:\s*none/s,
+    html,
+    /<div class="trainer-commerce" aria-label="课程价格与服务记录">[\s\S]*<strong>¥298<\/strong><span>\/节 · 45分钟<\/span>[\s\S]*<p>已服务 <b>1,240<\/b> 节课<\/p>[\s\S]*<\/div>/,
   );
-  assert.match(
-    css,
-    /\.trainer-credential \+ \.trainer-credential::before\s*{[^}]*top:\s*9px[^}]*left:\s*-2px[^}]*height:\s*34px[^}]*background:\s*linear-gradient\(\s*to bottom,\s*transparent 0%,\s*rgba\(255, 250, 243, 0\.16\) 28%,\s*rgba\(255, 250, 243, 0\.16\) 72%,\s*transparent 100%\s*\)/s,
-  );
-  assert.match(css, /\.trainer-credential strong,[\s\S]*white-space:\s*nowrap/s);
-  assert.match(css, /\.trainer-credential small\s*{[^}]*margin-top:\s*5px/s);
+});
+
+test("uses the official Remix smile-star as a decorative rating icon", () => {
+  assert.equal(existsSync(ratingStarUrl), true);
+  const ratingStar = readFileSync(ratingStarUrl, "utf8");
+  assert.match(ratingStar, /viewBox="0 0 24 24"/);
+  assert.match(ratingStar, /M11\.9996 0\.5L16\.2256 6\.68342/);
+  assert.match(html, /<img src="\.\/assets\/star-smile-fill\.svg" alt="" \/>/);
 });
 
 test("adds restrained depth and breathing room to the trainer Hero", () => {
-  assert.match(
-    css,
-    /\.trainer-credential-icon\s*{[^}]*border:\s*1px solid rgba\(255, 236, 200, 0\.14\)[^}]*color:\s*rgba\(248, 213, 83, 0\.78\)[^}]*background:\s*rgba\(255, 248, 230, 0\.075\)/s,
-  );
-  assert.doesNotMatch(css, /\.trainer-credential-icon::before\s*{/);
-  assert.doesNotMatch(css, /\.trainer-credential-icon\s*{[^}]*conic-gradient\(/s);
   assert.match(css, /\.trainer-content\s*{[^}]*margin-top:\s*0/s);
   assert.match(
     css,
@@ -94,8 +89,45 @@ test("adds restrained depth and breathing room to the trainer Hero", () => {
   );
 });
 
+test("keeps the compact Hero geometry and uses a linear eyebrow", () => {
+  assert.match(css, /\.trainer-hero\s*{[^}]*height:\s*344px/s);
+  assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*72px/s);
+  const eyebrow = css.match(/\.trainer-eyebrow\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(eyebrow, /display:\s*inline-flex[^}]*align-items:\s*center[^}]*font-size:\s*10px/s);
+  assert.doesNotMatch(eyebrow, /\b(?:border|border-radius|background|padding)\s*:/);
+  assert.match(css, /\.trainer-eyebrow::before\s*{[^}]*width:\s*14px[^}]*height:\s*1px[^}]*background:\s*#f8d553/s);
+});
+
+test("keeps name and rating together with restrained review metadata", () => {
+  assert.match(css, /\.trainer-name-row\s*{[^}]*display:\s*flex[^}]*align-items:\s*baseline[^}]*white-space:\s*nowrap/s);
+  assert.match(css, /\.trainer-rating\s*{[^}]*display:\s*inline-flex[^}]*color:\s*#f8d553/s);
+  assert.match(css, /\.trainer-rating img\s*{[^}]*width:\s*18px[^}]*height:\s*18px/s);
+  assert.match(css, /\.trainer-rating small\s*{[^}]*color:\s*var\(--trainer-text-muted\)/s);
+});
+
+test("anchors an unframed commerce band at the bottom of the Hero", () => {
+  const commerce = css.match(/\.trainer-commerce\s*{[^}]*}/)?.[0] ?? "";
+  assert.match(commerce, /position:\s*absolute[^}]*right:\s*0[^}]*bottom:\s*-60px[^}]*left:\s*0[^}]*height:\s*118px/);
+  assert.match(commerce, /padding:\s*16px 22px 0[^}]*align-items:\s*baseline/);
+  assert.match(commerce, /border-radius:\s*20px 20px 0 0/);
+  assert.match(
+    commerce,
+    /background:\s*linear-gradient\(\s*180deg,\s*rgba\(12, 11, 10, 0\.9\) 0%,\s*rgba\(12, 11, 10, 0\.82\) 40%,\s*rgba\(12, 11, 10, 0\.48\) 68%,\s*rgba\(12, 11, 10, 0\) 100%\s*\)/s,
+  );
+  assert.doesNotMatch(commerce, /\b(?:border|box-shadow|backdrop-filter)\s*:/);
+  assert.match(css, /\.trainer-content\s*{[^}]*z-index:\s*2/s);
+  assert.match(css, /\.trainer-price strong\s*{[^}]*color:\s*#f8d553[^}]*font-size:\s*27px/s);
+});
+
+test("aligns commerce metadata and normalizes supporting copy", () => {
+  assert.match(
+    css,
+    /\.trainer-price span,\s*\.trainer-commerce > p:last-child,\s*\.booking-heading span,\s*\.nearby-heading \.nearby-summary\s*{[^}]*font-size:\s*10px[^}]*font-weight:\s*400[^}]*line-height:\s*1\.2/s,
+  );
+});
+
 test("links the complete store row to map navigation", () => {
-  assert.match(html, /<p>减脂塑形教练 · 8年经验<\/p>/);
+  assert.match(html, /<p>减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
   assert.match(
     html,
     /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"/,
@@ -151,7 +183,6 @@ test("polishes store hierarchy and supporting trainer details", () => {
   assert.doesNotMatch(storeFeaturesRule, /\b(?:border|background)\s*:/);
   assert.match(css, /\.store-row\.is-closed\s*{[^}]*opacity:\s*0\.56/s);
   assert.match(css, /\.booking-heading span\s*{[^}]*color:\s*var\(--trainer-text-muted\)/s);
-  assert.match(css, /\.trainer-credential-icon\s*{[^}]*margin:\s*0 auto 7px/s);
 });
 
 test("omits redundant schedule labels", () => {
@@ -161,7 +192,7 @@ test("omits redundant schedule labels", () => {
 
 test("preserves the dark Hero and glass panel framework", () => {
   assert.match(css, /\.trainer-page\s*{[^}]*background:\s*linear-gradient\(\s*135deg,\s*var\(--trainer-bg-from\) 0%,\s*var\(--trainer-bg-mid\) 46%,\s*var\(--trainer-bg-to\) 100%\s*\)/s);
-  assert.match(css, /\.trainer-hero\s*{[^}]*height:\s*320px/s);
+  assert.match(css, /\.trainer-hero\s*{[^}]*height:\s*344px/s);
   assert.match(css, /\.booking-panel[\s\S]*backdrop-filter:\s*blur\(24px\)/s);
 });
 
@@ -250,19 +281,20 @@ test("warms booking controls and chrome while preserving map color", () => {
 test("positions the trainer behind the booking card and strengthens store cues", () => {
   assert.match(css, /\.trainer-scroll\s*{[^}]*overflow-x:\s*hidden/s);
   assert.match(css, /\.trainer-hero\s*{[^}]*overflow:\s*visible/s);
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*40px[^}]*bottom:\s*auto[^}]*height:\s*175%/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*right:\s*-112px[^}]*top:\s*40px[^}]*bottom:\s*auto[^}]*height:\s*560px/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*clip-path:\s*inset\(0 0 256px 0\)/s);
   assert.match(css, /\.trainer-hero-shade::after\s*{[^}]*top:\s*220px[^}]*height:\s*400px[^}]*rgba\(23, 20, 17, 0\.94\) 38%[^}]*rgba\(23, 20, 17, 0\.94\) 100%[^}]*pointer-events:\s*none/s);
   assert.match(css, /\.trainer-hero-cut\s*{[^}]*display:\s*none/s);
   assert.match(css, /\.trainer-content\s*{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*margin-top:\s*0/s);
-  assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*110px/s);
-  assert.match(css, /\.trainer-identity h1\s*{[^}]*margin:\s*12px 0 12px/s);
+  assert.match(css, /\.trainer-identity\s*{[^}]*bottom:\s*72px/s);
+  assert.match(css, /\.trainer-name-row\s*{[^}]*margin:\s*10px 0 9px/s);
   assert.match(css, /\.nearby-heading \.nearby-summary\s*{[^}]*display:\s*inline-flex[^}]*gap:\s*4px[^}]*color:\s*var\(--trainer-text-muted\)/s);
   assert.match(css, /\.store-distance\s*{[^}]*color:\s*var\(--trainer-text-muted\)[^}]*font-size:\s*10px/s);
   assert.match(css, /\.store-list \.store-row:first-child\s*{[^}]*border-top:\s*0/s);
 });
 
 test("uses the approved full trainer and vertical date capsules", () => {
-  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*175%[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
+  assert.match(css, /\.trainer-hero > img\s*{[^}]*width:\s*auto[^}]*height:\s*560px[^}]*object-fit:\s*contain[^}]*object-position:\s*right top/s);
   assert.match(css, /\.booking-date\s*{[^}]*height:\s*68px[^}]*border-radius:\s*999px/s);
   assert.match(css, /\.booking-date strong\s*{[^}]*width:\s*28px[^}]*height:\s*28px[^}]*border-radius:\s*50%/s);
   assert.match(css, /\.booking-date\[aria-pressed="true"\]\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s);
