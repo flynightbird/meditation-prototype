@@ -197,6 +197,21 @@ test("marks the confirmed date and time independently from selection and availab
   );
 });
 
+test("uses a yellow date marker and checked time cell for the confirmed booking", () => {
+  assert.match(
+    css,
+    /\.booking-date\[data-confirmed="true"\]:not\(\[aria-pressed="true"\]\) strong\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s,
+  );
+  assert.match(
+    css,
+    /\.booking-time\[data-confirmed="true"\]:disabled\s*{[^}]*position:\s*relative[^}]*color:\s*#16130b[^}]*background:\s*#f8d553[^}]*opacity:\s*1/s,
+  );
+  assert.match(
+    css,
+    /\.booking-time\[data-confirmed="true"\]::after\s*{[^}]*top:\s*4px[^}]*right:\s*4px[^}]*width:\s*14px[^}]*height:\s*14px[^}]*border-radius:\s*50%[^}]*content:\s*"✓"/s,
+  );
+});
+
 test("restores tabs and persists the success row", () => {
   assert.match(view, /bookingStatus\.hidden = !confirmed/);
   assert.match(view, /app\.classList\.toggle\("is-booking-action"/);
