@@ -5,6 +5,8 @@ import {
   transitionBooking,
 } from "./trainer-booking.js";
 
+const CONFIRMED_CHECK_ICON = '<svg class="booking-confirmed-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>';
+
 export function loadDeferredTrainerImages(images) {
   let changed = false;
   for (const image of images) {
@@ -46,12 +48,18 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
 
   function renderDates() {
     bookingDates.replaceChildren(...state.dates.map((date) => {
+      const confirmed = date.key === state.confirmedBooking?.dateKey;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "booking-date";
       button.dataset.action = "select-booking-date";
       button.dataset.dateKey = date.key;
+      button.dataset.confirmed = String(confirmed);
       button.setAttribute("aria-pressed", String(date.key === state.selectedDateKey));
+      button.setAttribute(
+        "aria-label",
+        `${date.weekday}${date.day}日${confirmed ? "，已有预约" : ""}`,
+      );
       button.innerHTML = `<span>${date.weekday}</span><strong>${date.day}</strong>`;
       return button;
     }));
@@ -60,15 +68,23 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   function renderTimes() {
     bookingTimes.replaceChildren(...BOOKING_TIMES.map((time) => {
       const unavailable = isTimeUnavailable(state, time);
+      const confirmed =
+        state.confirmedBooking?.dateKey === state.selectedDateKey &&
+        state.confirmedBooking.time === time;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "booking-time";
       button.dataset.action = "select-booking-time";
       button.dataset.time = time;
+      button.dataset.confirmed = String(confirmed);
       button.disabled = unavailable;
       button.textContent = time;
+      if (confirmed) button.insertAdjacentHTML("beforeend", CONFIRMED_CHECK_ICON);
       button.setAttribute("aria-pressed", String(state.selectedTime === time));
-      button.setAttribute("aria-label", unavailable ? `${time}，不可预约` : `${time}，可预约`);
+      button.setAttribute(
+        "aria-label",
+        confirmed ? `${time}，已预约` : unavailable ? `${time}，不可预约` : `${time}，可预约`,
+      );
       return button;
     }));
   }

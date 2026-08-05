@@ -215,6 +215,42 @@ test("renders accessible copy-free unavailable slots", () => {
   assert.doesNotMatch(view, /textContent\s*=\s*["'`]已约/);
 });
 
+test("marks the confirmed date and time independently from selection and availability", () => {
+  assert.match(view, /const confirmed = date\.key === state\.confirmedBooking\?\.dateKey/);
+  assert.equal(view.match(/button\.dataset\.confirmed = String\(confirmed\)/g)?.length, 2);
+  assert.match(
+    view,
+    /const confirmed =\s*state\.confirmedBooking\?\.dateKey === state\.selectedDateKey &&\s*state\.confirmedBooking\.time === time/,
+  );
+  assert.match(
+    view,
+    /confirmed \? `\$\{time\}，已预约` : unavailable \? `\$\{time\}，不可预约` : `\$\{time\}，可预约`/,
+  );
+});
+
+test("uses a yellow date marker and checked time cell for the confirmed booking", () => {
+  assert.match(
+    css,
+    /\.booking-date\[data-confirmed="true"\]:not\(\[aria-pressed="true"\]\) strong\s*{[^}]*color:\s*#16130b[^}]*background:\s*#f8d553/s,
+  );
+  assert.match(
+    css,
+    /\.booking-time\[data-confirmed="true"\]:disabled\s*{[^}]*position:\s*relative[^}]*color:\s*#16130b[^}]*background:\s*#f8d553[^}]*opacity:\s*1/s,
+  );
+  assert.match(
+    css,
+    /\.booking-time\[data-confirmed="true"\]:disabled\s*{[^}]*padding:\s*0[^}]*text-align:\s*center/s,
+  );
+  assert.match(view, /<svg class="booking-confirmed-check"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
+  assert.match(view, /M12 22C6\.47715 22 2 17\.5228 2 12/);
+  assert.match(view, /if \(confirmed\) button\.insertAdjacentHTML\("beforeend", CONFIRMED_CHECK_ICON\)/);
+  assert.match(
+    css,
+    /\.booking-confirmed-check\s*{[^}]*position:\s*absolute[^}]*top:\s*4px[^}]*right:\s*4px[^}]*width:\s*14px[^}]*height:\s*14px[^}]*fill:\s*#16130b/s,
+  );
+  assert.doesNotMatch(css, /\.booking-time\[data-confirmed="true"\]::after/);
+});
+
 test("restores tabs and persists the success row", () => {
   assert.match(view, /bookingStatus\.hidden = !confirmed/);
   assert.match(view, /app\.classList\.toggle\("is-booking-action"/);

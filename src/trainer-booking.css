@@ -465,6 +465,35 @@
   cursor: not-allowed;
 }
 
+.booking-date[data-confirmed="true"]:not([aria-pressed="true"]) strong {
+  color: #16130b;
+  background: #f8d553;
+  box-shadow: 0 0 12px rgba(248, 213, 83, 0.2);
+}
+
+.booking-time[data-confirmed="true"]:disabled {
+  position: relative;
+  padding: 0;
+  border-color: #f8d553;
+  color: #16130b;
+  background: #f8d553;
+  box-shadow: 0 0 14px rgba(248, 213, 83, 0.16);
+  -webkit-text-fill-color: #16130b;
+  opacity: 1;
+  cursor: default;
+  text-align: center;
+}
+
+.booking-confirmed-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  fill: #16130b;
+  pointer-events: none;
+}
+
 .nearby-heading { padding: 18px 18px 14px; }
 
 .trainer-map {
