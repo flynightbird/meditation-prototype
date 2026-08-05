@@ -184,6 +184,19 @@ test("renders accessible copy-free unavailable slots", () => {
   assert.doesNotMatch(view, /textContent\s*=\s*["'`]已约/);
 });
 
+test("marks the confirmed date and time independently from selection and availability", () => {
+  assert.match(view, /const confirmed = date\.key === state\.confirmedBooking\?\.dateKey/);
+  assert.equal(view.match(/button\.dataset\.confirmed = String\(confirmed\)/g)?.length, 2);
+  assert.match(
+    view,
+    /const confirmed =\s*state\.confirmedBooking\?\.dateKey === state\.selectedDateKey &&\s*state\.confirmedBooking\.time === time/,
+  );
+  assert.match(
+    view,
+    /confirmed \? `\$\{time\}，已预约` : unavailable \? `\$\{time\}，不可预约` : `\$\{time\}，可预约`/,
+  );
+});
+
 test("restores tabs and persists the success row", () => {
   assert.match(view, /bookingStatus\.hidden = !confirmed/);
   assert.match(view, /app\.classList\.toggle\("is-booking-action"/);

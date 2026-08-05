@@ -46,12 +46,18 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
 
   function renderDates() {
     bookingDates.replaceChildren(...state.dates.map((date) => {
+      const confirmed = date.key === state.confirmedBooking?.dateKey;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "booking-date";
       button.dataset.action = "select-booking-date";
       button.dataset.dateKey = date.key;
+      button.dataset.confirmed = String(confirmed);
       button.setAttribute("aria-pressed", String(date.key === state.selectedDateKey));
+      button.setAttribute(
+        "aria-label",
+        `${date.weekday}${date.day}日${confirmed ? "，已有预约" : ""}`,
+      );
       button.innerHTML = `<span>${date.weekday}</span><strong>${date.day}</strong>`;
       return button;
     }));
@@ -60,15 +66,22 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   function renderTimes() {
     bookingTimes.replaceChildren(...BOOKING_TIMES.map((time) => {
       const unavailable = isTimeUnavailable(state, time);
+      const confirmed =
+        state.confirmedBooking?.dateKey === state.selectedDateKey &&
+        state.confirmedBooking.time === time;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "booking-time";
       button.dataset.action = "select-booking-time";
       button.dataset.time = time;
+      button.dataset.confirmed = String(confirmed);
       button.disabled = unavailable;
       button.textContent = time;
       button.setAttribute("aria-pressed", String(state.selectedTime === time));
-      button.setAttribute("aria-label", unavailable ? `${time}，不可预约` : `${time}，可预约`);
+      button.setAttribute(
+        "aria-label",
+        confirmed ? `${time}，已预约` : unavailable ? `${time}，不可预约` : `${time}，可预约`,
+      );
       return button;
     }));
   }
