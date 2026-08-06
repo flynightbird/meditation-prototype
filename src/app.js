@@ -25,6 +25,9 @@ import {
   previewBubbleCollection,
 } from "./growth.js";
 import { getGrowthStatItems } from "./growth-stats.js";
+import { applyDocumentTranslations, t } from "./i18n.js";
+
+applyDocumentTranslations(document);
 
 const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";

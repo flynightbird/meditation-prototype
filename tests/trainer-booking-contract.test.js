@@ -9,6 +9,12 @@ const view = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.
 const mapPin = readFileSync(new URL("../assets/trainer-map-pin.svg", import.meta.url), "utf8");
 const ratingStarUrl = new URL("../assets/star-smile-fill.svg", import.meta.url);
 
+test("maps every trainer price and identity through locale keys", () => {
+  assert.match(html, /data-i18n="trainer\.coachName">李教练/);
+  assert.match(html, /data-i18n="trainer\.storeName">中田健身 · 南山旗舰店/);
+  assert.match(html, /data-i18n="trainer\.price">¥298/);
+});
+
 test("provides the complete trainer booking surface", () => {
   for (const id of ["trainerPage", "bookingDates", "bookingTimes", "bookingActionBar", "bookingDialog"]) {
     assert.match(html, new RegExp(`id="${id}"`));
@@ -19,7 +25,7 @@ test("keeps the map and all three nearby stores", () => {
   assert.match(html, /assets\/trainer-map\.png/);
   assert.match(
     html,
-    /<span class="nearby-summary">附近有3家 ｜ 深圳市有128家 <i aria-hidden="true">›<\/i><\/span>/,
+    /<span class="nearby-summary"><span data-i18n="nearby\.summary">附近有3家 ｜ 深圳市有128家<\/span> <i aria-hidden="true">›<\/i><\/span>/,
   );
   for (const store of ["南浦大桥店", "前海湾旗舰店", "海上世界店"]) {
     assert.match(html, new RegExp(store));
@@ -57,19 +63,19 @@ test("uses cancel then confirm and omits payment settlement copy", () => {
 });
 
 test("presents the approved trainer identity and rating", () => {
-  assert.match(html, /<span class="trainer-eyebrow">我的教练<\/span>/);
+  assert.match(html, /<span class="trainer-eyebrow" data-i18n="trainer\.eyebrow">我的教练<\/span>/);
   assert.match(
     html,
-    /<div class="trainer-name-row">\s*<h1>李教练<\/h1>\s*<span class="trainer-rating" aria-label="评分 4.9，326条评价">\s*<img src="\.\/assets\/star-smile-fill\.svg" alt="" \/>\s*<strong>4\.9<\/strong>\s*<small>（326评价）<\/small>\s*<\/span>\s*<\/div>/,
+    /<div class="trainer-name-row">\s*<h1 data-i18n="trainer\.coachName">李教练<\/h1>\s*<span class="trainer-rating" aria-label="评分 4.9，326条评价" data-i18n-aria-label="trainer\.ratingAria">\s*<img src="\.\/assets\/star-smile-fill\.svg" alt="" \/>\s*<strong>4\.9<\/strong>\s*<small data-i18n="trainer\.reviews">（326评价）<\/small>\s*<\/span>\s*<\/div>/,
   );
-  assert.match(html, /<p>减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
+  assert.match(html, /<p data-i18n="trainer\.bio">减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
   assert.doesNotMatch(html, /trainer-credentials|trainer-credential(?:-icon)?/);
 });
 
 test("shows price and service count in an embedded information band", () => {
   assert.match(
     html,
-    /<div class="trainer-commerce" aria-label="课程价格与服务记录">[\s\S]*<strong>¥298<\/strong><span>\/节 · 45分钟<\/span>[\s\S]*<p>已服务 <b>1,240<\/b> 节课<\/p>[\s\S]*<\/div>/,
+    /<div class="trainer-commerce" aria-label="课程价格与服务记录" data-i18n-aria-label="trainer\.commerceAria">[\s\S]*<strong data-i18n="trainer\.price">¥298<\/strong><span data-i18n="trainer\.priceUnit">\/节 · 45分钟<\/span>[\s\S]*<p><span data-i18n="trainer\.servedPrefix">已服务<\/span> <b>1,240<\/b> <span data-i18n="trainer\.servedSuffix">节课<\/span><\/p>[\s\S]*<\/div>/,
   );
 });
 
@@ -127,15 +133,15 @@ test("aligns commerce metadata and normalizes supporting copy", () => {
 });
 
 test("links the complete store row to map navigation", () => {
-  assert.match(html, /<p>减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
+  assert.match(html, /<p data-i18n="trainer\.bio">减脂塑形 · NASM-CPT认证 · 8年经验<\/p>/);
   assert.match(
     html,
-    /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"/,
+    /<a\s+class="trainer-store"[^>]*href="https:\/\/uri\.amap\.com\/search\?keyword=[^"]+"[^>]*data-i18n-href="trainer\.storeMapHref"[^>]*target="_blank"[^>]*aria-label="在地图中导航到中田健身 · 南山旗舰店"[^>]*data-i18n-aria-label="trainer\.storeMapAria"/,
   );
   assert.match(html, /class="trainer-store-navigation"[^>]*aria-hidden="true"/);
   assert.match(
     html,
-    /<a\s+class="trainer-store"[^>]*>[\s\S]*?<span>中田健身 · 南山旗舰店<\/span>\s*<span class="trainer-store-distance">1\.2km<\/span>\s*<span class="trainer-store-navigation" aria-hidden="true">\s*<svg[^>]*viewBox="0 0 24 24"[^>]*>[\s\S]*?<\/svg>\s*<\/span>\s*<\/a>/,
+    /<a\s+class="trainer-store"[^>]*>[\s\S]*?<span data-i18n="trainer\.storeName">中田健身 · 南山旗舰店<\/span>\s*<span class="trainer-store-distance">1\.2km<\/span>\s*<span class="trainer-store-navigation" aria-hidden="true">\s*<svg[^>]*viewBox="0 0 24 24"[^>]*>[\s\S]*?<\/svg>\s*<\/span>\s*<\/a>/,
   );
   assert.doesNotMatch(html, /class="trainer-store-navigation"[^>]*>↗<\/span>/);
   assert.match(css, /\.trainer-store\s*{[^}]*text-decoration:\s*none[^}]*white-space:\s*nowrap/s);
@@ -153,15 +159,15 @@ test("polishes store hierarchy and supporting trainer details", () => {
     assert.match(html, new RegExp(`<b aria-hidden="true">${sequence}<\\/b>`));
   }
   assert.equal((html.match(/class="store-nearest"/g) ?? []).length, 1);
-  assert.match(html, /<span class="store-nearest">最近<\/span><span>南浦大桥店<\/span>/);
-  for (const [name, status, address, hours, features, distance] of [
-    ["南浦大桥店", "营业中", "南浦一路111号一层", "10:00–24:00", "私教体验 · 体态检测", "756m"],
-    ["前海湾旗舰店", "营业中", "前海路99号B1层", "09:00–22:00", "私教体验 · 停车方便", "2.8km"],
-    ["海上世界店", "已打烊", "望海路1187号商业中心", "10:00–21:30", "体态检测 · 停车方便", "4.1km"],
+  assert.match(html, /<span class="store-nearest" data-i18n="store\.nearest">最近<\/span><span data-i18n="store\.oneName">南浦大桥店<\/span>/);
+  for (const [nameKey, name, statusKey, status, addressKey, address, hours, featuresKey, features, distance] of [
+    ["store.oneName", "南浦大桥店", "store.open", "营业中", "store.oneAddress", "南浦一路111号一层", "10:00–24:00", "store.featuresTrialPosture", "私教体验 · 体态检测", "756m"],
+    ["store.twoName", "前海湾旗舰店", "store.open", "营业中", "store.twoAddress", "前海路99号B1层", "09:00–22:00", "store.featuresTrialParking", "私教体验 · 停车方便", "2.8km"],
+    ["store.threeName", "海上世界店", "store.closed", "已打烊", "store.threeAddress", "望海路1187号商业中心", "10:00–21:30", "store.featuresPostureParking", "体态检测 · 停车方便", "4.1km"],
   ]) {
     assert.match(
       html,
-      new RegExp(`<span>${name}<\\/span><em>${status}<\\/em><\\/h3>\\s*<p>${address}<\\/p>\\s*<small><span class="store-hours">${hours}<\\/span><span class="store-detail-separator" aria-hidden="true">·<\\/span><span class="store-features">${features}<\\/span><\\/small>[\\s\\S]*?class="store-distance"><span>${distance}<\\/span>`),
+      new RegExp(`<span data-i18n="${nameKey}">${name}<\\/span><em data-i18n="${statusKey}">${status}<\\/em><\\/h3>\\s*<p data-i18n="${addressKey}">${address}<\\/p>\\s*<small><span class="store-hours">${hours}<\\/span><span class="store-detail-separator" aria-hidden="true">·<\\/span><span class="store-features" data-i18n="${featuresKey}">${features}<\\/span><\\/small>[\\s\\S]*?class="store-distance"><span>${distance}<\\/span>`),
     );
   }
   for (const distance of ["756m", "2.8km", "4.1km"]) {

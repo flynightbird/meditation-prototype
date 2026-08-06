@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   TRANSLATIONS,
+  applyDocumentTranslations,
   createTranslator,
   formatBookingDate,
   formatWeekday,
@@ -48,4 +49,22 @@ test("keeps Chinese and English dictionary keys in parity", () => {
     Object.keys(TRANSLATIONS.en).sort(),
     Object.keys(TRANSLATIONS["zh-CN"]).sort(),
   );
+});
+
+test("applies translated text and attributes to a static document", () => {
+  const attributes = new Map([["data-i18n", "nav.trainer"]]);
+  const textNode = {
+    textContent: "预约私教",
+    getAttribute: (name) => attributes.get(name),
+    setAttribute: (name, value) => attributes.set(name, value),
+  };
+  const root = {
+    documentElement: { lang: "zh-CN" },
+    title: "",
+    querySelectorAll: (selector) => selector === "[data-i18n]" ? [textNode] : [],
+  };
+  applyDocumentTranslations(root, createTranslator("en"));
+  assert.equal(root.documentElement.lang, "en");
+  assert.equal(root.title, "Growth Base · Mindfulness Journey");
+  assert.equal(textNode.textContent, "Trainer");
 });

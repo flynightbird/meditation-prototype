@@ -8,6 +8,16 @@ const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const growthStatsModel = readFileSync(new URL("../src/growth-stats.js", import.meta.url), "utf8");
 
+test("initializes the static document from the resolved locale", () => {
+  assert.match(app, /import\s*{[^}]*applyDocumentTranslations[^}]*}\s*from\s*"\.\/i18n\.js"/s);
+  assert.match(app, /applyDocumentTranslations\(document\)/);
+  assert.match(html, /<html lang="zh-CN">/);
+  assert.match(html, /data-i18n="meta\.title"/);
+  assert.match(html, /data-i18n="nav\.trainer"/);
+  assert.match(html, /data-i18n-aria-label="nav\.primaryLabel"/);
+  assert.match(html, /data-i18n-alt="trainer\.coachName"/);
+});
+
 function getBraceBlock(source, startToken) {
   const start = source.indexOf(startToken);
   if (start === -1) return null;
@@ -202,7 +212,7 @@ test("provides an inert hidden next-scene preloader", () => {
 
 test("keeps reward claiming separate from the persistent room object", () => {
   assert.match(html, /id="claimReward"[^>]*data-action="claim-reward"/);
-  assert.match(html, /class="claim-label">点击领取/);
+  assert.match(html, /class="claim-label" data-i18n="reward\.claimLabel">点击领取/);
   assert.match(html, /id="rewardObject"[^>]*data-action="object-detail"/);
 });
 
@@ -346,7 +356,7 @@ test("uses regular weight across the interface", () => {
 test("shows a compact single-line growth base identity on subtle glass", () => {
   assert.match(
     html,
-    /class="streak-primary">连续18天<[\s\S]*class="streak-divider">·<[\s\S]*class="base-level">成长基地\s*<strong>Lv\.2<\/strong>/,
+    /class="streak-primary" data-i18n="header\.streak">连续18天<[\s\S]*class="streak-divider">·<[\s\S]*class="base-level"><span data-i18n="header\.baseLevel">成长基地<\/span>\s*<strong>Lv\.2<\/strong>/,
   );
   assert.match(css, /\.streak\s*{[^}]*display:\s*flex[^}]*min-height:\s*32px[^}]*padding:\s*0 10px 0 8px/s);
   assert.match(css, /\.streak\s*{[^}]*border-radius:\s*12px[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*backdrop-filter:\s*blur\(10px\)/s);
@@ -370,8 +380,15 @@ test("uses regular Chill Round for display and task copy only", () => {
 test("uses the six-tab dark dock and compact task hierarchy", () => {
   const tabs = html.match(/class="nav-item/g) ?? [];
   assert.equal(tabs.length, 6);
-  for (const label of ["AI教练", "预约私教", "Skill", "训练计划", "积分", "我的"]) {
-    assert.match(html, new RegExp(`class="nav-label">${label}<`));
+  for (const [key, label] of [
+    ["nav.coach", "AI教练"],
+    ["nav.trainer", "预约私教"],
+    ["nav.skill", "Skill"],
+    ["nav.plan", "训练计划"],
+    ["nav.points", "积分"],
+    ["nav.mine", "我的"],
+  ]) {
+    assert.match(html, new RegExp(`class="nav-label" data-i18n="${key}">${label}<`));
   }
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
   assert.match(app, /nav === "trainer"[\s\S]*trainerBooking\.show\(\)/);
