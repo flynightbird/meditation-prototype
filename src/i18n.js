@@ -1,8 +1,6 @@
 export const TRANSLATIONS = {
   "zh-CN": {
     "task.reward": "{label} +{value}",
-    "test.chineseFallback": "中文回退",
-    "test.missingEverywhere": "",
     "meta.title": "成长基地 · 冥想闭环原型",
     "welcome.skip": "跳过欢迎动画",
     "welcome.streakLabel": "连续坚持",
@@ -132,8 +130,6 @@ export const TRANSLATIONS = {
   },
   en: {
     "task.reward": "{label} +{value}",
-    "test.chineseFallback": "",
-    "test.missingEverywhere": "",
     "meta.title": "Growth Base · Mindfulness Journey",
     "welcome.skip": "Skip welcome animation",
     "welcome.streakLabel": "Streak",

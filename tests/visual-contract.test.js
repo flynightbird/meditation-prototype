@@ -7,6 +7,9 @@ const app = readFileSync(new URL("../src/app.js", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const growthStatsModel = readFileSync(new URL("../src/growth-stats.js", import.meta.url), "utf8");
+const experience = readFileSync(new URL("../src/experience.js", import.meta.url), "utf8");
+const trainerBooking = readFileSync(new URL("../src/trainer-booking.js", import.meta.url), "utf8");
+const trainerView = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.url), "utf8");
 
 test("initializes the static document from the resolved locale", () => {
   assert.match(app, /import\s*{[^}]*applyDocumentTranslations[^}]*}\s*from\s*"\.\/i18n\.js"/s);
@@ -25,6 +28,27 @@ test("translates dynamic home, meditation, task, and growth copy at render time"
   assert.match(app, /t\("home\.greetingTitle"/);
   assert.match(app, /t\("timer\.remainingAria"/);
   assert.doesNotMatch(app, /const ATTRIBUTE_LABELS\s*=\s*{[^}]*活力[^}]*专注[^}]*体力/s);
+});
+
+test("keeps migrated dynamic UI copy behind localization keys", () => {
+  const dynamicSources = [app, experience, growthStatsModel, trainerBooking, trainerView].join("\n");
+  for (const phrase of [
+    "开始冥想",
+    "缓慢吸气，再慢慢呼出",
+    "静心帐篷已解锁",
+    "晚餐正在准备中",
+    "敬请期待",
+    "确认预约",
+    "预约成功",
+    "不可预约",
+  ]) {
+    assert.doesNotMatch(dynamicSources, new RegExp(phrase));
+  }
+});
+
+test("versions localized CSS and JavaScript entry points", () => {
+  assert.match(html, /href="\.\/src\/styles\.css\?v=20260806-i18n"/);
+  assert.match(html, /src="\.\/src\/app\.js\?v=20260806-i18n"/);
 });
 
 function getBraceBlock(source, startToken) {
@@ -198,7 +222,7 @@ test("versions the stylesheet so static previews do not retain stale CSS", () =>
   );
 
   assert.ok(stylesheetTag);
-  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260804-growth-stats");
+  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260806-i18n");
 });
 
 test("provides one reusable full-screen media layer", () => {

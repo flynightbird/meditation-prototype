@@ -28,13 +28,22 @@ test("resolves URL before browser languages and falls back to Chinese", () => {
   assert.equal(resolveLocale({ search: "", languages: ["ko-KR"] }), "zh-CN");
 });
 
-test("translates named values and falls back without exposing raw keys", () => {
-  const warnings = [];
-  const english = createTranslator("en", { warn: (message) => warnings.push(message) });
+test("translates named values", () => {
+  const english = createTranslator("en", { warn: () => {} });
   assert.equal(english.t("task.reward", { label: "Focus", value: 10 }), "Focus +10");
-  assert.equal(english.t("test.chineseFallback"), "中文回退");
-  assert.equal(english.t("test.missingEverywhere"), "");
+});
+
+test("falls back to Chinese without exposing raw keys", () => {
+  const warnings = [];
+  const original = TRANSLATIONS.en["toast.comingSoon"];
+  delete TRANSLATIONS.en["toast.comingSoon"];
+  const english = createTranslator("en", { warn: (message) => warnings.push(message) });
+  assert.equal(english.t("toast.comingSoon"), "敬请期待");
+  assert.equal(english.t("missing.everywhere"), "");
+  TRANSLATIONS.en["toast.comingSoon"] = original;
   assert.equal(warnings.length, 3);
+  assert.equal("test.chineseFallback" in TRANSLATIONS["zh-CN"], false);
+  assert.equal("test.missingEverywhere" in TRANSLATIONS["zh-CN"], false);
 });
 
 test("formats booking dates and weekdays for both locales", () => {
