@@ -4,6 +4,12 @@ import {
   isTimeUnavailable,
   transitionBooking,
 } from "./trainer-booking.js";
+import {
+  formatBookingDate,
+  formatWeekday,
+  locale,
+  t,
+} from "./i18n.js";
 
 const CONFIRMED_CHECK_ICON = '<svg class="booking-confirmed-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>';
 
@@ -18,14 +24,8 @@ export function loadDeferredTrainerImages(images) {
   return changed;
 }
 
-function fullDateLabel(dates, dateKey) {
-  const date = dates.find(({ key }) => key === dateKey);
-  return date ? `${date.weekday} ${date.day}日` : dateKey;
-}
-
-function weekdayLabel(dateKey) {
-  return new Intl.DateTimeFormat("zh-CN", { weekday: "short" })
-    .format(new Date(`${dateKey}T12:00:00`));
+function weekdayLabel(date) {
+  return date.isToday ? t("date.today") : formatWeekday(date.key, locale);
 }
 
 export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide }) {
@@ -56,11 +56,16 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
       button.dataset.dateKey = date.key;
       button.dataset.confirmed = String(confirmed);
       button.setAttribute("aria-pressed", String(date.key === state.selectedDateKey));
+      const weekday = weekdayLabel(date);
       button.setAttribute(
         "aria-label",
-        `${date.weekday}${date.day}日${confirmed ? "，已有预约" : ""}`,
+        t("booking.dateAria", {
+          weekday,
+          day: date.day,
+          status: confirmed ? t("booking.dateConfirmed") : "",
+        }),
       );
-      button.innerHTML = `<span>${date.weekday}</span><strong>${date.day}</strong>`;
+      button.innerHTML = `<span>${weekday}</span><strong>${date.day}</strong>`;
       return button;
     }));
   }
@@ -83,7 +88,10 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
       button.setAttribute("aria-pressed", String(state.selectedTime === time));
       button.setAttribute(
         "aria-label",
-        confirmed ? `${time}，已预约` : unavailable ? `${time}，不可预约` : `${time}，可预约`,
+        t(
+          confirmed ? "booking.timeConfirmed" : unavailable ? "booking.timeUnavailable" : "booking.timeAvailable",
+          { time },
+        ),
       );
       return button;
     }));
@@ -93,7 +101,11 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
     const confirmed = state.confirmedBooking;
     bookingStatus.hidden = !confirmed;
     bookingStatus.textContent = confirmed
-      ? `✓ 已预约 · ${weekdayLabel(confirmed.dateKey)} ${confirmed.time} · ${confirmed.coach}`
+      ? t("booking.status", {
+          date: formatBookingDate(confirmed.dateKey, locale),
+          time: confirmed.time,
+          coach: t(confirmed.coachKey),
+        })
       : "";
     if (confirmed) bookingStatus.tabIndex = -1;
     else bookingStatus.removeAttribute("tabindex");
@@ -108,7 +120,7 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
     actionBar.inert = !selected;
     bottomNav.inert = selected;
     actionTime.textContent = selected
-      ? `${weekdayLabel(state.selectedDateKey)} ${state.selectedTime}`
+      ? `${formatBookingDate(state.selectedDateKey, locale)} ${state.selectedTime}`
       : "";
   }
 
@@ -146,8 +158,8 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   function openDialog() {
     if (!state.selectedTime) return;
     submitting = false;
-    dialogTime.textContent = `${fullDateLabel(state.dates, state.selectedDateKey)} ${state.selectedTime}`;
-    sheetConfirm.textContent = "确认预约";
+    dialogTime.textContent = `${formatBookingDate(state.selectedDateKey, locale)} ${state.selectedTime}`;
+    sheetConfirm.textContent = t("booking.confirm");
     sheetConfirm.classList.remove("is-success");
     sheetConfirm.disabled = false;
     sheetCancel.disabled = false;
@@ -183,7 +195,7 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
     if (submitting) return;
     submitting = true;
     state = transitionBooking(state, { type: "CONFIRM_BOOKING" });
-    sheetConfirm.textContent = "✓ 预约成功";
+    sheetConfirm.textContent = t("booking.success");
     sheetConfirm.classList.add("is-success");
     sheetConfirm.disabled = true;
     sheetCancel.disabled = true;

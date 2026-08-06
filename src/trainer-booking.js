@@ -10,9 +10,6 @@ export const BOOKING_TIMES = [
 ];
 
 const DEFAULT_UNAVAILABLE_TIMES = new Set(["10:30", "14:00"]);
-const WEEKDAY_FORMATTER = new Intl.DateTimeFormat("zh-CN", { weekday: "short" });
-const COACH = "李教练";
-const STORE = "中田健身 · 南山旗舰店";
 
 function dateKey(date) {
   const year = date.getFullYear();
@@ -29,7 +26,6 @@ export function createBookingDates(now = new Date()) {
     return {
       key: dateKey(date),
       day: date.getDate(),
-      weekday: index === 0 ? "今天" : WEEKDAY_FORMATTER.format(date),
       isToday: index === 0,
     };
   });
@@ -78,8 +74,8 @@ export function transitionBooking(state, event) {
         confirmedBooking: {
           dateKey: state.selectedDateKey,
           time: state.selectedTime,
-          coach: COACH,
-          store: STORE,
+          coachKey: "trainer.coachName",
+          storeKey: "trainer.storeName",
         },
       };
     }

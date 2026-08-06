@@ -9,6 +9,17 @@ const view = readFileSync(new URL("../src/trainer-booking-view.js", import.meta.
 const mapPin = readFileSync(new URL("../assets/trainer-map-pin.svg", import.meta.url), "utf8");
 const ratingStarUrl = new URL("../assets/star-smile-fill.svg", import.meta.url);
 
+test("localizes trainer booking dates and dynamic state at render time", () => {
+  assert.match(
+    view,
+    /import\s*{[^}]*formatBookingDate[^}]*formatWeekday[^}]*locale[^}]*\bt\b[^}]*}\s*from\s*"\.\/i18n\.js"/s,
+  );
+  assert.match(view, /t\(confirmed\.coachKey\)/);
+  assert.match(view, /formatBookingDate\(confirmed\.dateKey, locale\)/);
+  assert.match(view, /"booking\.timeUnavailable"/);
+  assert.match(view, /t\("booking\.success"\)/);
+});
+
 test("maps every trainer price and identity through locale keys", () => {
   assert.match(html, /data-i18n="trainer\.coachName">李教练/);
   assert.match(html, /data-i18n="trainer\.storeName">中田健身 · 南山旗舰店/);
@@ -230,7 +241,7 @@ test("marks the confirmed date and time independently from selection and availab
   );
   assert.match(
     view,
-    /confirmed \? `\$\{time\}，已预约` : unavailable \? `\$\{time\}，不可预约` : `\$\{time\}，可预约`/,
+    /confirmed \? "booking\.timeConfirmed" : unavailable \? "booking\.timeUnavailable" : "booking\.timeAvailable"/,
   );
 });
 

@@ -13,7 +13,7 @@ const today = new Date(2026, 7, 2, 12);
 const todayKey = "2026-08-02";
 const tomorrowKey = "2026-08-03";
 
-test("creates exactly seven local booking dates starting today", () => {
+test("creates exactly seven locale-neutral booking dates starting today", () => {
   const dates = createBookingDates(today);
 
   assert.equal(dates.length, 7);
@@ -29,9 +29,12 @@ test("creates exactly seven local booking dates starting today", () => {
       "2026-08-08",
     ],
   );
-  assert.equal(dates[0].isToday, true);
-  assert.equal(dates[0].weekday, "今天");
-  assert.match(dates[1].weekday, /^(周|星期)/);
+  assert.deepEqual(dates[0], {
+    key: "2026-08-02",
+    day: 2,
+    isToday: true,
+  });
+  assert.equal("weekday" in dates[0], false);
 });
 
 test("creates an initial state with today's date and no selection", () => {
@@ -87,8 +90,8 @@ test("confirming an available time stores the booking and blocks it for that dat
   assert.deepEqual(confirmed.confirmedBooking, {
     dateKey: todayKey,
     time: "11:00",
-    coach: "李教练",
-    store: "中田健身 · 南山旗舰店",
+    coachKey: "trainer.coachName",
+    storeKey: "trainer.storeName",
   });
   assert.equal(confirmed.selectedTime, null);
   assert.equal(isTimeUnavailable(confirmed, "11:00"), true);
