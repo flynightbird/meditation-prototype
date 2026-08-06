@@ -1,7 +1,7 @@
 import {
   buildSchedule,
   canPlayAutomaticHaptic,
-  getGreeting,
+  getGreetingKey,
   getLocalDateKey,
   shouldPlayDailyWelcome,
 } from "./experience.js";
@@ -33,12 +33,6 @@ const WELCOME_KEY = "growth-base.welcome-date";
 const CLAIM_KEY = "growth-base.tent-claim";
 const TENT_SEEN_KEY = "growth-base.tent-seen";
 const GROWTH_KEY = "growth-base.growth-state";
-
-const ATTRIBUTE_LABELS = {
-  stamina: "体力",
-  focus: "专注",
-  vitality: "活力",
-};
 
 const app = document.querySelector("#app");
 const message = document.querySelector("#message");
@@ -137,7 +131,10 @@ function writeGrowthState(nextState) {
 
 function renderGrowthBubbles() {
   growthBubbleLayer.innerHTML = getVisibleBubbles(growthState)
-    .map((bubble, index) => `
+    .map((bubble, index) => {
+      const item = getGrowthStatItem(bubble.attribute);
+      const label = t(item.labelKey);
+      return `
       <button
         class="growth-bubble bubble-${bubble.attribute} anchor-${index + 1}"
         type="button"
@@ -145,15 +142,16 @@ function renderGrowthBubbles() {
         data-reward-ids="${bubble.rewardIds.join(",")}"
         data-growth-attribute="${bubble.attribute}"
         data-growth-value="${bubble.value}"
-        aria-label="领取${ATTRIBUTE_LABELS[bubble.attribute]} ${bubble.value}"
+        aria-label="${t("growth.collectAria", { label, value: bubble.value })}"
         style="--bubble-index:${index}"
       >
         <span class="growth-bubble-label">
-          <img src="${getGrowthStatItem(bubble.attribute).icon}" alt="" />
-          <small>${ATTRIBUTE_LABELS[bubble.attribute]}</small>
+          <img src="${item.icon}" alt="" />
+          <small>${label}</small>
         </span>
         <strong>+${bubble.value}</strong>
-      </button>`)
+      </button>`;
+    })
     .join("");
 }
 
@@ -165,11 +163,14 @@ function statMainContent({ mode, icon, total }) {
 
 function renderGrowthStats() {
   growthStats.innerHTML = getGrowthStatItems(growthState.totals)
-    .map(({ attribute, label, total, mode, icon }) => `
-      <div class="growth-stat growth-stat-${attribute}" data-growth-stat="${attribute}" aria-label="${label} ${total}">
+    .map(({ attribute, labelKey, total, mode, icon }) => {
+      const label = t(labelKey);
+      return `
+      <div class="growth-stat growth-stat-${attribute}" data-growth-stat="${attribute}" aria-label="${t("growth.statAria", { label, value: total })}">
         <span class="growth-stat-main">${statMainContent({ mode, icon, total })}</span>
         <span class="growth-stat-label">${label}</span>
-      </div>`)
+      </div>`;
+    })
     .join("");
 }
 
@@ -185,7 +186,7 @@ function updateGrowthStat(attribute, total, { pulse = false } = {}) {
   const main = stat.querySelector(".growth-stat-main");
   main.classList.remove("is-rolling", "is-updated");
   main.innerHTML = statMainContent({ ...item, total, mode: total === 0 ? "icon" : "value" });
-  stat.setAttribute("aria-label", `${item.label} ${total}`);
+  stat.setAttribute("aria-label", t("growth.statAria", { label: t(item.labelKey), value: total }));
   if (pulse) {
     void main.offsetWidth;
     main.classList.add("is-updated");
@@ -315,19 +316,26 @@ function collectGrowthReward(button) {
   button.addEventListener("animationend", handleAnimationEnd);
 }
 
-function taskCard({ id, time, label, icon, reward, status }) {
+function taskCard({ id, time, labelKey, icon, reward, status }) {
   const current = status === "current";
   const done = status === "done";
+  const label = t(labelKey);
+  const rewardLabel = t(reward.labelKey);
+  const statusText = done
+    ? t("task.completedAria")
+    : current
+      ? t("task.currentAria")
+      : "";
   return `
-    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${time} ${label}，${reward.label}加${reward.value}${done ? "，已完成" : current ? "，当前任务" : ""}">
-      ${current ? '<span class="current-label">当前</span>' : ""}
+    <article class="task-card is-${status}" data-task-id="${id}" data-task-icon="${icon}" ${current ? 'aria-current="step"' : ""} aria-label="${t("task.cardAria", { time, label, reward: rewardLabel, value: reward.value, status: statusText })}">
+      ${current ? `<span class="current-label">${t("task.current")}</span>` : ""}
       ${done ? '<svg class="check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>' : ""}
       <span class="task-visual"><img src="${assets[icon]}" alt="" /></span>
       <span class="task-copy">
         <time>${time}</time>
         <span class="task-details">
           <strong>${label}</strong>
-          <span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${reward.label}</small><b>+${reward.value}</b></span>
+          <span class="task-reward reward-${reward.attribute}" aria-hidden="true"><small>${rewardLabel}</small><b>+${reward.value}</b></span>
         </span>
       </span>
     </article>`;
@@ -351,8 +359,8 @@ function centerCurrentTask(behavior = "smooth") {
 
 function growthCue() {
   const progress = getDailyProgress(growthState);
-  const status = progress === 4 ? "帐篷营地已获得" : "完成可获得帐篷营地";
-  return `<p class="growth-cue">今日任务 ${progress}/4，${status}</p>`;
+  const key = progress === 4 ? "growth.progressEarned" : "growth.progressPending";
+  return `<p class="growth-cue">${t(key, { progress })}</p>`;
 }
 
 function setTimerRunning() {
@@ -571,7 +579,7 @@ function scheduleScreenEntry(fromScreen) {
   }
 
   if (state.screen === "demo-time-shift") {
-    showToast("提醒已设置");
+    showToast("toast.reminderSet");
     demoShiftTimer = window.setTimeout(() => {
       app.classList.add("is-time-shifting", "is-media-veiled");
       mediaVeilTimer = window.setTimeout(() => {
@@ -615,12 +623,12 @@ function render(animate = true) {
 
   if (state.screen === "recommendation") {
     message.innerHTML = `
-      <h1>${getGreeting(new Date().getHours())}，Maggie</h1>
-      <p class="time-label">15:30 · AI健康建议</p>
-      <p class="supporting">你通常在下午3点后注意力下降，今天安排5分钟放松吧。</p>
+      <h1>${t("home.greetingTitle", { greeting: t(getGreetingKey(new Date().getHours())) })}</h1>
+      <p class="time-label">${t("home.timeAdvice")}</p>
+      <p class="supporting">${t("home.recommendation")}</p>
       ${growthCue()}`;
     timerPanel.innerHTML = "";
-    actionZone.innerHTML = '<button class="primary-action" data-action="start">开始冥想</button>';
+    actionZone.innerHTML = `<button class="primary-action" data-action="start">${t("home.startMeditation")}</button>`;
   }
 
   if (state.screen === "active") {
@@ -641,7 +649,7 @@ function render(animate = true) {
           <span class="timer-dot-orbit" aria-hidden="true"><i class="timer-dot"></i></span>
           <span class="timer-copy">
             <time>${formatTime(state.secondsRemaining)}</time>
-            <small>剩余时间</small>
+            <small>${t("timer.remaining")}</small>
           </span>
         </div>
         <p></p>`;
@@ -649,20 +657,20 @@ function render(animate = true) {
     const timerRing = timerPanel.querySelector(".timer-ring");
     const timerTime = timerPanel.querySelector("time");
     const timerPrompt = timerPanel.querySelector("p");
-    timerRing.setAttribute("aria-label", `剩余时间${formatTime(state.secondsRemaining)}`);
+    timerRing.setAttribute("aria-label", t("timer.remainingAria", { time: formatTime(state.secondsRemaining) }));
     timerTime.textContent = formatTime(state.secondsRemaining);
-    timerPrompt.textContent = state.isPaused ? "已暂停，准备好再继续" : "缓慢吸气，再慢慢呼出";
+    timerPrompt.textContent = state.isPaused ? t("timer.pausedPrompt") : t("timer.breathPrompt");
     if (state.secondsRemaining === 0 && !countdownCompleteTimer) {
       countdownCompleteTimer = window.setTimeout(() => {
         dispatch({ type: "COUNTDOWN_COMPLETE" });
       }, reducedMotion.matches ? 1 : 300);
     }
     actionZone.innerHTML = `
-      <div class="session-controls" role="group" aria-label="冥想控制">
-        <button class="session-control session-control-primary" data-action="pause" aria-label="${state.isPaused ? "继续冥想" : "暂停冥想"}" aria-pressed="${state.isPaused}">
+      <div class="session-controls" role="group" aria-label="${t("timer.controlsAria")}">
+        <button class="session-control session-control-primary" data-action="pause" aria-label="${state.isPaused ? t("timer.resumeAria") : t("timer.pauseAria")}" aria-pressed="${state.isPaused}">
           <img src="./assets/${state.isPaused ? "play" : "pause"}.svg" alt="" aria-hidden="true" />
         </button>
-        <button class="session-control session-control-secondary" data-action="end" aria-label="结束冥想">
+        <button class="session-control session-control-secondary" data-action="end" aria-label="${t("timer.endAria")}">
           <img src="./assets/stop.svg" alt="" aria-hidden="true" />
         </button>
       </div>`;
@@ -676,16 +684,16 @@ function render(animate = true) {
 
   if (state.screen === "reward") {
     message.innerHTML = `
-      <p class="time-label">静心营地 · 新物件</p>
-      <h1>静心帐篷已解锁</h1>`;
+      <p class="time-label">${t("reward.newObject")}</p>
+      <h1>${t("reward.unlockedTitle")}</h1>`;
     timerPanel.innerHTML = "";
     actionZone.innerHTML = "";
   }
 
   if (state.screen === "reward-settled") {
     message.innerHTML = `
-      <p class="time-label">领取成功</p>
-      <h1>静心帐篷已放入营地</h1>`;
+      <p class="time-label">${t("reward.claimedEyebrow")}</p>
+      <h1>${t("reward.claimedTitle")}</h1>`;
     timerPanel.innerHTML = "";
     actionZone.innerHTML = "";
   }
@@ -696,28 +704,28 @@ function render(animate = true) {
         <span class="demo-clock" aria-label="${state.screen === "demo-time-shift" ? "17:30" : "15:31"}">
           <span class="demo-clock-track" aria-hidden="true"><b>15:31</b><b>17:30</b></span>
         </span>
-        · 静心练习已完成
+        · ${t("meal.completed")}
       </p>
-      <h1>晚餐正在准备中</h1>
-      <p class="supporting">17:30 回来看看，今晚吃得轻松一点。</p>`;
+      <h1>${t("meal.prepTitle")}</h1>
+      <p class="supporting">${t("meal.prepCopy")}</p>`;
     timerPanel.innerHTML = "";
     actionZone.innerHTML = `
       <button class="glass-action" data-action="meal-reminder" ${state.screen === "demo-time-shift" ? "disabled" : ""}>
         <img class="action-icon" src="./assets/icon-bell.svg" alt="" />
-        <span>${state.screen === "demo-time-shift" ? "提醒已设置" : "17:30 提醒我"}</span>
+        <span>${t(state.screen === "demo-time-shift" ? "meal.reminderSet" : "meal.remindMe")}</span>
       </button>`;
   }
 
   if (state.screen === "meal-time") {
     message.innerHTML = `
-      <p class="time-label">17:30 · 今日健康建议</p>
-      <h1>晚餐时间到了</h1>
-      <p class="supporting">好好吃饭，也是今天恢复计划的一部分。</p>`;
+      <p class="time-label">${t("meal.timeAdvice")}</p>
+      <h1>${t("meal.readyTitle")}</h1>
+      <p class="supporting">${t("meal.readyCopy")}</p>`;
     timerPanel.innerHTML = "";
     actionZone.innerHTML = `
       <button class="glass-action" data-action="start-meal">
         <img class="action-icon" src="./assets/icon-utensils.svg" alt="" />
-        <span>我开动了</span>
+        <span>${t("meal.start")}</span>
       </button>`;
   }
 
@@ -767,7 +775,7 @@ function setupDailyWelcome() {
   if (!play) return;
 
   writeStorage(WELCOME_KEY, currentKey);
-  welcomeGreeting.textContent = getGreeting(new Date().getHours());
+  welcomeGreeting.textContent = t(getGreetingKey(new Date().getHours()));
   welcomeOverlay.hidden = false;
   app.classList.add("is-welcoming");
   window.requestAnimationFrame(() => welcomeOverlay.classList.add("is-playing"));
@@ -777,9 +785,9 @@ function setupDailyWelcome() {
   welcomeTimer = window.setTimeout(finishWelcome, 2050);
 }
 
-function showToast(text) {
+function showToast(key) {
   window.clearTimeout(toastTimer);
-  toast.textContent = text;
+  toast.textContent = t(key);
   toast.classList.add("is-visible");
   toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 1800);
 }
@@ -849,7 +857,7 @@ app.addEventListener("click", (event) => {
       trainerBooking.hide();
       setActiveNavigation("coach");
     } else {
-      showToast("敬请期待");
+      showToast("toast.comingSoon");
     }
   }
   if (action === "meal-reminder") dispatch({ type: "SET_MEAL_REMINDER" });

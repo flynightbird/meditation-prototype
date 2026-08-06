@@ -4,16 +4,16 @@ import assert from "node:assert/strict";
 import {
   buildSchedule,
   canPlayAutomaticHaptic,
-  getGreeting,
+  getGreetingKey,
   getLocalDateKey,
   shouldPlayDailyWelcome,
 } from "../src/experience.js";
 
 test("uses a time-aware greeting", () => {
-  assert.equal(getGreeting(8), "早上好");
-  assert.equal(getGreeting(14), "下午好");
-  assert.equal(getGreeting(21), "晚上好");
-  assert.equal(getGreeting(2), "这么晚还没休息吗");
+  assert.equal(getGreetingKey(8), "greeting.morning");
+  assert.equal(getGreetingKey(14), "greeting.afternoon");
+  assert.equal(getGreetingKey(21), "greeting.evening");
+  assert.equal(getGreetingKey(2), "greeting.lateNight");
 });
 
 test("creates a stable local date key", () => {
@@ -73,15 +73,21 @@ test("builds seven tasks with meditation as the initial current task", () => {
 
 test("maps every scheduled task to its approved growth reward", () => {
   assert.deepEqual(
-    buildSchedule("recommendation").map(({ id, reward }) => ({ id, ...reward })),
+    buildSchedule("recommendation").map(({ id, labelKey, reward }) => ({
+      id,
+      labelKey,
+      attribute: reward.attribute,
+      rewardLabelKey: reward.labelKey,
+      value: reward.value,
+    })),
     [
-      { id: "water-am", attribute: "vitality", label: "活力", value: 10 },
-      { id: "lunch", attribute: "stamina", label: "体力", value: 10 },
-      { id: "meditation", attribute: "focus", label: "专注", value: 10 },
-      { id: "dinner", attribute: "stamina", label: "体力", value: 10 },
-      { id: "water-pm", attribute: "vitality", label: "活力", value: 10 },
-      { id: "fitness", attribute: "vitality", label: "活力", value: 10 },
-      { id: "stretch", attribute: "vitality", label: "活力", value: 10 },
+      { id: "water-am", labelKey: "task.water", attribute: "vitality", rewardLabelKey: "growth.vitality", value: 10 },
+      { id: "lunch", labelKey: "task.lunch", attribute: "stamina", rewardLabelKey: "growth.stamina", value: 10 },
+      { id: "meditation", labelKey: "task.meditation", attribute: "focus", rewardLabelKey: "growth.focus", value: 10 },
+      { id: "dinner", labelKey: "task.dinner", attribute: "stamina", rewardLabelKey: "growth.stamina", value: 10 },
+      { id: "water-pm", labelKey: "task.water", attribute: "vitality", rewardLabelKey: "growth.vitality", value: 10 },
+      { id: "fitness", labelKey: "task.fitness", attribute: "vitality", rewardLabelKey: "growth.vitality", value: 10 },
+      { id: "stretch", labelKey: "task.stretch", attribute: "vitality", rewardLabelKey: "growth.vitality", value: 10 },
     ],
   );
 });

@@ -1,18 +1,18 @@
 const BASE_SCHEDULE = [
-  { id: "water-am", time: "08:00", label: "补充水分", icon: "water", reward: { attribute: "vitality", label: "活力", value: 10 } },
-  { id: "lunch", time: "12:00", label: "营养午餐", icon: "meal", reward: { attribute: "stamina", label: "体力", value: 10 } },
-  { id: "meditation", time: "15:30", label: "冥想", icon: "meditation", reward: { attribute: "focus", label: "专注", value: 10 } },
-  { id: "dinner", time: "17:30", label: "健康晚餐", icon: "meal", reward: { attribute: "stamina", label: "体力", value: 10 } },
-  { id: "water-pm", time: "18:30", label: "补充水分", icon: "water", reward: { attribute: "vitality", label: "活力", value: 10 } },
-  { id: "fitness", time: "19:00", label: "力量训练", icon: "fitness", reward: { attribute: "vitality", label: "活力", value: 10 } },
-  { id: "stretch", time: "22:30", label: "睡前拉伸", icon: "fitness", reward: { attribute: "vitality", label: "活力", value: 10 } },
+  { id: "water-am", time: "08:00", labelKey: "task.water", icon: "water", reward: { attribute: "vitality", labelKey: "growth.vitality", value: 10 } },
+  { id: "lunch", time: "12:00", labelKey: "task.lunch", icon: "meal", reward: { attribute: "stamina", labelKey: "growth.stamina", value: 10 } },
+  { id: "meditation", time: "15:30", labelKey: "task.meditation", icon: "meditation", reward: { attribute: "focus", labelKey: "growth.focus", value: 10 } },
+  { id: "dinner", time: "17:30", labelKey: "task.dinner", icon: "meal", reward: { attribute: "stamina", labelKey: "growth.stamina", value: 10 } },
+  { id: "water-pm", time: "18:30", labelKey: "task.water", icon: "water", reward: { attribute: "vitality", labelKey: "growth.vitality", value: 10 } },
+  { id: "fitness", time: "19:00", labelKey: "task.fitness", icon: "fitness", reward: { attribute: "vitality", labelKey: "growth.vitality", value: 10 } },
+  { id: "stretch", time: "22:30", labelKey: "task.stretch", icon: "fitness", reward: { attribute: "vitality", labelKey: "growth.vitality", value: 10 } },
 ];
 
-export function getGreeting(hour) {
-  if (hour >= 5 && hour < 12) return "早上好";
-  if (hour >= 12 && hour < 18) return "下午好";
-  if (hour >= 18) return "晚上好";
-  return "这么晚还没休息吗";
+export function getGreetingKey(hour) {
+  if (hour >= 5 && hour < 12) return "greeting.morning";
+  if (hour >= 12 && hour < 18) return "greeting.afternoon";
+  if (hour >= 18) return "greeting.evening";
+  return "greeting.lateNight";
 }
 
 export function getLocalDateKey(date = new Date()) {

@@ -5,9 +5,9 @@ import { getGrowthStatItems } from "../src/growth-stats.js";
 
 test("orders vitality, focus, and stamina and uses icons only for zero totals", () => {
   assert.deepEqual(getGrowthStatItems({ vitality: 0, focus: 20, stamina: 0 }), [
-    { attribute: "vitality", label: "活力", total: 0, mode: "icon", icon: "./assets/growth-vitality.png" },
-    { attribute: "focus", label: "专注", total: 20, mode: "value", icon: "./assets/growth-focus.png" },
-    { attribute: "stamina", label: "体力", total: 0, mode: "icon", icon: "./assets/growth-stamina.png" },
+    { attribute: "vitality", labelKey: "growth.vitality", total: 0, mode: "icon", icon: "./assets/growth-vitality.png" },
+    { attribute: "focus", labelKey: "growth.focus", total: 20, mode: "value", icon: "./assets/growth-focus.png" },
+    { attribute: "stamina", labelKey: "growth.stamina", total: 0, mode: "icon", icon: "./assets/growth-stamina.png" },
   ]);
 });
 

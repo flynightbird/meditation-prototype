@@ -1,7 +1,7 @@
 const STAT_DEFINITIONS = [
-  { attribute: "vitality", label: "活力", icon: "./assets/growth-vitality.png" },
-  { attribute: "focus", label: "专注", icon: "./assets/growth-focus.png" },
-  { attribute: "stamina", label: "体力", icon: "./assets/growth-stamina.png" },
+  { attribute: "vitality", labelKey: "growth.vitality", icon: "./assets/growth-vitality.png" },
+  { attribute: "focus", labelKey: "growth.focus", icon: "./assets/growth-focus.png" },
+  { attribute: "stamina", labelKey: "growth.stamina", icon: "./assets/growth-stamina.png" },
 ];
 
 export function getGrowthStatItems(totals) {

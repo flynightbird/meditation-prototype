@@ -18,6 +18,15 @@ test("initializes the static document from the resolved locale", () => {
   assert.match(html, /data-i18n-alt="trainer\.coachName"/);
 });
 
+test("translates dynamic home, meditation, task, and growth copy at render time", () => {
+  assert.match(app, /import\s*{[^}]*\bt\b[^}]*}\s*from\s*"\.\/i18n\.js"/s);
+  assert.match(app, /t\(labelKey\)/);
+  assert.match(app, /t\(reward\.labelKey\)/);
+  assert.match(app, /t\("home\.greetingTitle"/);
+  assert.match(app, /t\("timer\.remainingAria"/);
+  assert.doesNotMatch(app, /const ATTRIBUTE_LABELS\s*=\s*{[^}]*活力[^}]*专注[^}]*体力/s);
+});
+
 function getBraceBlock(source, startToken) {
   const start = source.indexOf(startToken);
   if (start === -1) return null;
@@ -230,10 +239,10 @@ test("defers reward artwork until the completion scene", () => {
 });
 
 test("renders the approved meal preparation and meal-time actions", () => {
-  assert.match(app, /晚餐正在准备中/);
-  assert.match(app, /17:30 提醒我/);
-  assert.match(app, /晚餐时间到了/);
-  assert.match(app, /我开动了/);
+  assert.match(app, /t\("meal\.prepTitle"\)/);
+  assert.match(app, /t\(state\.screen === "demo-time-shift" \? "meal\.reminderSet" : "meal\.remindMe"\)/);
+  assert.match(app, /t\("meal\.readyTitle"\)/);
+  assert.match(app, /t\("meal\.start"\)/);
   assert.match(app, /src="\.\/assets\/icon-bell\.svg"/);
   assert.match(app, /src="\.\/assets\/icon-utensils\.svg"/);
 });
@@ -274,7 +283,7 @@ test("renders a rounded clockwise SVG meditation timer", () => {
   assert.match(app, /class="timer-dot"/);
   assert.match(app, /id="timerProgressGradient" x1="78" y1="17" x2="78" y2="139"/);
   assert.doesNotMatch(app, /<span>静心练习<\/span>/);
-  assert.match(app, /<time[^>]*>\$\{formatTime\(state\.secondsRemaining\)\}<\/time>[\s\S]*<small>剩余时间<\/small>/);
+  assert.match(app, /<time[^>]*>\$\{formatTime\(state\.secondsRemaining\)\}<\/time>[\s\S]*<small>\$\{t\("timer\.remaining"\)\}<\/small>/);
   assert.match(css, /\.timer-ring\s*{[^}]*width:\s*156px/s);
   assert.match(css, /\.timer-progress\s*{[^}]*stroke-width:\s*14[^}]*stroke-linecap:\s*round/s);
   assert.match(css, /\.timer-dot\s*{[^}]*width:\s*20px[^}]*border:\s*4px solid #fff[^}]*background:\s*transparent/s);
@@ -319,9 +328,9 @@ test("uses independent icon controls on a navigation-style meditation dock", () 
     css,
     /\.primary-action\s*{[^}]*border:\s*1px solid rgba\(255, 245, 181, 0\.88\)[^}]*background:\s*linear-gradient\(135deg, #f8d553, #e8ff66\)/s,
   );
-  assert.match(app, /aria-label="\$\{state\.isPaused \? "继续冥想" : "暂停冥想"\}"/);
+  assert.match(app, /aria-label="\$\{state\.isPaused \? t\("timer\.resumeAria"\) : t\("timer\.pauseAria"\)\}"/);
   assert.match(app, /src="\.\/assets\/\$\{state\.isPaused \? "play" : "pause"\}\.svg"/);
-  assert.match(app, /data-action="end" aria-label="结束冥想"/);
+  assert.match(app, /data-action="end" aria-label="\$\{t\("timer\.endAria"\)\}"/);
   assert.match(app, /src="\.\/assets\/stop\.svg"/);
   assert.match(css, /\.session-controls\s*{[^}]*width:\s*100%[^}]*height:\s*110px[^}]*gap:\s*12px/s);
   assert.match(css, /\.session-controls\s*{[^}]*border-top:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.1\)[^}]*border-radius:\s*32px 32px 0 0/s);
@@ -393,7 +402,7 @@ test("uses the six-tab dark dock and compact task hierarchy", () => {
   assert.match(html, /data-nav="coach"[^>]*aria-current="page"/);
   assert.match(app, /nav === "trainer"[\s\S]*trainerBooking\.show\(\)/);
   assert.match(app, /nav === "coach"[\s\S]*trainerBooking\.hide\(\)/);
-  assert.match(app, /else \{\s*showToast\("敬请期待"\)/);
+  assert.match(app, /else \{\s*showToast\("toast\.comingSoon"\)/);
   assert.match(css, /\.bottom-nav\s*{[^}]*right:\s*0[^}]*bottom:\s*0[^}]*left:\s*0[^}]*height:\s*70px/s);
   assert.doesNotMatch(
     css,
@@ -466,9 +475,9 @@ test("adds breathing room below direct message titles", () => {
 });
 
 test("renders the approved greeting and lightweight daily goal copy", () => {
-  assert.match(app, /\$\{getGreeting\(new Date\(\)\.getHours\(\)\)\}，Maggie/);
-  assert.match(app, /今日任务 \$\{progress\}\/4，\$\{status\}/);
-  assert.match(app, /progress === 4 \? "帐篷营地已获得" : "完成可获得帐篷营地"/);
+  assert.match(app, /t\("home\.greetingTitle", \{ greeting: t\(getGreetingKey\(new Date\(\)\.getHours\(\)\)\) \}\)/);
+  assert.match(app, /t\(key, \{ progress \}\)/);
+  assert.match(app, /progress === 4 \? "growth\.progressEarned" : "growth\.progressPending"/);
   assert.doesNotMatch(app, /growth-dots/);
   assert.match(css, /\.growth-cue\s*{[^}]*font-size:\s*12px[^}]*font-weight:\s*400/s);
   assert.doesNotMatch(css, /\.growth-cue\s*{[^}]*background:/s);
@@ -476,7 +485,7 @@ test("renders the approved greeting and lightweight daily goal copy", () => {
 
 test("keeps rewards in every card and places status at top-left", () => {
   assert.match(app, /class="task-reward reward-\$\{reward\.attribute\}"/);
-  assert.match(app, /<small>\$\{reward\.label\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
+  assert.match(app, /<small>\$\{rewardLabel\}<\/small>[\s\S]*<b>\+\$\{reward\.value\}<\/b>/);
   assert.doesNotMatch(app, /\$\{!done \? `<span class="task-reward/);
   assert.match(css, /\.current-label\s*{[^}]*top:\s*7px[^}]*left:\s*7px/s);
 });
@@ -495,7 +504,7 @@ test("provides a persistent collectible growth bubble layer", () => {
   assert.match(app, /data-reward-ids="\$\{bubble\.rewardIds\.join\(","\)\}"/);
   assert.match(
     app,
-    /<span(?=[^>]*\bclass\s*=\s*"growth-bubble-label")[^>]*>\s*<img(?=[^>]*\bsrc\s*=\s*"\$\{getGrowthStatItem\(bubble\.attribute\)\.icon\}")(?=[^>]*\balt\s*=\s*"")[^>]*>\s*<small>\$\{ATTRIBUTE_LABELS\[bubble\.attribute\]\}<\/small>\s*<\/span>\s*<strong>\+\$\{bubble\.value\}<\/strong>/s,
+    /<span(?=[^>]*\bclass\s*=\s*"growth-bubble-label")[^>]*>\s*<img(?=[^>]*\bsrc\s*=\s*"\$\{item\.icon\}")(?=[^>]*\balt\s*=\s*"")[^>]*>\s*<small>\$\{label\}<\/small>\s*<\/span>\s*<strong>\+\$\{bubble\.value\}<\/strong>/s,
   );
 
   const bubbleLabel = getCssRule(css, ".growth-bubble-label");
