@@ -978,6 +978,10 @@ button:focus-visible {
   font-size: 15px;
 }
 
+html[lang="en"] .task-card.is-current .task-details strong {
+  font-size: 12px;
+}
+
 .task-reward {
   display: flex;
   min-width: 0;

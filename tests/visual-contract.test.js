@@ -47,8 +47,8 @@ test("keeps migrated dynamic UI copy behind localization keys", () => {
 });
 
 test("versions localized CSS and JavaScript entry points", () => {
-  assert.match(html, /href="\.\/src\/styles\.css\?v=20260806-i18n"/);
-  assert.match(html, /src="\.\/src\/app\.js\?v=20260806-i18n"/);
+  assert.match(html, /href="\.\/src\/styles\.css\?v=20260806-i18n2"/);
+  assert.match(html, /src="\.\/src\/app\.js\?v=20260806-i18n2"/);
 });
 
 function getBraceBlock(source, startToken) {
@@ -222,7 +222,7 @@ test("versions the stylesheet so static previews do not retain stale CSS", () =>
   );
 
   assert.ok(stylesheetTag);
-  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260806-i18n");
+  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260806-i18n2");
 });
 
 test("provides one reusable full-screen media layer", () => {
@@ -670,6 +670,11 @@ test("uses the approved C2 schedule dimensions", () => {
   assert.match(css, /\.task-rail\s*{[^}]*height:\s*98px[^}]*padding:\s*5px calc\(50% - 75px\) 5px/s);
   assert.match(css, /\.task-card\s*{[^}]*flex:\s*0 0 118px[^}]*width:\s*118px[^}]*height:\s*72px[^}]*border-radius:\s*14px/s);
   assert.match(css, /\.task-card\.is-current\s*{[^}]*flex-basis:\s*150px[^}]*width:\s*150px[^}]*height:\s*88px/s);
+});
+
+test("keeps the English current task title readable without widening the compact rail", () => {
+  assert.match(css, /html\[lang="en"\] \.task-card\.is-current \.task-details strong\s*{[^}]*font-size:\s*12px/s);
+  assert.doesNotMatch(css, /html\[lang="en"\] \.task-card\.is-current\s*{[^}]*(?:width|flex-basis):/s);
 });
 
 test("styles reward settling without standalone character CSS", () => {
