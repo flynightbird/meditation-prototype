@@ -60,6 +60,13 @@ test("defers large trainer images until the trainer page opens", () => {
   );
 });
 
+test("holds the trainer Hero before the read-only automatic booking sequence", () => {
+  assert.match(view, /trainerScroll\.scrollTo\(\{ top: 0, behavior: "auto" \}\)/);
+  assert.match(view, /trainerScroll\.scrollTo\(\{ top: trainerScroll\.scrollHeight, behavior: "smooth" \}\)[\s\S]*}, 2400\)/);
+  assert.match(view, /bookingTimes\.querySelector\('\[data-time="11:00"\]'\)\?\.click\(\)[\s\S]*}, 3800\)/);
+  assert.match(view, /if \(demoRunning && event\.isTrusted\)[\s\S]*event\.preventDefault\(\)[\s\S]*event\.stopPropagation\(\)/);
+});
+
 test("places persistent status before the date cards", () => {
   assert.match(html, /id="bookingStatus"[\s\S]*id="bookingDates"/);
 });

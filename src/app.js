@@ -26,6 +26,11 @@ import {
 } from "./growth.js";
 import { getGrowthStatItems } from "./growth-stats.js";
 import { applyDocumentTranslations, t } from "./i18n.js";
+import {
+  isDemoControlMessage,
+  isTrainerDemoMode,
+  notifyEmbeddedView,
+} from "./embed-bridge.js";
 
 applyDocumentTranslations(document);
 
@@ -853,9 +858,11 @@ app.addEventListener("click", (event) => {
       finishWelcome();
       trainerBooking.show();
       setActiveNavigation("trainer");
+      notifyEmbeddedView("trainer");
     } else if (nav === "coach") {
       trainerBooking.hide();
       setActiveNavigation("coach");
+      notifyEmbeddedView("coach");
     } else {
       showToast("toast.comingSoon");
     }
@@ -875,3 +882,21 @@ render(false);
 renderGrowthStats();
 renderGrowthBubbles();
 setupDailyWelcome();
+if (isTrainerDemoMode()) {
+  finishWelcome();
+  trainerBooking.show();
+  setActiveNavigation("trainer");
+  trainerBooking.startDemo();
+  notifyEmbeddedView("trainer");
+  window.addEventListener("message", (event) => {
+    if (event.source !== window.parent || !isDemoControlMessage(event.data)) return;
+    if (event.data.action === "play") trainerBooking.startDemo();
+    else trainerBooking.stopDemo();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) trainerBooking.stopDemo();
+    else trainerBooking.startDemo();
+  });
+} else {
+  notifyEmbeddedView("coach");
+}

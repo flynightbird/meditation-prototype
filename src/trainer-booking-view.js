@@ -45,6 +45,8 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   let visible = false;
   let submitting = false;
   let successTimer = null;
+  let demoTimers = [];
+  let demoRunning = false;
 
   function renderDates() {
     bookingDates.replaceChildren(...state.dates.map((date) => {
@@ -131,6 +133,57 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
     renderActionBar();
   }
 
+  function clearDemoTimers() {
+    demoTimers.forEach((timer) => window.clearTimeout(timer));
+    demoTimers = [];
+  }
+
+  function scheduleDemo(callback, delay) {
+    const timer = window.setTimeout(callback, delay);
+    demoTimers.push(timer);
+  }
+
+  function resetDemo() {
+    if (bookingDialog.open) bookingDialog.close();
+    submitting = false;
+    state = createInitialBookingState();
+    trainerScroll.scrollTo({ top: 0, behavior: "auto" });
+    render();
+  }
+
+  function runDemoCycle() {
+    if (!demoRunning || !visible) return;
+    resetDemo();
+    scheduleDemo(() => {
+      if (!demoRunning) return;
+      trainerScroll.scrollTo({ top: trainerScroll.scrollHeight, behavior: "smooth" });
+    }, 2400);
+    scheduleDemo(() => {
+      if (!demoRunning) return;
+      bookingTimes.querySelector('[data-time="11:00"]')?.click();
+    }, 3800);
+    scheduleDemo(() => {
+      if (!demoRunning) return;
+      actionBar.querySelector('[data-action="open-booking-dialog"]')?.click();
+    }, 5600);
+    scheduleDemo(() => {
+      if (!demoRunning) return;
+      sheetConfirm.click();
+    }, 7400);
+    scheduleDemo(runDemoCycle, 11000);
+  }
+
+  function startDemo() {
+    if (demoRunning) return;
+    demoRunning = true;
+    runDemoCycle();
+  }
+
+  function stopDemo() {
+    demoRunning = false;
+    clearDemoTimers();
+  }
+
   function show() {
     if (visible) return;
     visible = true;
@@ -167,6 +220,11 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   }
 
   trainerPage.addEventListener("click", (event) => {
+    if (demoRunning && event.isTrusted) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     const button = event.target.closest("button[data-action]");
     if (!button) return;
     if (button.dataset.action === "select-booking-date") {
@@ -213,5 +271,5 @@ export function mountTrainerBooking({ app, bottomNav, sceneVideo, onShow, onHide
   });
 
   render();
-  return { show, hide, isVisible: () => visible };
+  return { show, hide, isVisible: () => visible, startDemo, stopDemo };
 }
