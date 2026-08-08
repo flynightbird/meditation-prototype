@@ -375,6 +375,10 @@ button:focus-visible {
   margin-top: 8px;
 }
 
+html[lang="en"] .app-shell[data-screen="recommendation"] .message {
+  right: 82px;
+}
+
 .growth-cue {
   margin: 8px 0 0;
   color: rgba(255, 255, 255, 0.82);

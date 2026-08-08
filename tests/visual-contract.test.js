@@ -47,7 +47,7 @@ test("keeps migrated dynamic UI copy behind localization keys", () => {
 });
 
 test("versions localized CSS and JavaScript entry points", () => {
-  assert.match(html, /href="\.\/src\/styles\.css\?v=20260806-i18n2"/);
+  assert.match(html, /href="\.\/src\/styles\.css\?v=20260808-en-safe-area"/);
   assert.match(html, /src="\.\/src\/app\.js\?v=20260806-i18n2"/);
 });
 
@@ -222,7 +222,7 @@ test("versions the stylesheet so static previews do not retain stale CSS", () =>
   );
 
   assert.ok(stylesheetTag);
-  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260806-i18n2");
+  assert.equal(getAttribute(stylesheetTag, "href"), "./src/styles.css?v=20260808-en-safe-area");
 });
 
 test("provides one reusable full-screen media layer", () => {
@@ -563,6 +563,13 @@ test("uses fixed Figma-sized glass stats hidden on trainer and active-countdown 
   assert.match(
     app,
     /growthStats\.setAttribute\(\s*"aria-hidden"\s*,\s*String\(state\.screen\s*===\s*"active"\)\s*\)/,
+  );
+});
+
+test("English recommendation copy preserves the growth-stat safe area", () => {
+  assert.match(
+    css,
+    /html\[lang="en"\] \.app-shell\[data-screen="recommendation"\] \.message\s*\{[^}]*right:\s*82px;/,
   );
 });
 
